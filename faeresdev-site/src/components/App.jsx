@@ -3,6 +3,7 @@ import './App.css'
 import React from 'react';
 import { Layout,Menu } from 'antd';
 import PokemonGenerator from "./PokemonGenerator.jsx";
+import Rolls from "./rolls.jsx";
 import Empty from "./Empty.jsx";
 const { Header,Footer,Content } = Layout;
 
@@ -39,7 +40,7 @@ function App() {
             : current_key === "pokemon" ?
                 <PokemonGenerator />
             : current_key === "rolls" ?
-                <PokemonGenerator />
+                <Rolls />
             :
                 <Empty />
             }
