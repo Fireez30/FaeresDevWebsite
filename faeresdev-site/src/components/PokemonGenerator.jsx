@@ -1,6 +1,781 @@
+import { useSelector,useDispatch } from "react-redux";
+import Form from 'react-bootstrap/Form';
+import React, {useEffect, useState} from "react";
+import movesData from "../data/moves.json";
+import pokemonsData from "../data/pokemon.json";
+import abilitiesData from "../data/abilities.json";
+import Button from 'react-bootstrap/Button';
+import Table from 'react-bootstrap/Table';
+import {AutoComplete, InputNumber, Dropdown} from 'antd';
+import {
+    addMovePokemonChosenMoves, addMovePokemonEggMoves,
+    choose_pokemon, decrement_remaining_rolls, removeMovePokemonChosenMoves, removeMovePokemonEggMoves,
+    setAdvancedAbility, setBaseAbility,
+    setBuffedStat,
+    setCard,
+    setGender, setHighAbility,
+    setLevel, setLoweredStat, setPointsByStat, setPokemonChosenMoves,
+    setRarity
+} from "../features/pokemon/pokemonSlice.jsx";
+import {DropdownButton} from "react-bootstrap";
+
+function download(data, filename, type) {
+    var file = new Blob([data], {type: type});
+    if (window.navigator.msSaveOrOpenBlob) // IE10+
+        window.navigator.msSaveOrOpenBlob(file, filename);
+    else { // Others
+        var a = document.createElement("a"),
+            url = URL.createObjectURL(file);
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(function() {
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }, 0);
+    }
+}
+
+function getRandomArbitrary(min, max) {
+    return Math.floor(Math.random() * (max - min) + min);
+}
 function PokemonGenerator() {
+
+    const NATURE_MATRIX = {
+        "HP": {
+            "ATK": "Cuddly (+HP/-ATK)",
+            "DEF": "Distracted (+HP/-DEF)",
+            "SPATK": "Proud (+HP/-SPATK)",
+            "SPDEF": "Decisive (+HP/-SPDEF)",
+            "SPD": "Patient (+HP/-SPD)",
+            "HP": "Neutral (+HP/-HP)",
+        },
+
+        "ATK": {
+            "HP": "Desperate (+ATK/-HP)",
+            "DEF": "Lonely (+ATK/-DEF)",
+            "SPATK": "Adamant (+ATK/-SPATK)",
+            "SPDEF": "Naughty (+ATK/-SPDEF)",
+            "SPD": "Brave (+ATK/-SPD)",
+            "ATK": "Neutral (+ATK/-ATK)",
+        },
+
+        "DEF": {
+            "HP": "Stark (+DEF/-HP)",
+            "ATK": "Bold (+DEF/-ATK)",
+            "SPATK": "Impish (+DEF/-SPATK)",
+            "SPDEF": "Lax (+DEF/-SPDEF)",
+            "SPD": "Relaxed (+DEF/-SPD)",
+            "DEF": "Neutral (+DEF/-DEF)",
+        },
+
+        "SPATK": {
+            "HP": "Curious (+SPATK/-HP)",
+            "ATK": "Modest (+SPATK/-ATK)",
+            "DEF": "Mild (+SPATK/-DEF)",
+            "SPDEF": "Rash (+SPATK/-SPDEF)",
+            "SPD": "Quiet (+SPATK/-SPD)",
+            "SPATK": "Neutral (+SPATK/-SPATK)",
+        },
+
+        "SPDEF": {
+            "HP": "Dreamy (+SPDEF/-HP)",
+            "ATK": "Calm (+SPDEF/-ATK)",
+            "DEF": "Gentle (+SPDEF/-DEF)",
+            "SPATK": "Careful (+SPDEF/-SPATK)",
+            "SPD": "Sassy (+SPDEF/-SPD)",
+            "SPDEF": "Neutral (+SPDEF/-SPDEF)",
+        },
+
+        "SPD": {
+            "HP": "Skittish (+SPD/-HP)",
+            "ATK": "Timid (+SPD/-ATK)",
+            "DEF": "Hasty (+SPD/-DEF)",
+            "SPATK": "Jolly (+SPD/-SPATK)",
+            "SPDEF": "Naive (+SPD/-SPDEF)",
+            "SPD": "Neutral (+SPD/-SPD)",
+        },
+    };
+    const rarity_options = ["","Normal","Shiny","Platine"]
+    const cards_options = ["","None","Normal","Shiny","Platine"]
+    const gender_options = ["","Genderless","Male","Female"]
+    const nature_options = ["","HP","ATK","DEF","SPATK","SPDEF","SPD"]
+    const dispatch = useDispatch();
+    let hp_auto_buff = 0;
+    let atk_auto_buff = 0;
+    let def_auto_buff = 0;
+    let spatk_auto_buff = 0;
+    let spdef_auto_buff = 0;
+    let spd_auto_buff = 0;
+    let bonus_point_nature_stat = 2;
+    const [moves, setMoves] = useState([]);
+    const [pokemons, setPokemons] = useState([]);
+    const [abilities, setAbilities] = useState([]);
+    let final_hp = 0;
+    let final_atk = 0;
+    let final_def = 0;
+    let final_spatk = 0;
+    let final_spdef = 0;
+    let final_speed = 0;
+
+    const choosen_pokemon = useSelector((state) => state.pokemon.chosen_pokemon);
+    const gender = useSelector((state) => state.pokemon.pokemon_gender);
+    const points_by_stats = useSelector((state) => state.pokemon.pokemon_points_by_stats);
+    const level = useSelector((state) => state.pokemon.pokemon_level);
+
+    const pokemon_obj = pokemons.filter(pokemon => pokemon.name === choosen_pokemon)[0];
+    if (gender === "" && pokemon_obj) {
+        if (pokemon_obj["gender_ratio_m"] === -1){
+            dispatch(setGender({pokemon_gender:"Genderless"}));
+        }
+        else {
+            dispatch(setGender({pokemon_gender:""}));
+        }
+
+    }
+    let final_egg_moves = [];
+    if (pokemon_obj){
+        if (pokemon_obj["egg_moves"].length > 0){
+
+            pokemon_obj["egg_moves"].forEach(move => {
+                const matched_move = moves.find(move_obj => move_obj["move"] === move);
+                if (matched_move){
+                    final_egg_moves.push(matched_move);
+                }
+            })
+        }
+        else {
+            if (pokemon_obj["evolutions"].length > 0){
+                let next_poke = pokemon_obj["evolutions"][0];
+                let next_poke_obj = pokemons.find(poke => poke["name"] === next_poke.toLocaleLowerCase())
+                if (next_poke_obj){
+                    if (next_poke_obj["egg_moves"].length > 0){
+                        next_poke_obj["egg_moves"].forEach(move => {
+                            const matched_move = moves.find(move_obj => move_obj["move"] === move);
+                            if (matched_move){
+                                final_egg_moves.push(matched_move);
+                            }
+                        })
+                    }
+                }
+            }
+        }
+
+        if (final_egg_moves.length === 0) {
+            final_egg_moves = moves;
+        }
+    }
+    let pokemon_moves_available = [];
+    if (level > 0){
+        pokemon_moves_available = pokemon_obj["moves"].filter(a => a["level"] <= level).sort((a, b) => a["level"] < b["level"]);
+    }
+    pokemon_moves_available = [{"name":"","level":-1,"type":""},...pokemon_moves_available];
+
+    let available_points = 9+level;
+    for (let stat in points_by_stats){
+        available_points -= points_by_stats[stat];
+    }
+    const final_buffed_stat = useSelector((state) => state.pokemon.pokemon_final_buffed_stat);
+    const chosen_moves = useSelector((state) => state.pokemon.pokemon_chosen_moves);
+    const egg_moves = useSelector((state) => state.pokemon.pokemon_chosen_egg_moves);
+    const final_lowered_stat = useSelector((state) => state.pokemon.pokemon_final_lowered_stat);
+    const rarity = useSelector((state) => state.pokemon.pokemon_rarity);
+    const card = useSelector((state) => state.pokemon.pokemon_card);
+    const base_ability = useSelector((state) => state.pokemon.pokemon_base_ability);
+    const advanced_ability = useSelector((state) => state.pokemon.pokemon_advanced_ability);
+    const high_ability = useSelector((state) => state.pokemon.pokemon_high_ability);
+    if (level > 0){
+        if (base_ability === ""){
+            const base_abilities = pokemon_obj["base_abilities"]
+            if (base_abilities.length > 0){
+                let roll = getRandomArbitrary(0,base_abilities.length);
+                dispatch(setBaseAbility({pokemon_base_ability:base_abilities[roll]}));
+            }
+        }
+
+        if (level >= 20){
+            if (advanced_ability === ""){
+                const advanced_abilities = pokemon_obj["advanced_abilities"]
+                if (advanced_abilities.length > 0){
+                    let roll = getRandomArbitrary(0,advanced_abilities.length);
+                    dispatch(setAdvancedAbility({pokemon_advanced_ability:advanced_abilities[roll]}));
+                }
+            }
+        }
+
+        if (level >= 40){
+            if (high_ability === ""){
+                const high_abilities = pokemon_obj["high_abilities"]
+                if (high_abilities.length > 0){
+                    let roll = getRandomArbitrary(0,high_abilities.length);
+                    dispatch(setHighAbility({pokemon_high_ability:high_abilities[roll]}));
+                }
+            }
+        }
+
+    }
+    if (rarity !== "" && card !== "" && final_buffed_stat !== "" && final_lowered_stat !== ""){
+        let to_add = 0;
+        if (card !== "None"){
+            if (card === "Normal"){
+                to_add = 1;
+            }
+            else if (card === "Shiny"){
+                to_add = 2;
+            }
+            else if (card === "Platine"){
+                to_add = 3;
+            }
+            hp_auto_buff += to_add;
+            atk_auto_buff += to_add;
+            def_auto_buff += to_add;
+            spatk_auto_buff += to_add;
+            spdef_auto_buff += to_add;
+            spd_auto_buff += to_add;
+            bonus_point_nature_stat += 1
+        }
+
+        to_add = 0;
+        if (rarity === "Shiny"){
+            to_add = 2;
+        }
+        else if (rarity === "Platine"){
+            to_add = 4;
+        }
+        hp_auto_buff += to_add;
+        atk_auto_buff += to_add;
+        def_auto_buff += to_add;
+        spatk_auto_buff += to_add;
+        spdef_auto_buff += to_add;
+        spd_auto_buff += to_add;
+
+        if (final_buffed_stat === "HP"){
+            hp_auto_buff += bonus_point_nature_stat;
+        }
+        else if (final_buffed_stat === "ATK"){
+            atk_auto_buff += bonus_point_nature_stat;
+        }
+        else if (final_buffed_stat === "DEF"){
+            def_auto_buff += bonus_point_nature_stat;
+        }
+        else if (final_buffed_stat === "SPATK"){
+            spatk_auto_buff += bonus_point_nature_stat;
+        }
+        else if (final_buffed_stat === "SPDEF"){
+            spdef_auto_buff += bonus_point_nature_stat;
+        }
+        else if (final_buffed_stat === "SPD"){
+            spd_auto_buff += bonus_point_nature_stat;
+        }
+
+        if (final_lowered_stat === "HP"){
+            hp_auto_buff = hp_auto_buff - bonus_point_nature_stat;
+        }
+        else if (final_lowered_stat === "ATK"){
+            atk_auto_buff = atk_auto_buff - bonus_point_nature_stat;
+        }
+        else if (final_lowered_stat === "DEF"){
+            def_auto_buff = def_auto_buff - bonus_point_nature_stat;
+        }
+        else if (final_lowered_stat === "SPATK"){
+            spatk_auto_buff = spatk_auto_buff - bonus_point_nature_stat;
+        }
+        else if (final_lowered_stat === "SPDEF"){
+            spdef_auto_buff = spdef_auto_buff - bonus_point_nature_stat;
+        }
+        else if (final_lowered_stat === "SPD"){
+            spd_auto_buff = spd_auto_buff - bonus_point_nature_stat;
+        }
+    }
+
+    if (rarity !== "" && card !== "" && final_buffed_stat !== "" && final_lowered_stat !== "" && (level > 0 && available_points === 0)) {
+        final_hp = Math.max(0,pokemon_obj["stat_hp"]+hp_auto_buff+points_by_stats["HP"])
+        final_atk = Math.max(0,pokemon_obj["stat_atk"]+atk_auto_buff+points_by_stats["ATK"])
+        final_def = Math.max(0,pokemon_obj["stat_def"]+def_auto_buff+points_by_stats["DEF"])
+        final_spatk = Math.max(0,pokemon_obj["stat_sp_atk"]+spatk_auto_buff+points_by_stats["SPATK"])
+        final_spdef = Math.max(0,pokemon_obj["stat_sp_def"]+spdef_auto_buff+points_by_stats["SPDEF"])
+        final_speed = Math.max(0,pokemon_obj["stat_spd"]+spd_auto_buff+points_by_stats["SPD"])
+    }
+
+    const remaining_rolls = useSelector((state) => state.pokemon.remaining_rolls);
+    const img_pokemon_src = "https://img.pokemondb.net/artwork/"+choosen_pokemon+".jpg"
+    useEffect(() => {
+        setMoves(movesData);
+        setPokemons(pokemonsData);
+        setAbilities(abilitiesData);
+    }, []);
+
+    const ready_to_generate = (level > 0 && rarity !== "" && card !== "" && gender !== "" && final_buffed_stat !== "" && final_lowered_stat !== "" && available_points <= 0)
     return (
-        <div>Pokemon</div>
+        <div style={{width:'100%'}}>
+            {
+                choosen_pokemon &&
+                <div style={{color:'white',marginLeft:'5px',marginRight:'5px',float:'right',maxWidth:'19%'}}>
+                    <img  src={img_pokemon_src}></img><br/>
+                    <br></br>
+                    <br></br>
+                    Base Stats :
+                    <br></br>
+                    <br></br>
+                    HP : {pokemon_obj["stat_hp"]} , ATK : {pokemon_obj["stat_atk"]} , DEF : {pokemon_obj["stat_def"]}<br></br>
+                    SPATK : {pokemon_obj["stat_sp_atk"]} , SPDEF : {pokemon_obj["stat_sp_def"]} , SPD : {pokemon_obj["stat_spd"]}
+                    <br></br>
+                    <br></br>
+                    Card and rarity buffs :
+                    <br></br>
+                    <br></br>
+                    HP : {(hp_auto_buff>0?"+"+hp_auto_buff:hp_auto_buff)} , ATK : {(atk_auto_buff>0?"+"+atk_auto_buff:atk_auto_buff)} , DEF : {(def_auto_buff>0?"+"+def_auto_buff:def_auto_buff)}<br></br>
+                    SPATK : {(spatk_auto_buff>0?"+"+spatk_auto_buff:spatk_auto_buff)} , SPDEF : {(spdef_auto_buff>0?"+"+spdef_auto_buff:spdef_auto_buff)} , SPD : {(spd_auto_buff>0?"+"+spd_auto_buff:spd_auto_buff)}
+                    <br></br>
+                    <br></br>
+                    Final stats :
+                    <br></br>
+                    <br></br>
+                    HP : {final_hp} , ATK : {final_atk} , DEF : {final_def}<br></br>
+                    SPATK : {final_spatk} , SPDEF : {final_spdef} , SPD : {final_speed}
+                    <br></br>
+                    <br></br>
+                    Base ability : {base_ability}
+                    <br></br>
+                    <br></br>
+                    Advanced ability : {advanced_ability?advanced_ability:"/"}
+                    <br></br>
+                    <br></br>
+                    High ability : {high_ability?high_ability:"/"}
+                </div>
+            }
+
+        <div style={{marginLeft:'5px',maxWidth:'80%'}}>
+        <h1> Pokemon Generator</h1>
+
+
+         Pokemon : <Form.Select
+        style={{width:'30%',height:'30px'}}
+        value={choosen_pokemon}
+        onChange={(e) => dispatch(choose_pokemon({chosen_pokemon:e.target.value}))}>
+        {pokemons.map((pokemon) =>
+            <option value={pokemon.name} key={pokemon.name}>{pokemon.name}</option>
+        )}
+        </Form.Select>
+            {
+                choosen_pokemon &&
+            <div>
+                Level : <InputNumber
+                    min={1}
+                    max={150}
+                    defaultValue={1}
+                    value={level}
+                    onChange={(value) => dispatch(setLevel({pokemon_level:value}))}
+                    style={{marginTop:'5px',width:'30%',height:'30px'}}>
+                </InputNumber> <br></br>
+                Rarity : <Form.Select
+                    style={{marginTop:'5px',width:'30%',height:'30px'}}
+                    value={rarity}
+                    onChange={(e) => dispatch(setRarity({pokemon_rarity:e.target.value}))}>
+                    {rarity_options.map(rarity =>
+                        <option value={rarity} key={rarity}>{rarity}</option>
+                    )}
+                </Form.Select><br></br>
+                Card : <Form.Select
+                    style={{marginTop:'5px',width:'30%',height:'30px'}}
+                    value={card}
+                    onChange={(e) => dispatch(setCard({pokemon_card:e.target.value}))}>
+                    {cards_options.map(rarity =>
+                        <option value={rarity} key={rarity}>{rarity}</option>
+                    )}
+            </Form.Select><br></br>
+                Gender : <Form.Select
+                style={{marginTop:'5px',width:'30%',height:'30px'}}
+                disabled={true}
+                value={gender}>
+                {gender_options.map(rarity =>
+                    <option value={rarity} key={rarity}>{rarity}</option>
+                )}
+            </Form.Select><Button disabled={gender!==""} style={{marginLeft:'5px',marginRight:'5px',marginTop:'5px',width:'5%',height:'30px'}} onClick={() => {
+                let roll_male = parseFloat(pokemon_obj["gender_ratio_m"]);
+                let roll = getRandomArbitrary(0,100);
+                dispatch(setGender({pokemon_gender:(roll <roll_male?"Male":"Female")}));
+            }}> Roll </Button><br></br>
+                <br></br>Nature<br></br>
+                Buff : <Form.Select
+                style={{marginTop:'5px',width:'10%',height:'30px',marginRight:'5px'}}
+                onChange={(e) => dispatch(setBuffedStat({pokemon_final_buffed_stat:e.target.value}))}
+                value={final_buffed_stat}>
+                {nature_options.map(rarity =>
+                    <option value={rarity} key={rarity}>{rarity}</option>
+                )}
+            </Form.Select>
+                Debuff : <Form.Select
+                style={{marginLeft:'5px',marginTop:'5px',width:'10%',height:'30px'}}
+                onChange={(e) => dispatch(setLoweredStat({pokemon_final_lowered_stat:e.target.value}))}
+                value={final_lowered_stat}>
+                {nature_options.map(rarity =>
+                    <option value={rarity} key={rarity}>{rarity}</option>
+                )}
+            </Form.Select> <Button disabled={remaining_rolls<=0}
+                                   style={{marginLeft:'5px',marginTop:'5px',width:'5%',height:'30px'}} onClick={() => {
+                dispatch(decrement_remaining_rolls());
+                let buff_roll = getRandomArbitrary(0,6)+1;
+                let debuff_roll = getRandomArbitrary(0,6)+1;
+                dispatch(setBuffedStat({pokemon_final_buffed_stat:nature_options[buff_roll]}));
+                dispatch(setLoweredStat({pokemon_final_lowered_stat:nature_options[debuff_roll]}));
+            }}> Roll </Button>
+                { final_buffed_stat !== "" && final_buffed_stat !== "" &&
+                    <><br></br><br></br><h style={{marginLeft:'30px'}}>Nature chosen : {NATURE_MATRIX[final_buffed_stat][final_lowered_stat]}</h></>
+                }
+                <br></br><h2>Level up points :</h2>
+                Available points : {available_points}<br></br>
+                HP <InputNumber onChange={(value) => dispatch(setPointsByStat({pokemon_points_by_stats:{"HP":value}}))} style={{width:50,marginRight:'3px'}} disabled={available_points<=0 || level === -1} min={0} max={available_points} value={points_by_stats["HP"]} defaultValue={0}></InputNumber>
+                ATK <InputNumber onChange={(value) => dispatch(setPointsByStat({pokemon_points_by_stats:{"ATK":value}}))} style={{width:50,marginRight:'3px'}} disabled={available_points<=0 || level === -1} min={0} max={available_points} value={points_by_stats["ATK"]} defaultValue={0}></InputNumber>
+                DEF <InputNumber onChange={(value) => dispatch(setPointsByStat({pokemon_points_by_stats:{"DEF":value}}))} style={{width:50,marginRight:'3px'}} disabled={available_points<=0 || level === -1} min={0} max={available_points} value={points_by_stats["DEF"]} defaultValue={0}></InputNumber>
+                SPATK <InputNumber onChange={(value) => dispatch(setPointsByStat({pokemon_points_by_stats:{"SPATK":value}}))} style={{width:50,marginRight:'3px'}} disabled={available_points<=0 || level === -1} min={0} max={available_points} value={points_by_stats["SPATK"]} defaultValue={0}></InputNumber>
+                SPDEF <InputNumber onChange={(value) => dispatch(setPointsByStat({pokemon_points_by_stats:{"SPDEF":value}}))} style={{width:50,marginRight:'3px'}} disabled={available_points<=0 || level === -1} min={0} max={available_points} value={points_by_stats["SPDEF"]} defaultValue={0}></InputNumber>
+                SPD <InputNumber onChange={(value) => dispatch(setPointsByStat({pokemon_points_by_stats:{"SPD":value}}))} style={{width:50,marginRight:'3px'}} disabled={available_points<=0 || level === -1} min={0} max={available_points} value={points_by_stats["SPD"]} defaultValue={0}></InputNumber>
+                <Button disabled={level===-1} style={{marginLeft:'5px',marginTop:'5px',width:'5%',height:'30px'}} onClick={() => {
+                    dispatch(setPointsByStat({pokemon_points_by_stats:{"HP":0,"ATK":0,"DEF":0,"SPATK":0,"SPDEF":0,"SPD":0}}));
+                }}> Reset </Button>
+                <Button disabled={level===-1} style={{marginLeft:'5px',marginTop:'5px',width:'5%',height:'30px'}} onClick={() => {
+                    const hp_stat = pokemon_obj["stat_hp"];
+                    let points_to_give = available_points;
+                    const atk_stat = pokemon_obj["stat_atk"];
+                    const def_stat = pokemon_obj["stat_def"];
+                    const spatk_stat = pokemon_obj["stat_sp_atk"];
+                    const spdef_stat = pokemon_obj["stat_sp_def"];
+                    const spd_stat = pokemon_obj["stat_spd"];
+                    const sum_poke_points = hp_stat+atk_stat+def_stat+spatk_stat+spdef_stat+spd_stat;
+                    const hp_weight = parseFloat(hp_stat)/parseFloat(sum_poke_points);
+                    const atk_weight = parseFloat(atk_stat)/parseFloat(sum_poke_points);
+                    const def_weight = parseFloat(def_stat)/parseFloat(sum_poke_points);
+                    const spatk_weight = parseFloat(spatk_stat)/parseFloat(sum_poke_points);
+                    const spdef_weight = parseFloat(spdef_stat)/parseFloat(sum_poke_points);
+                    const spd_weight = parseFloat(spd_stat)/parseFloat(sum_poke_points);
+                    let point_in_hp = Math.round(available_points*hp_weight);
+                    points_to_give -= point_in_hp;
+                    let point_in_atk = Math.round(available_points*atk_weight);
+                    points_to_give -= point_in_atk;
+                    let point_in_def = Math.round(available_points*def_weight);
+                    points_to_give -= point_in_def;
+                    let point_in_spatk = Math.round(available_points*spatk_weight);
+                    points_to_give -= point_in_spatk;
+                    let point_in_spdef = Math.round(available_points*spdef_weight);
+                    points_to_give -= point_in_spdef;
+                    let point_in_spd = Math.min(points_to_give,Math.round(available_points*spd_weight));
+                    points_to_give -= point_in_spd;
+                    const roll_for_hp = Math.round(hp_weight*100)
+                    const roll_for_atk = Math.round(atk_weight*100)+roll_for_hp
+                    const roll_for_def = Math.round(def_weight*100)+roll_for_atk
+                    const roll_for_spatk = Math.round(spatk_weight*100)+roll_for_def
+                    const roll_for_spdef = Math.round(spdef_weight*100)+roll_for_spatk
+                    const roll_for_speed = Math.min(100,Math.round(spd_weight*100)+roll_for_spdef)
+                    while (points_to_give > 0) {
+                        let roll = getRandomArbitrary(0,100);
+                        if (roll < roll_for_hp) {
+                            point_in_hp += 1;
+                            points_to_give -= 1;
+                        }
+                        else if (roll < roll_for_atk) {
+                            point_in_atk += 1;
+                            points_to_give -= 1;
+                        }
+                        else if (roll < roll_for_def) {
+                            point_in_def += 1;
+                            points_to_give -= 1;
+                        }
+                        else if (roll < roll_for_spatk) {
+                            point_in_spatk += 1;
+                            points_to_give -= 1;
+                        }
+                        else if (roll < roll_for_spdef) {
+                            point_in_spdef += 1;
+                            points_to_give -= 1;
+                        }
+                        else if (roll < roll_for_speed) {
+                            point_in_spd += 1;
+                            points_to_give -= 1;
+                        }
+                    }
+                    dispatch(setPointsByStat({pokemon_points_by_stats:{"HP":point_in_hp,"ATK":point_in_atk,"DEF":point_in_def,"SPATK":point_in_spatk,"SPDEF":point_in_spdef,"SPD":point_in_spd}}));
+                }}> Auto </Button>
+                <br></br>
+                <br></br>
+
+                {
+                    level > 0 &&
+                    <div>
+                        <h2> Moves : </h2>
+                        <Table responsive style={{borderColor:'white',borderWidth:'1px',borderStyle:'solid'}}>
+                            <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Freq</th>
+                                <th>AC</th>
+                                <th>Type</th>
+                                <th>Roll</th>
+                                <th>Dmg Type</th>
+                                <th>Range</th>
+                                <th>Effect</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {Array(6).keys().map(key => {
+                                if (key < chosen_moves.length){
+                                    return <tr>
+                                        <th>{chosen_moves[key]["move"]}</th>
+                                        <th>{chosen_moves[key]["frequency"]}</th>
+                                        <th>{chosen_moves[key]["AC"]}</th>
+                                        <th>{chosen_moves[key]["type"]}</th>
+                                        <th>{chosen_moves[key]["roll"]}</th>
+                                        <th>{chosen_moves[key]["classe"]}</th>
+                                        <th>{chosen_moves[key]["range"]}</th>
+                                        <th>{chosen_moves[key]["effect"]}</th>
+                                    </tr>
+                                }
+                                else {
+                                    return <tr>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                    </tr>
+                                }
+                            })}
+                            </tbody>
+                        </Table>
+                        <br></br>
+                    </div>
+                }
+
+                {
+                    level > 0 &&
+                    <div>
+                    Add Moves :
+                        <Form.Select
+                            defaultValue={""}
+                            style={{marginLeft:'5px',marginTop:'5px',width:'10%',height:'30px'}}
+                            onChange={(e) => {
+                                let move_name = e.target.value.replace(':','').trim();
+                                let index_to_remove = chosen_moves.findIndex(move_c => move_c["move"] === move_name);
+                                if (index_to_remove > -1) {
+                                    dispatch(removeMovePokemonChosenMoves({pokemon_chosen_moves:index_to_remove}));
+                                }
+                                else {
+                                    let moves_to_add = moves.find((m) => m["move"] === move_name);
+                                    if (moves_to_add && chosen_moves.length < 6) {
+                                        dispatch(addMovePokemonChosenMoves({pokemon_chosen_moves: moves_to_add}));
+                                    }
+                                }
+                                e.target.value = "";
+                            }}>
+
+                            {pokemon_moves_available.map(move =>
+                                <option value={move["name"].replace(':','').trim()} key={move["name"]}>{move["name"]}</option>)}
+
+                        </Form.Select>
+
+                    </div>
+            }
+
+                <div>
+                    <h2>Egg Moves :</h2>
+                    <Table responsive style={{borderColor:'white',borderWidth:'1px',borderStyle:'solid'}}>
+                        <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Freq</th>
+                            <th>AC</th>
+                            <th>Type</th>
+                            <th>Roll</th>
+                            <th>Dmg Type</th>
+                            <th>Range</th>
+                            <th>Effect</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {egg_moves.map(egg => {
+                                return <tr>
+                                    <th>{egg["move"]}</th>
+                                    <th>{egg["frequency"]}</th>
+                                    <th>{egg["AC"]}</th>
+                                    <th>{egg["type"]}</th>
+                                    <th>{egg["roll"]}</th>
+                                    <th>{egg["classe"]}</th>
+                                    <th>{egg["range"]}</th>
+                                    <th>{egg["effect"]}</th>
+                                </tr>
+                        })}
+                        </tbody>
+                    </Table><br></br>
+                    <br></br>
+                </div>
+
+                Add Egg moves : <Form.Select
+                style={{width:'30%',height:'30px'}}
+                defaultValue={""}
+                onChange={(e) => {
+                    let move_name = e.target.value.replace(':','').trim();
+                    let index_to_remove = egg_moves.findIndex(move_c => move_c["move"] === move_name);
+                    if (index_to_remove > -1) {
+                        dispatch(removeMovePokemonEggMoves({pokemon_chosen_egg_moves:index_to_remove}));
+                    }
+                    else {
+                        let moves_to_add = moves.find((m) => m["move"] === move_name);
+                        if (moves_to_add) {
+                            dispatch(addMovePokemonEggMoves({pokemon_chosen_egg_moves: moves_to_add}));
+                        }
+                    }
+                    e.target.value = "";
+                }}>
+                {
+                    final_egg_moves.map((m) =>
+                    <option value={m["move"].replace(':','').trim()} key={m["move"]}>{m["move"]}</option>
+                )}
+            </Form.Select>
+                <br></br>
+                <br></br>
+                <br></br>
+                <Button disabled={!ready_to_generate} style={{marginLeft:'5px',marginTop:'5px',width:'9%',height:'30px'}} onClick={() => {
+                    let final =`![](${img_pokemon_src})\n`;
+                    final += `# ${choosen_pokemon.charAt(0).toUpperCase() + choosen_pokemon.slice(1)}`;
+                    final += `\n`
+                    final += `Card: ${card}\n`
+                    final += `Gender: ${gender}\n`
+                    final += `Item: \n`
+                    final += `Nature: ${NATURE_MATRIX[final_buffed_stat][final_lowered_stat]}\n`
+                    final += `Level: ${level}\n`
+                    final += `Type: ${pokemon_obj["pokemon_types"]}\n`
+                    final += `Rarity: ${rarity}\n`
+                    final += `Weight: ${pokemon_obj["weight"]}\n`
+                    final += `Height: ${pokemon_obj["height"]}\n`
+                    final += `\n`
+                    final += `## **Abilities**\n`
+                    final += `\n`
+                    final += `| **Ability** | **Effect** |\n`
+                    final += `| ---------------- | ------------------ |\n`
+                    if (base_ability !== "") {
+                        const found_ability = abilities.find(ability => ability["name"] === base_ability);
+                        if (found_ability) {
+                            final += `| ${found_ability["name"]} |  ${found_ability["effect"]} | \n`
+                        }
+                    }
+
+                    if (advanced_ability !== "") {
+                        const found_ability = abilities.find(ability => ability["name"] === advanced_ability);
+                        if (found_ability) {
+                            final += `| ${found_ability["name"]} |  ${found_ability["effect"]}} | \n`
+                        }
+                    }
+
+                    if (high_ability !== "") {
+                        const found_ability = abilities.find(ability => ability["name"] === high_ability);
+                        if (found_ability) {
+                            final += `| ${found_ability["name"]} |  ${found_ability["effect"]}} | \n`
+                        }
+                    }
+                    final += `\n`
+                    final += `\n`
+                    final += `## **Capabilities**\n`
+                    final += `\n`
+                    final += `| **Capability** | **Value** |\n`
+                    final += `| ---------------- | ------------------ |\n`
+                    pokemon_obj["capabilities"].map(cat => {
+                        if (cat["name"] !== ""){
+                            final += `| ${cat['name']} | ${cat['value']} | \n`
+                        }
+                    })
+                    final += `\n`
+                    final += `\n`
+                    final += `## **Skills**\n`
+                    final += `\n`
+                    final += `| **Skill** | **Roll** |\n`
+                    final += `| ---------------- | ------------------ |\n`
+                    pokemon_obj["skills"].map(cat => {
+                        if (cat["name"] !== ""){
+                            final += `| ${cat['name']} | ${cat['roll']} | \n`
+                        }
+                    })
+                    final += `\n`
+                    final += `\n`
+                    final += `## **Stats**\n`
+                    final += `\n`
+                    const hit_points = level+(3*final_hp)+10
+                    final += `| **Hit Points Max :${hit_points}**                           | **Hit Points: ${hit_points}/${hit_points}** |\n`
+                    final += `|-------------------------------------------------------------|---------------------------------------------|\n`
+                    final += `| **Max HP**: ${pokemon_obj["stat_hp"]}+${hp_auto_buff}+${points_by_stats["HP"]}=${final_hp}              | **Current HP**:${final_hp}                 |\n`.replace("+-","-")
+                    final += `| **Max ATK**: ${pokemon_obj["stat_atk"]}+${atk_auto_buff}+${points_by_stats["ATK"]}=${final_atk}              | **Current ATK**:${final_atk}                 |\n`.replace("+-","-")
+                    final += `| **Max DEF**: ${pokemon_obj["stat_def"]}+${def_auto_buff}+${points_by_stats["DEF"]}=${final_def}              | **Current DEF**:${final_def}                 |\n`.replace("+-","-")
+                    final += `| **Max SPATK**: ${pokemon_obj["stat_sp_atk"]}+${spatk_auto_buff}+${points_by_stats["SPATK"]}=${final_spatk}              | **Current SPATK**:${final_spatk}                 |\n`.replace("+-","-")
+                    final += `| **Max SPDEF**: ${pokemon_obj["stat_sp_def"]}+${spdef_auto_buff}+${points_by_stats["SPDEF"]}=${final_spdef}              | **Current SPDEF**:${final_spdef}                 |\n`.replace("+-","-")
+                    final += `| **Max SPEED**: ${pokemon_obj["stat_spd"]}+${spd_auto_buff}+${points_by_stats["SPD"]}=${final_speed}              | **Current SPEED**:${final_speed}                 |\n`.replace("+-","-")
+                    final += `\n`
+                    const phy_evade = Math.round(final_def/10)
+                    const spe_evade = Math.round(final_spdef/10)
+                    const speed_evade = Math.round(final_speed/10)
+                    const injuries = 0;
+                    final += `| **Derived stats** |                |\n`
+                    final += `|-------------------|----------------|\n`
+                    final += `| Phys Evade        | ${phy_evade}    |\n`
+                    final += `| Spec Evade        | ${spe_evade}    |\n`
+                    final += `| Speed Evade       | ${speed_evade}  |\n`
+                    final += `| Injuries          | ${injuries}     |\n`
+                    final += `\n`
+                    final += `*Pokémon Hit Points = Pokémon Level + (HP x3) + 10*\n`
+                    final += `\n`
+                    final += `## **Moves** :\n`
+                    final += `\n`
+                    final += `| **Move**    | **Freq**         | **AC**    | **Type**    | **Roll**    | **Dmg. Type**      | **Range**    | **Special Effect** |\n`
+                    final += `|-------------|------------------|-----------|-------------|-------------|--------------------|--------------|-------------------|\n`
+                    Array(6).keys().forEach(index => {
+                        if (index < chosen_moves.length) {
+                            final += `| ${chosen_moves[index]['move']} | ${chosen_moves[index]['frequency']} | ${chosen_moves[index]['AC']} | ${chosen_moves[index]['type']} | ${chosen_moves[index]['roll']} | ${chosen_moves[index]['classe']} | ${chosen_moves[index]['range']} | ${chosen_moves[index]['effect']}     |\n`
+                        }
+                        else {
+                            final += `|  |  |  |  |  |  |  |      |\n`
+                        }
+                    });
+                    final += `\n`
+                    final += `|               |   |   |   |   |   |   |   |\n`
+                    final += `|---------------|---|---|---|---|---|---|---|\n`
+                    Array(3).keys().forEach(index => {
+                        if (index < egg_moves.length) {
+                            final += `| ${egg_moves[index]['move']} | ${egg_moves[index]['frequency']} | ${egg_moves[index]['AC']} | ${egg_moves[index]['type']} | ${egg_moves[index]['roll']} | ${egg_moves[index]['classe']} | ${egg_moves[index]['range']} | ${egg_moves[index]['effect']}     |\n`
+                        }
+                        else {
+                            final += `|               |   |   |   |   |   |   |   |\n`
+                        }
+                    });
+                    final += `\n`
+                    const tutor_point = Math.floor(level/5)
+                    final += `Tutor points = ${tutor_point}\n`
+                    final += `\n`
+                    final += `\n`
+                    final += `## **Notes**\n`
+                    final += `\n`
+                    final += `egg move : `
+                    if (egg_moves.length === 0) {
+                        final += `None`
+                    }
+                    else {
+                        egg_moves.forEach(egg_move => {
+                            final += `${egg_move["move"]},`
+                        })
+                        final = final.substring(0,final.length-1);
+                    }
+
+                    console.log(final)
+                    var blob = new Blob([final], { type: 'text/plain' });
+                    download(blob, pokemon_obj["name"]+".md", "text/plain");
+                }}> Generate </Button>
+                <br></br>
+                <br></br>
+                <br></br>
+            </div>
+            }
+        </div></div>
     );
 
 }
