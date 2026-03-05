@@ -1,0 +1,18 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+}
+
+.MainFrame {
+  display: flex;
+  width: 100%;
+  background-color: #5f5c5c;
+}
+
+.MainFooter {
+  text-align: center;
+  color: white;
+  background-color: #3d3b3b;
+}
