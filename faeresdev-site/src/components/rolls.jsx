@@ -245,7 +245,7 @@ function Rolls() {
                         <text>List of rolls : </text>
                         {
                             list_rolls_shiny_poke.map((roll,index) => {
-                                return <text style={{'color':(roll===pokemonShinyRoll?'#00ff14':(roll===100 && list_rolls_shiny_poke.find(poke => {return poke === pokemonShinyRoll}))?'cyan':'white')}}>{roll} </text>
+                                return <text style={{'color':(roll===pokemonShinyRoll?'#00ff14':(roll===100 && list_rolls_shiny_poke.find(poke => {return poke === pokemonShinyRoll}))?'cyan':'white'),'border':(roll===pokemonShinyRoll?'solid 1px #00ff14':(roll===100 && list_rolls_shiny_poke.find(poke => {return poke === pokemonShinyRoll}))?'solid 1px cyan':'')}}>{roll} </text>
                             })
                         }
 
@@ -466,7 +466,7 @@ function Rolls() {
                     <text>List of rolls : </text>
                     {
                         list_rolls_normal_cards.map((roll,index) => {
-                            return <text style={{'color':(roll===cardRoll1||roll===cardRoll2||roll===cardRoll3?'#00ff14':((is_pokemon_platine || is_pokemon_shiny )&& (roll===cardShinyRoll1||roll===cardShinyRoll2))?'lightyellow':(is_pokemon_platine && (roll===cardPlatineRoll1))?'cyan':'white')}}>{roll} </text>
+                            return <text style={{'color':(roll===cardRoll1||roll===cardRoll2||roll===cardRoll3?'#00ff14':((is_pokemon_platine || is_pokemon_shiny )&& (roll===cardShinyRoll1||roll===cardShinyRoll2))?'yellow':(is_pokemon_platine && (roll===cardPlatineRoll1))?'cyan':'white'),'border':(roll===cardRoll1||roll===cardRoll2||roll===cardRoll3?'solid 1px #00ff14':((is_pokemon_platine || is_pokemon_shiny )&& (roll===cardShinyRoll1||roll===cardShinyRoll2))?'solid 1px yellow':(is_pokemon_platine && (roll===cardPlatineRoll1))?'solid 1px cyan':'')}}>{roll} </text>
                         })
                     }
                     <br></br>
