@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import {setGender, setLevel} from "../features/pokemon/pokemonSlice.jsx";
 import Button from 'react-bootstrap/Button';
-import {Checkbox, InputNumber} from "antd";
+import {Checkbox, Input, InputNumber} from "antd";
 function getRandomArbitrary(min, max) {
     return Math.floor(Math.random() * (max - min) + min);
 }
@@ -26,9 +26,44 @@ function eraseCookie(name) {
     document.cookie = name +'=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
 }
 
+function rollDiceExpression(expr) {
+    const diceRegex = /(\d+)d(\d+)/gi;
+
+    const rolls = [];
+    let replacedExpr = expr;
+
+    replacedExpr = replacedExpr.replace(diceRegex, (match, numDice, numSides) => {
+        numDice = parseInt(numDice, 10);
+        numSides = parseInt(numSides, 10);
+
+        const results = [];
+        for (let i = 0; i < numDice; i++) {
+            const roll = Math.floor(Math.random() * numSides) + 1;
+            results.push(roll);
+        }
+
+        rolls.push({
+            dice: `${numDice}d${numSides}`,
+            results: results,
+            total: results.reduce((a, b) => a + b, 0)
+        });
+
+        return results.reduce((a, b) => a + b, 0);
+    });
+
+    const final = Function(`"use strict"; return (${replacedExpr})`)();
+
+    return {
+        expression: expr,
+        rolls: rolls,
+        final: final
+    };
+}
+
 function Rolls() {
     const [dexnav, setDexnav] = useState(0);
     const [card_dexnav, setCardDexnav] = useState(0);
+    const [alt_rolls,setAltRolls] = useState("");
     const [pokemonShinyRoll, setPokemonShinyRoll] = useState(1);
     const [number_of_shiny_to_roll, setNumberOfShinyToRoll] = useState(1);
     const [number_of_cards_to_roll, setNumberOfCardsToRoll] = useState(1);
@@ -42,6 +77,7 @@ function Rolls() {
     const [roll_capture_accuracy,setRollCaptureAccuracy] = useState(-1);
     const [roll_capture_rate,setRollCaptureRate] = useState(-1);
     const [rolled_encounter_count,setRolledEncounterCount] = useState(-1);
+    const [rolled_dice,setRolledDice] = useState("");
     const [list_rolls_shiny_poke,setListRollsShinyPoke] = useState([]);
     const [list_rolls_normal_cards,setListRollsNormalCards] = useState([]);
     const [is_pokemon_shiny,setIsPokemonShiny] = useState(false);
@@ -122,6 +158,39 @@ function Rolls() {
     return (
         <div style={{marginLeft:'5px',width:'100%',color:'white'}}>
             <div >
+            <h3> Roll </h3>
+                <Input
+                    value={alt_rolls}
+                    onChange={e => {
+                        if (e){
+                            setAltRolls(e.target.value);
+                        }
+
+                    }}
+                    style={{marginLeft:'5px',marginTop:'5px',width:'8%',height:'30px'}}>
+                </Input>
+                <Button style={{marginLeft:'5px',marginRight:'5px',marginTop:'5px',width:'5%',height:'30px'}} onClick={() => {
+                    let dice_rolls = rollDiceExpression(alt_rolls);
+                    console.log(dice_rolls);
+                    let final_roll = "";
+                    final_roll += "Result = "+dice_rolls.final + "\n Details : \n";
+                    dice_rolls.rolls.forEach(roll => {
+                        final_roll += roll.dice+" : ( "+roll.results+" ) \n";
+                    })
+
+                    setRolledDice(final_roll);
+                }}>
+                    Roll
+                </Button><br></br><br></br>
+                { rolled_dice !== "" &&
+                    <div>
+                        {rolled_dice.split("\n").map((dice) => {
+                            return <div><text>{dice}</text></div>
+                        })
+                        }
+                    </div>
+
+                }
             <h3>Encounter rolls</h3>
                 <Button style={{marginLeft:'5px',marginRight:'5px',marginTop:'5px',width:'5%',height:'30px'}} onClick={() => {
                     const rolled_encounter_bracket_temp = getRandomArbitrary(0,100)+1;
