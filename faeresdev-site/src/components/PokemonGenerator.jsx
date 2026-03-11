@@ -123,7 +123,7 @@ function PokemonGenerator() {
     const gender = useSelector((state) => state.pokemon.pokemon_gender);
     const points_by_stats = useSelector((state) => state.pokemon.pokemon_points_by_stats);
     const level = useSelector((state) => state.pokemon.pokemon_level);
-
+    pokemons.sort((a,b) => a.name < b.name);
     const pokemon_obj = pokemons.filter(pokemon => pokemon.name === choosen_pokemon)[0];
     if (gender === "" && pokemon_obj) {
         if (pokemon_obj["gender_ratio_m"] === -1){
@@ -171,6 +171,7 @@ function PokemonGenerator() {
         pokemon_moves_available = pokemon_obj["moves"].filter(a => a["level"] <= level).sort((a, b) => a["level"] < b["level"]);
     }
     pokemon_moves_available = [{"name":"","level":-1,"type":""},...pokemon_moves_available];
+    pokemon_moves_available.sort((a,b) => a.level < b.level);
 
     let available_points = 9+level;
     for (let stat in points_by_stats){
@@ -300,6 +301,7 @@ function PokemonGenerator() {
 
     const remaining_rolls = useSelector((state) => state.pokemon.remaining_rolls);
     const img_pokemon_src = "https://img.pokemondb.net/artwork/"+choosen_pokemon+".jpg"
+    const local_png_img = "/images/"+choosen_pokemon.toLowerCase().replace(" ","_")+".png"
     useEffect(() => {
         setMoves(movesData);
         setPokemons(pokemonsData);
@@ -312,7 +314,7 @@ function PokemonGenerator() {
             {
                 choosen_pokemon &&
                 <div style={{color:'white',marginLeft:'5px',marginRight:'5px',float:'right',maxWidth:'19%'}}>
-                    <img  src={img_pokemon_src}></img><br/>
+                    <img style={{height:"300px"}} src={local_png_img}></img><br/>
                     <br></br>
                     <br></br>
                     Base Stats :
@@ -504,7 +506,7 @@ function PokemonGenerator() {
                     level > 0 &&
                     <div>
                         <h2> Moves : </h2>
-                        <Table responsive style={{borderColor:'white',borderWidth:'1px',borderStyle:'solid'}}>
+                        <Table responsive style={{borderColor:'white',borderWidth:'1px',borderStyle:'solid',minWidth:'70%',maxWidth:'70%'}}>
                             <thead>
                             <tr>
                                 <th>Name</th>
@@ -515,6 +517,7 @@ function PokemonGenerator() {
                                 <th>Dmg Type</th>
                                 <th>Range</th>
                                 <th>Effect</th>
+                                <th></th>
                             </tr>
                             </thead>
                             <tbody>
@@ -529,10 +532,17 @@ function PokemonGenerator() {
                                         <th>{chosen_moves[key]["classe"]}</th>
                                         <th>{chosen_moves[key]["range"]}</th>
                                         <th>{chosen_moves[key]["effect"]}</th>
+                                        <th><Button disabled={level===-1} style={{marginLeft:'5px',marginTop:'5px',height:'30px'}} onClick={() => {
+                                            let index_to_remove = chosen_moves.findIndex(move_c => move_c["move"] === chosen_moves[key]["move"]);
+                                            if (index_to_remove > -1) {
+                                                dispatch(removeMovePokemonChosenMoves({pokemon_chosen_moves: index_to_remove}));
+                                            }
+                                        }}> remove </Button></th>
                                     </tr>
                                 }
                                 else {
                                     return <tr>
+                                        <th></th>
                                         <th></th>
                                         <th></th>
                                         <th></th>
@@ -556,24 +566,25 @@ function PokemonGenerator() {
                     Add Moves :
                         <Form.Select
                             defaultValue={""}
-                            style={{marginLeft:'5px',marginTop:'5px',width:'10%',height:'30px'}}
+                            style={{marginLeft:'5px',marginTop:'5px',width:'30%',height:'30px'}}
                             onChange={(e) => {
                                 let move_name = e.target.value.replace(':','').trim();
-                                let index_to_remove = chosen_moves.findIndex(move_c => move_c["move"] === move_name);
-                                if (index_to_remove > -1) {
-                                    dispatch(removeMovePokemonChosenMoves({pokemon_chosen_moves:index_to_remove}));
-                                }
-                                else {
-                                    let moves_to_add = moves.find((m) => m["move"] === move_name);
-                                    if (moves_to_add && chosen_moves.length < 6) {
-                                        dispatch(addMovePokemonChosenMoves({pokemon_chosen_moves: moves_to_add}));
+                                if (move_name !== "") {
+                                    let index_to_remove = chosen_moves.findIndex(move_c => move_c["move"] === move_name);
+                                    if (index_to_remove > -1) {
+                                        dispatch(removeMovePokemonChosenMoves({pokemon_chosen_moves: index_to_remove}));
+                                    } else {
+                                        let moves_to_add = moves.find((m) => m["move"] === move_name);
+                                        if (moves_to_add && chosen_moves.length < 6) {
+                                            dispatch(addMovePokemonChosenMoves({pokemon_chosen_moves: moves_to_add}));
+                                        }
                                     }
                                 }
                                 e.target.value = "";
                             }}>
 
                             {pokemon_moves_available.map(move =>
-                                <option value={move["name"].replace(':','').trim()} key={move["name"]}>{move["name"]}</option>)}
+                                <option value={move["name"].replace(':','').trim()} key={move["name"]}>{(move["name"]===""?"":"lvl "+move["level"]+" - "+move["name"]+" ("+move["type"]+")")}</option>)}
 
                         </Form.Select>
 
@@ -582,7 +593,7 @@ function PokemonGenerator() {
 
                 <div>
                     <h2>Egg Moves :</h2>
-                    <Table responsive style={{borderColor:'white',borderWidth:'1px',borderStyle:'solid'}}>
+                    <Table responsive style={{borderColor:'white',borderWidth:'1px',borderStyle:'solid',minWidth:'70%',maxWidth:'70%'}}>
                         <thead>
                         <tr>
                             <th>Name</th>
@@ -593,6 +604,7 @@ function PokemonGenerator() {
                             <th>Dmg Type</th>
                             <th>Range</th>
                             <th>Effect</th>
+                            <th></th>
                         </tr>
                         </thead>
                         <tbody>
@@ -606,6 +618,12 @@ function PokemonGenerator() {
                                     <th>{egg["classe"]}</th>
                                     <th>{egg["range"]}</th>
                                     <th>{egg["effect"]}</th>
+                                    <th><Button disabled={level===-1} style={{marginLeft:'5px',marginTop:'5px',height:'30px'}} onClick={() => {
+                                        let index_to_remove = egg_moves.findIndex(move_c => move_c["move"] === egg["move"]);
+                                        if (index_to_remove > -1) {
+                                            dispatch(removeMovePokemonEggMoves({pokemon_chosen_egg_moves:index_to_remove}));
+                                        }
+                                    }}> remove </Button></th>
                                 </tr>
                         })}
                         </tbody>
@@ -639,7 +657,7 @@ function PokemonGenerator() {
                 <br></br>
                 <br></br>
                 <Button disabled={!ready_to_generate} style={{marginLeft:'5px',width:'10%',height:'50px'}} onClick={() => {
-                    let final =`![](${img_pokemon_src})\n`;
+                    let final =`![](${"http://faeresdev.site"+local_png_img})\n`;
                     final += `# ${choosen_pokemon.charAt(0).toUpperCase() + choosen_pokemon.slice(1)}`;
                     final += `\n`
                     final += `Card: ${card}\n`
@@ -773,7 +791,7 @@ function PokemonGenerator() {
                 <Button disabled={!ready_to_generate} style={{marginLeft:'10px',marginTop:'10px',width:'10%',height:'50px'}} onClick={() => {
                     const container = document.createElement("div");
 
-                    container.innerHTML += `<img src="${img_pokemon_src}" width="200">`;
+                    container.innerHTML += `<img src="${"http://faeresdev.site"+local_png_img}" width="200">`;
                     container.innerHTML += `<h1>${choosen_pokemon.charAt(0).toUpperCase() + choosen_pokemon.slice(1)}</h1>`;
 
                     container.innerHTML += `

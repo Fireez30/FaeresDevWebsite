@@ -6,8 +6,8 @@ export const pokemonSlice = createSlice({
         remaining_rolls : 3,
         chosen_pokemon : "",
         pokemon_level : 0,
-        pokemon_rarity : "",
-        pokemon_card : "",
+        pokemon_rarity : "Normal",
+        pokemon_card : "None",
         pokemon_gender : "",
         pokemon_nature : "",
         pokemon_final_buffed_stat : "",
@@ -28,8 +28,8 @@ export const pokemonSlice = createSlice({
                 state.remaining_rolls = 3;
                 state.chosen_pokemon = action.payload.chosen_pokemon;
                 state.pokemon_level = -1;
-                state.pokemon_rarity = "";
-                state.pokemon_card = "";
+                state.pokemon_rarity = "Normal";
+                state.pokemon_card = "None";
                 state.pokemon_gender = "";
                 state.pokemon_nature = "";
                 state.pokemon_final_buffed_stat = "";
