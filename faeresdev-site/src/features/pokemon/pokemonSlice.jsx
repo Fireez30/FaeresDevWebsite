@@ -48,6 +48,12 @@ export const pokemonSlice = createSlice({
         },
         setLevel: (state, action) => {
             state.pokemon_level = action.payload.pokemon_level
+            if (state.pokemon_level < 40 && state.pokemon_high_ability !== ""){
+                state.pokemon_high_ability = ""
+            }
+            if (state.pokemon_level < 20 && state.pokemon_advanced_ability !== ""){
+                state.pokemon_advanced_ability = ""
+            }
         },
         setRarity: (state, action) => {
             state.pokemon_rarity = action.payload.pokemon_rarity

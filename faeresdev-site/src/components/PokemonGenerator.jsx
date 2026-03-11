@@ -6,7 +6,7 @@ import pokemonsData from "../data/pokemon.json";
 import abilitiesData from "../data/abilities.json";
 import Button from 'react-bootstrap/Button';
 import Table from 'react-bootstrap/Table';
-import {AutoComplete, InputNumber, Dropdown} from 'antd';
+import {AutoComplete, InputNumber, Dropdown, Select} from 'antd';
 import {
     addMovePokemonChosenMoves, addMovePokemonEggMoves,
     choose_pokemon, decrement_remaining_rolls, removeMovePokemonChosenMoves, removeMovePokemonEggMoves,
@@ -318,33 +318,132 @@ function PokemonGenerator() {
                     <br></br>
                     <br></br>
                     Base Stats :
-                    <br></br>
-                    <br></br>
-                    HP : {pokemon_obj["stat_hp"]} , ATK : {pokemon_obj["stat_atk"]} , DEF : {pokemon_obj["stat_def"]}<br></br>
-                    SPATK : {pokemon_obj["stat_sp_atk"]} , SPDEF : {pokemon_obj["stat_sp_def"]} , SPD : {pokemon_obj["stat_spd"]}
+                    <Table responsive style={{borderColor:'white',borderWidth:'1px',borderStyle:'solid',minWidth:'90%',maxWidth:'90%'}}>
+                        <thead>
+                            <tr>
+                                <th>Stat</th>
+                                <th>Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <th>HP</th>
+                            <th>{pokemon_obj["stat_hp"]}</th>
+                        </tr>
+                        <tr>
+                            <th>ATK</th>
+                            <th>{pokemon_obj["stat_atk"]}</th>
+                        </tr>
+                        <tr>
+                            <th>DEF</th>
+                            <th>{pokemon_obj["stat_def"]}</th>
+                        </tr>
+                        <tr>
+                            <th>SPATK</th>
+                            <th>{pokemon_obj["stat_sp_atk"]}</th>
+                        </tr>
+                        <tr>
+                            <th>SPDEF</th>
+                            <th>{pokemon_obj["stat_sp_def"]}</th>
+                        </tr>
+                        <tr>
+                            <th>SPD</th>
+                            <th>{pokemon_obj["stat_spd"]}</th>
+                        </tr>
+                        </tbody>
+                    </Table>
                     <br></br>
                     <br></br>
                     Card and rarity buffs :
-                    <br></br>
-                    <br></br>
-                    HP : {(hp_auto_buff>0?"+"+hp_auto_buff:hp_auto_buff)} , ATK : {(atk_auto_buff>0?"+"+atk_auto_buff:atk_auto_buff)} , DEF : {(def_auto_buff>0?"+"+def_auto_buff:def_auto_buff)}<br></br>
-                    SPATK : {(spatk_auto_buff>0?"+"+spatk_auto_buff:spatk_auto_buff)} , SPDEF : {(spdef_auto_buff>0?"+"+spdef_auto_buff:spdef_auto_buff)} , SPD : {(spd_auto_buff>0?"+"+spd_auto_buff:spd_auto_buff)}
+                    <Table responsive style={{borderColor:'white',borderWidth:'1px',borderStyle:'solid',minWidth:'90%',maxWidth:'90%'}}>
+                        <thead>
+                        <tr>
+                            <th>Stat</th>
+                            <th>Buffs</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <th>HP</th>
+                            <th>{(hp_auto_buff>0?"+"+hp_auto_buff:hp_auto_buff)}</th>
+                        </tr>
+                        <tr>
+                            <th>ATK</th>
+                            <th> {(atk_auto_buff>0?"+"+atk_auto_buff:atk_auto_buff)}</th>
+                        </tr>
+                        <tr>
+                            <th>DEF</th>
+                            <th>{(def_auto_buff>0?"+"+def_auto_buff:def_auto_buff)}</th>
+                        </tr>
+                        <tr>
+                            <th>SPATK</th>
+                            <th>{(spatk_auto_buff>0?"+"+spatk_auto_buff:spatk_auto_buff)}</th>
+                        </tr>
+                        <tr>
+                            <th>SPDEF</th>
+                            <th>{(spdef_auto_buff>0?"+"+spdef_auto_buff:spdef_auto_buff)}</th>
+                        </tr>
+                        <tr>
+                            <th>SPD</th>
+                            <th>{(spd_auto_buff>0?"+"+spd_auto_buff:spd_auto_buff)}</th>
+                        </tr>
+                        </tbody>
+                    </Table>
                     <br></br>
                     <br></br>
                     Final stats :
+                    <Table responsive style={{borderColor:'white',borderWidth:'1px',borderStyle:'solid',minWidth:'90%',maxWidth:'90%'}}>
+                        <thead>
+                        <tr>
+                            <th>Stat</th>
+                            <th>Buffs</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <th>HP</th>
+                            <th>{final_hp}</th>
+                        </tr>
+                        <tr>
+                            <th>ATK</th>
+                            <th> {final_atk}</th>
+                        </tr>
+                        <tr>
+                            <th>DEF</th>
+                            <th>{final_def}</th>
+                        </tr>
+                        <tr>
+                            <th>SPATK</th>
+                            <th>{final_spatk}</th>
+                        </tr>
+                        <tr>
+                            <th>SPDEF</th>
+                            <th>{final_spdef}</th>
+                        </tr>
+                        <tr>
+                            <th>SPD</th>
+                            <th>{final_speed}</th>
+                        </tr>
+                        </tbody>
+                    </Table>
                     <br></br>
                     <br></br>
-                    HP : {final_hp} , ATK : {final_atk} , DEF : {final_def}<br></br>
-                    SPATK : {final_spatk} , SPDEF : {final_spdef} , SPD : {final_speed}
-                    <br></br>
-                    <br></br>
-                    Base ability : {base_ability}
-                    <br></br>
-                    <br></br>
-                    Advanced ability : {advanced_ability?advanced_ability:"/"}
-                    <br></br>
-                    <br></br>
-                    High ability : {high_ability?high_ability:"/"}
+                    <Table responsive style={{borderColor:'white',borderWidth:'1px',borderStyle:'solid',minWidth:'90%',maxWidth:'90%'}}>
+                        <tbody>
+                        <tr>
+                            <th>Base Ability</th>
+                            <th>{base_ability}</th>
+                        </tr>
+                        <tr>
+                            <th>Advanced ability</th>
+                            <th> {advanced_ability?advanced_ability:"/"}</th>
+                        </tr>
+                        <tr>
+                            <th>High ability</th>
+                            <th>{high_ability?high_ability:"/"}</th>
+                        </tr>
+                        </tbody>
+                    </Table>
                 </div>
             }
 
@@ -352,14 +451,14 @@ function PokemonGenerator() {
         <h1> Pokemon Generator</h1>
 
 
-         Pokemon : <Form.Select
+         Pokemon : <Select
+            showSearch
         style={{width:'30%',height:'30px'}}
         value={choosen_pokemon}
-        onChange={(e) => dispatch(choose_pokemon({chosen_pokemon:e.target.value}))}>
-        {pokemons.map((pokemon) =>
-            <option value={pokemon.name} key={pokemon.name}>{pokemon.name}</option>
-        )}
-        </Form.Select>
+        options={pokemons.map((pokemon) => {return {"value":pokemon.name,"label":pokemon.name} })}
+        onChange={(e) => dispatch(choose_pokemon({chosen_pokemon:e}))}>
+
+        </Select>
             {
                 choosen_pokemon &&
             <div>
@@ -371,22 +470,27 @@ function PokemonGenerator() {
                     onChange={(value) => dispatch(setLevel({pokemon_level:value}))}
                     style={{marginTop:'5px',width:'30%',height:'30px'}}>
                 </InputNumber> <br></br>
-                Rarity : <Form.Select
+                Rarity : <Select
+                    showSearch
                     style={{marginTop:'5px',width:'30%',height:'30px'}}
                     value={rarity}
-                    onChange={(e) => dispatch(setRarity({pokemon_rarity:e.target.value}))}>
-                    {rarity_options.map(rarity =>
-                        <option value={rarity} key={rarity}>{rarity}</option>
+                    options={rarity_options.map(rarity => {
+                            return {"value":rarity,"label":rarity}
+                        }
                     )}
-                </Form.Select><br></br>
-                Card : <Form.Select
+                    onChange={(value) => dispatch(setRarity({pokemon_rarity:value}))}>
+
+                </Select><br></br>
+                Card : <Select
+                    showSearch
+                    options={cards_options.map(rarity => {
+                        return {"value":rarity,"label":rarity}}
+                    )}
                     style={{marginTop:'5px',width:'30%',height:'30px'}}
                     value={card}
-                    onChange={(e) => dispatch(setCard({pokemon_card:e.target.value}))}>
-                    {cards_options.map(rarity =>
-                        <option value={rarity} key={rarity}>{rarity}</option>
-                    )}
-            </Form.Select><br></br>
+                    onChange={(value) => dispatch(setCard({pokemon_card:value}))}>
+
+            </Select><br></br>
                 Gender : <Form.Select
                 style={{marginTop:'5px',width:'30%',height:'30px'}}
                 disabled={true}
@@ -400,22 +504,26 @@ function PokemonGenerator() {
                 dispatch(setGender({pokemon_gender:(roll <roll_male?"Male":"Female")}));
             }}> Roll </Button><br></br>
                 <br></br>Nature<br></br>
-                Buff : <Form.Select
+                Buff : <Select
+                showSearch
+                options={nature_options.map(rarity =>{
+                    return {"value":rarity,"label":rarity}}
+                )}
                 style={{marginTop:'5px',width:'10%',height:'30px',marginRight:'5px'}}
-                onChange={(e) => dispatch(setBuffedStat({pokemon_final_buffed_stat:e.target.value}))}
+                onChange={(value) => dispatch(setBuffedStat({pokemon_final_buffed_stat:value}))}
                 value={final_buffed_stat}>
-                {nature_options.map(rarity =>
-                    <option value={rarity} key={rarity}>{rarity}</option>
+            </Select>
+                Debuff : <Select
+                showSearch
+                options={nature_options.map(rarity =>{
+                    return {"value":rarity,"label":rarity}
+                    }
                 )}
-            </Form.Select>
-                Debuff : <Form.Select
                 style={{marginLeft:'5px',marginTop:'5px',width:'10%',height:'30px'}}
-                onChange={(e) => dispatch(setLoweredStat({pokemon_final_lowered_stat:e.target.value}))}
+                onChange={(value) => dispatch(setLoweredStat({pokemon_final_lowered_stat:value}))}
                 value={final_lowered_stat}>
-                {nature_options.map(rarity =>
-                    <option value={rarity} key={rarity}>{rarity}</option>
-                )}
-            </Form.Select> <Button disabled={remaining_rolls<=0}
+
+            </Select> <Button disabled={remaining_rolls<=0}
                                    style={{marginLeft:'5px',marginTop:'5px',width:'5%',height:'30px'}} onClick={() => {
                 dispatch(decrement_remaining_rolls());
                 let buff_roll = getRandomArbitrary(0,6)+1;
@@ -564,11 +672,14 @@ function PokemonGenerator() {
                     level > 0 &&
                     <div>
                     Add Moves :
-                        <Form.Select
+                        <Select
+                            showSearch
+                            options={pokemon_moves_available.map(move => {
+                                return {"value":move["name"].replace(':','').trim(),"label":(move["name"]===""?"":"lvl "+move["level"]+" - "+move["name"]+" ("+move["type"]+")")}})}
                             defaultValue={""}
                             style={{marginLeft:'5px',marginTop:'5px',width:'30%',height:'30px'}}
-                            onChange={(e) => {
-                                let move_name = e.target.value.replace(':','').trim();
+                            onChange={(value) => {
+                                let move_name = value.replace(':','').trim();
                                 if (move_name !== "") {
                                     let index_to_remove = chosen_moves.findIndex(move_c => move_c["move"] === move_name);
                                     if (index_to_remove > -1) {
@@ -580,13 +691,10 @@ function PokemonGenerator() {
                                         }
                                     }
                                 }
-                                e.target.value = "";
+                                value = "";
                             }}>
 
-                            {pokemon_moves_available.map(move =>
-                                <option value={move["name"].replace(':','').trim()} key={move["name"]}>{(move["name"]===""?"":"lvl "+move["level"]+" - "+move["name"]+" ("+move["type"]+")")}</option>)}
-
-                        </Form.Select>
+                        </Select>
 
                     </div>
             }
@@ -631,11 +739,16 @@ function PokemonGenerator() {
                     <br></br>
                 </div>
 
-                Add Egg moves : <Form.Select
+                Add Egg moves : <Select
+                showSearch
                 style={{width:'30%',height:'30px'}}
                 defaultValue={""}
-                onChange={(e) => {
-                    let move_name = e.target.value.replace(':','').trim();
+                options={
+                    final_egg_moves.map((m) =>
+                     { return {"value":m["move"].replace(':','').trim(),"label":m["move"]} }
+                    )}
+                onChange={(value) => {
+                    let move_name = value.replace(':','').trim();
                     let index_to_remove = egg_moves.findIndex(move_c => move_c["move"] === move_name);
                     if (index_to_remove > -1) {
                         dispatch(removeMovePokemonEggMoves({pokemon_chosen_egg_moves:index_to_remove}));
@@ -646,13 +759,10 @@ function PokemonGenerator() {
                             dispatch(addMovePokemonEggMoves({pokemon_chosen_egg_moves: moves_to_add}));
                         }
                     }
-                    e.target.value = "";
+                    value = "";
                 }}>
-                {
-                    final_egg_moves.map((m) =>
-                    <option value={m["move"].replace(':','').trim()} key={m["move"]}>{m["move"]}</option>
-                )}
-            </Form.Select>
+
+            </Select>
                 <br></br>
                 <br></br>
                 <br></br>
