@@ -638,7 +638,7 @@ function PokemonGenerator() {
                 <br></br>
                 <br></br>
                 <br></br>
-                <Button disabled={!ready_to_generate} style={{marginLeft:'5px',marginTop:'5px',width:'9%',height:'30px'}} onClick={() => {
+                <Button disabled={!ready_to_generate} style={{marginLeft:'5px',width:'10%',height:'50px'}} onClick={() => {
                     let final =`![](${img_pokemon_src})\n`;
                     final += `# ${choosen_pokemon.charAt(0).toUpperCase() + choosen_pokemon.slice(1)}`;
                     final += `\n`
@@ -769,7 +769,250 @@ function PokemonGenerator() {
                     console.log(final)
                     var blob = new Blob([final], { type: 'text/plain' });
                     download(blob, pokemon_obj["name"]+".md", "text/plain");
-                }}> Generate </Button>
+                }}> Generate Markdown </Button>
+                <Button disabled={!ready_to_generate} style={{marginLeft:'10px',marginTop:'10px',width:'10%',height:'50px'}} onClick={() => {
+                    const container = document.createElement("div");
+
+                    container.innerHTML += `<img src="${img_pokemon_src}" width="200">`;
+                    container.innerHTML += `<h1>${choosen_pokemon.charAt(0).toUpperCase() + choosen_pokemon.slice(1)}</h1>`;
+
+                    container.innerHTML += `
+                    <p>
+                    Card: ${card}<br>
+                    Gender: ${gender}<br>
+                    Item:<br>
+                    Nature: ${NATURE_MATRIX[final_buffed_stat][final_lowered_stat]}<br>
+                    Level: ${level}<br>
+                    Type: ${pokemon_obj["pokemon_types"]}<br>
+                    Rarity: ${rarity}<br>
+                    Weight: ${pokemon_obj["weight"]}<br>
+                    Height: ${pokemon_obj["height"]}
+                    </p>
+                    `;
+
+                    container.innerHTML += `<h2>Abilities</h2>`;
+
+                    let abilityTable = `<table border="1" style="border-collapse:collapse">
+                    <tr><th>Ability</th><th>Effect</th></tr>`;
+
+                    if (base_ability !== "") {
+                        const a = abilities.find(x => x.name === base_ability);
+                        if (a) abilityTable += `<tr><td>${a.name}</td><td>${a.effect}</td></tr>`;
+                    }
+
+                    if (advanced_ability !== "") {
+                        const a = abilities.find(x => x.name === advanced_ability);
+                        if (a) abilityTable += `<tr><td>${a.name}</td><td>${a.effect}</td></tr>`;
+                    }
+
+                    if (high_ability !== "") {
+                        const a = abilities.find(x => x.name === high_ability);
+                        if (a) abilityTable += `<tr><td>${a.name}</td><td>${a.effect}</td></tr>`;
+                    }
+
+                    abilityTable += `</table>`;
+                    container.innerHTML += abilityTable;
+
+
+                    container.innerHTML += `<h2>Capabilities</h2>`;
+
+                    let capTable = `<table border="1" style="border-collapse:collapse">
+                    <tr><th>Capability</th><th>Value</th></tr>`;
+
+                    pokemon_obj.capabilities.forEach(cat=>{
+                        if(cat.name!==""){
+                            capTable += `<tr><td>${cat.name}</td><td>${cat.value}</td></tr>`;
+                        }
+                    });
+
+                    capTable += `</table>`;
+                    container.innerHTML += capTable;
+
+
+                    container.innerHTML += `<h2>Skills</h2>`;
+
+                    let skillTable = `<table border="1" style="border-collapse:collapse">
+                    <tr><th>Skill</th><th>Roll</th></tr>`;
+
+                    pokemon_obj.skills.forEach(skill=>{
+                        if(skill.name!==""){
+                            skillTable += `<tr><td>${skill.name}</td><td>${skill.roll}</td></tr>`;
+                        }
+                    });
+
+                    skillTable += `</table>`;
+                    container.innerHTML += skillTable;
+
+
+                    const hit_points = level + (3 * final_hp) + 10;
+
+                    container.innerHTML += `<h2>Stats</h2>`;
+
+                    let statsTable = `
+                        <table border="1" style="border-collapse:collapse">
+                        <tr>
+                        <td><b>Hit Points Max: ${hit_points}</b></td>
+                        <td><b>Hit Points: ${hit_points}/${hit_points}</b></td>
+                        </tr>
+                        
+                        <tr>
+                        <td><b>Max HP</b>: ${pokemon_obj["stat_hp"]}+${hp_auto_buff}+${points_by_stats["HP"]}=${final_hp}</td>
+                        <td><b>Current HP</b>: ${final_hp}</td>
+                        </tr>
+                        
+                        <tr>
+                        <td><b>Max ATK</b>: ${pokemon_obj["stat_atk"]}+${atk_auto_buff}+${points_by_stats["ATK"]}=${final_atk}</td>
+                        <td><b>Current ATK</b>: ${final_atk}</td>
+                        </tr>
+                        
+                        <tr>
+                        <td><b>Max DEF</b>: ${pokemon_obj["stat_def"]}+${def_auto_buff}+${points_by_stats["DEF"]}=${final_def}</td>
+                        <td><b>Current DEF</b>: ${final_def}</td>
+                        </tr>
+                        
+                        <tr>
+                        <td><b>Max SPATK</b>: ${pokemon_obj["stat_sp_atk"]}+${spatk_auto_buff}+${points_by_stats["SPATK"]}=${final_spatk}</td>
+                        <td><b>Current SPATK</b>: ${final_spatk}</td>
+                        </tr>
+                        
+                        <tr>
+                        <td><b>Max SPDEF</b>: ${pokemon_obj["stat_sp_def"]}+${spdef_auto_buff}+${points_by_stats["SPDEF"]}=${final_spdef}</td>
+                        <td><b>Current SPDEF</b>: ${final_spdef}</td>
+                        </tr>
+                        
+                        <tr>
+                        <td><b>Max SPEED</b>: ${pokemon_obj["stat_spd"]}+${spd_auto_buff}+${points_by_stats["SPD"]}=${final_speed}</td>
+                        <td><b>Current SPEED</b>: ${final_speed}</td>
+                        </tr>
+                        </table>
+                        `;
+
+                    container.innerHTML += statsTable;
+
+
+                    const phy_evade = Math.round(final_def/10);
+                    const spe_evade = Math.round(final_spdef/10);
+                    const speed_evade = Math.round(final_speed/10);
+
+                    container.innerHTML += `
+                        <h3>Derived Stats</h3>
+                        <table border="1" style="border-collapse:collapse">
+                        <tr><td>Phys Evade</td><td>${phy_evade}</td></tr>
+                        <tr><td>Spec Evade</td><td>${spe_evade}</td></tr>
+                        <tr><td>Speed Evade</td><td>${speed_evade}</td></tr>
+                        <tr><td>Injuries</td><td>0</td></tr>
+                        </table>
+                        `;
+
+
+                    container.innerHTML += `<h2>Moves</h2>`;
+
+                    let moveTable = `
+                        <table border="1" style="border-collapse:collapse">
+                        <tr>
+                        <th>Move</th>
+                        <th>Freq</th>
+                        <th>AC</th>
+                        <th>Type</th>
+                        <th>Roll</th>
+                        <th>Dmg Type</th>
+                        <th>Range</th>
+                        <th>Special Effect</th>
+                        </tr>
+                        `;
+
+                    Array(6).fill().forEach((_,index)=>{
+                        if(index < chosen_moves.length){
+                            const m = chosen_moves[index];
+                            moveTable += `
+                            <tr>
+                            <td>${m.move}</td>
+                            <td>${m.frequency}</td>
+                            <td>${m.AC}</td>
+                            <td>${m.type}</td>
+                            <td>${m.roll}</td>
+                            <td>${m.classe}</td>
+                            <td>${m.range}</td>
+                            <td>${m.effect}</td>
+                            </tr>`;
+                        } else {
+                            moveTable += `<tr>${"<td></td>".repeat(8)}</tr>`;
+                        }
+                    });
+
+                    moveTable += `</table>`;
+                    container.innerHTML += moveTable;
+
+
+                    /* -------- EGG MOVES TABLE -------- */
+
+                    let eggTable = `
+                        <table border="1" style="border-collapse:collapse">
+                        <tr>
+                        <th>Move</th>
+                        <th>Freq</th>
+                        <th>AC</th>
+                        <th>Type</th>
+                        <th>Roll</th>
+                        <th>Dmg Type</th>
+                        <th>Range</th>
+                        <th>Special Effect</th>
+                        </tr>
+                        `;
+
+                    Array(3).fill().forEach((_,index)=>{
+                        if(index < egg_moves.length){
+                            const m = egg_moves[index];
+                            eggTable += `
+                            <tr>
+                            <td>${m.move}</td>
+                            <td>${m.frequency}</td>
+                            <td>${m.AC}</td>
+                            <td>${m.type}</td>
+                            <td>${m.roll}</td>
+                            <td>${m.classe}</td>
+                            <td>${m.range}</td>
+                            <td>${m.effect}</td>
+                            </tr>`;
+                        } else {
+                            eggTable += `<tr>${"<td></td>".repeat(8)}</tr>`;
+                        }
+                    });
+
+                    eggTable += `</table>`;
+                    container.innerHTML += eggTable;
+
+
+                    const tutor_point = Math.floor(level/5);
+                    container.innerHTML += `<p><b>Tutor points:</b> ${tutor_point}</p>`;
+
+
+                    container.innerHTML += `<h2>Notes</h2>`;
+                    container.innerHTML += `<p>Egg move: ${
+                        egg_moves.length === 0
+                            ? "None"
+                            : egg_moves.map(e=>e.move).join(", ")
+                    }</p>`;
+
+
+                    /* COPY AS RICH TEXT */
+
+                    document.body.appendChild(container);
+
+                    const range = document.createRange();
+                    range.selectNode(container);
+
+                    const selection = window.getSelection();
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+
+                    document.execCommand("copy");
+
+                    selection.removeAllRanges();
+                    container.remove();
+
+                    console.log("Formatted content copied! Paste into Google Docs.");
+                }}> Copy google doc version to clipboard </Button>
                 <br></br>
                 <br></br>
                 <br></br>
