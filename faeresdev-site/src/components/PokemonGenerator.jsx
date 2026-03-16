@@ -8,8 +8,9 @@ import Button from 'react-bootstrap/Button';
 import Table from 'react-bootstrap/Table';
 import {AutoComplete, InputNumber, Dropdown, Select} from 'antd';
 import {
-    addMovePokemonChosenMoves, addMovePokemonEggMoves,
+    addMovePokemonTMHMMoves,removeMovePokemonTMHMMoves,addMovePokemonChosenMoves, addMovePokemonEggMoves, addMovePokemonLockedEggMoves, addMovePokemonLockedMoves,
     choose_pokemon, decrement_remaining_rolls, removeMovePokemonChosenMoves, removeMovePokemonEggMoves,
+    removeMovePokemonLockedEggMoves, removeMovePokemonLockedMoves,
     setAdvancedAbility, setBaseAbility,
     setBuffedStat,
     setCard,
@@ -123,9 +124,9 @@ function PokemonGenerator() {
     const gender = useSelector((state) => state.pokemon.pokemon_gender);
     const points_by_stats = useSelector((state) => state.pokemon.pokemon_points_by_stats);
     const level = useSelector((state) => state.pokemon.pokemon_level);
-    pokemons.sort((a,b) => a.name < b.name);
+    pokemons.sort((a,b) => a.name > b.name);
     const pokemon_obj = pokemons.filter(pokemon => pokemon.name === choosen_pokemon)[0];
-    if (gender === "" && pokemon_obj) {
+    if (pokemon_obj  && gender === "" && pokemon_obj) {
         if (pokemon_obj["gender_ratio_m"] === -1){
             dispatch(setGender({pokemon_gender:"Genderless"}));
         }
@@ -133,6 +134,22 @@ function PokemonGenerator() {
             dispatch(setGender({pokemon_gender:""}));
         }
 
+    }
+    let final_tm_moves= [];
+    if (pokemon_obj) {
+        if (pokemon_obj["tm_moves"].length > 0) {
+
+            pokemon_obj["tm_moves"].forEach(move => {
+                const matched_move = moves.find(move_obj => move_obj["move"] === move);
+                if (matched_move) {
+                    final_tm_moves.push(matched_move);
+                }
+            })
+        }
+
+        if (final_tm_moves.length === 0) {
+            final_tm_moves = moves;
+        }
     }
     let final_egg_moves = [];
     if (pokemon_obj){
@@ -167,11 +184,11 @@ function PokemonGenerator() {
         }
     }
     let pokemon_moves_available = [];
-    if (level > 0){
+    if (pokemon_obj  && level > 0){
         pokemon_moves_available = pokemon_obj["moves"].filter(a => a["level"] <= level).sort((a, b) => a["level"] < b["level"]);
     }
     pokemon_moves_available = [{"name":"","level":-1,"type":""},...pokemon_moves_available];
-    pokemon_moves_available.sort((a,b) => a.level < b.level);
+    pokemon_moves_available.sort((a,b) => a.level > b.level);
 
     let available_points = 9+level;
     for (let stat in points_by_stats){
@@ -180,43 +197,16 @@ function PokemonGenerator() {
     const final_buffed_stat = useSelector((state) => state.pokemon.pokemon_final_buffed_stat);
     const chosen_moves = useSelector((state) => state.pokemon.pokemon_chosen_moves);
     const egg_moves = useSelector((state) => state.pokemon.pokemon_chosen_egg_moves);
+    const tmhm_moves = useSelector((state) => state.pokemon.pokemon_chosen_tmhm_moves);
+    const locked_egg_moves = useSelector((state) => state.pokemon.pokemon_locked_egg_moves);
     const final_lowered_stat = useSelector((state) => state.pokemon.pokemon_final_lowered_stat);
     const rarity = useSelector((state) => state.pokemon.pokemon_rarity);
     const card = useSelector((state) => state.pokemon.pokemon_card);
     const base_ability = useSelector((state) => state.pokemon.pokemon_base_ability);
     const advanced_ability = useSelector((state) => state.pokemon.pokemon_advanced_ability);
     const high_ability = useSelector((state) => state.pokemon.pokemon_high_ability);
-    if (level > 0){
-        if (base_ability === ""){
-            const base_abilities = pokemon_obj["base_abilities"]
-            if (base_abilities.length > 0){
-                let roll = getRandomArbitrary(0,base_abilities.length);
-                dispatch(setBaseAbility({pokemon_base_ability:base_abilities[roll]}));
-            }
-        }
 
-        if (level >= 20){
-            if (advanced_ability === ""){
-                const advanced_abilities = pokemon_obj["advanced_abilities"]
-                if (advanced_abilities.length > 0){
-                    let roll = getRandomArbitrary(0,advanced_abilities.length);
-                    dispatch(setAdvancedAbility({pokemon_advanced_ability:advanced_abilities[roll]}));
-                }
-            }
-        }
-
-        if (level >= 40){
-            if (high_ability === ""){
-                const high_abilities = pokemon_obj["high_abilities"]
-                if (high_abilities.length > 0){
-                    let roll = getRandomArbitrary(0,high_abilities.length);
-                    dispatch(setHighAbility({pokemon_high_ability:high_abilities[roll]}));
-                }
-            }
-        }
-
-    }
-    if (rarity !== "" && card !== "" && final_buffed_stat !== "" && final_lowered_stat !== ""){
+    if (pokemon_obj  && rarity !== "" && card !== "" && final_buffed_stat !== "" && final_lowered_stat !== ""){
         let to_add = 0;
         if (card !== "None"){
             if (card === "Normal"){
@@ -312,7 +302,7 @@ function PokemonGenerator() {
     return (
         <div style={{width:'100%'}}>
             {
-                choosen_pokemon &&
+                choosen_pokemon && pokemon_obj &&
                 <div style={{color:'white',marginLeft:'5px',marginRight:'5px',float:'right',maxWidth:'19%'}}>
                     <img style={{height:"300px"}} src={local_png_img}></img><br/>
                     <br></br>
@@ -460,7 +450,7 @@ function PokemonGenerator() {
 
         </Select>
             {
-                choosen_pokemon &&
+                choosen_pokemon && pokemon_obj &&
             <div>
                 Level : <InputNumber
                     min={1}
@@ -534,6 +524,66 @@ function PokemonGenerator() {
                 { final_buffed_stat !== "" && final_buffed_stat !== "" &&
                     <><br></br><br></br><h style={{marginLeft:'30px'}}>Nature chosen : {NATURE_MATRIX[final_buffed_stat][final_lowered_stat]}</h></>
                 }
+                {
+                    pokemon_obj && level > 0 &&
+                    <div><br></br>
+                        Base Ability : <Select
+                        showSearch
+                        options={["",...pokemon_obj["base_abilities"]].map(rarity => {
+                            return {"value":rarity,"label":rarity}}
+                        )}
+                        style={{marginTop:'5px',width:'30%',height:'30px'}}
+                        value={base_ability}
+                        onChange={(value) => {if (value !== "") {dispatch(setBaseAbility({pokemon_base_ability:value}));} return "";}}>
+                    </Select><Button disabled={base_ability!==""} style={{marginLeft:'5px',marginRight:'5px',marginTop:'5px',width:'5%',height:'30px'}} onClick={() => {
+                            const base_abilities = pokemon_obj["base_abilities"]
+                            if (base_abilities.length > 0){
+                                let roll = getRandomArbitrary(0,base_abilities.length);
+                                dispatch(setBaseAbility({pokemon_base_ability:base_abilities[roll]}));
+                            }
+                        }}> Roll </Button></div>
+                }
+
+                {
+                    pokemon_obj && level >= 20 &&
+                    <div><br></br>
+                        Advanced Ability : <Select
+                            showSearch
+                            options={["",...pokemon_obj["advanced_abilities"]].map(rarity => {
+                                return {"value":rarity,"label":rarity}}
+                            )}
+                            style={{marginTop:'5px',width:'30%',height:'30px'}}
+                            value={advanced_ability}
+                            onChange={(value) => {if (value !== "") {dispatch(setAdvancedAbility({pokemon_advanced_ability:value}));} return "";}}>
+                        </Select><Button disabled={advanced_ability!==""} style={{marginLeft:'5px',marginRight:'5px',marginTop:'5px',width:'5%',height:'30px'}} onClick={() => {
+                            const base_abilities = pokemon_obj["advanced_abilities"]
+                            if (base_abilities.length > 0){
+                                let roll = getRandomArbitrary(0,base_abilities.length);
+                                dispatch(setAdvancedAbility({pokemon_advanced_ability:base_abilities[roll]}));
+                            }
+                        }}> Roll </Button></div>
+                }
+
+                {
+                    pokemon_obj && level >= 40 &&
+                    <div><br></br>
+                        High Ability : <Select
+                            showSearch
+                            options={["",...pokemon_obj["high_abilities"]].map(rarity => {
+                                return {"value":rarity,"label":rarity}}
+                            )}
+                            style={{marginTop:'5px',width:'30%',height:'30px'}}
+                            value={high_ability}
+                            onChange={(value) => {if (value !== "") {dispatch(setHighAbility({pokemon_high_ability:value}));} return "";}}>
+                        </Select><Button disabled={high_ability!==""} style={{marginLeft:'5px',marginRight:'5px',marginTop:'5px',width:'5%',height:'30px'}} onClick={() => {
+                            const base_abilities = pokemon_obj["high_abilities"]
+                            if (base_abilities.length > 0){
+                                let roll = getRandomArbitrary(0,base_abilities.length);
+                                dispatch(setHighAbility({pokemon_high_ability:base_abilities[roll]}));
+                            }
+                        }}> Roll </Button></div>
+                }
+
                 <br></br><h2>Level up points :</h2>
                 Available points : {available_points}<br></br>
                 HP <InputNumber onChange={(value) => dispatch(setPointsByStat({pokemon_points_by_stats:{"HP":value}}))} style={{width:50,marginRight:'3px'}} disabled={available_points<=0 || level === -1} min={0} max={available_points} value={points_by_stats["HP"]} defaultValue={0}></InputNumber>
@@ -684,10 +734,14 @@ function PokemonGenerator() {
                                     let index_to_remove = chosen_moves.findIndex(move_c => move_c["move"] === move_name);
                                     if (index_to_remove > -1) {
                                         dispatch(removeMovePokemonChosenMoves({pokemon_chosen_moves: index_to_remove}));
-                                    } else {
+                                    }
+                                    else {
                                         let moves_to_add = moves.find((m) => m["move"] === move_name);
                                         if (moves_to_add && chosen_moves.length < 6) {
                                             dispatch(addMovePokemonChosenMoves({pokemon_chosen_moves: moves_to_add}));
+                                        }
+                                        else if (chosen_moves.length < 6) {
+                                            dispatch(addMovePokemonChosenMoves({pokemon_chosen_moves: {move:move_name,type:'',frequency:'',AC:'',blessing:'',classe:'',contest_effect:'',contest_type:'',damage_base:'',effect:'',extra_lines:[],range:'',roll:'',special_effect:''}}));
                                         }
                                     }
                                 }
@@ -701,6 +755,7 @@ function PokemonGenerator() {
 
                 <div>
                     <h2>Egg Moves :</h2>
+                    <p> (You can lock egg moves so they are forced to appear in the final sheet table)</p>
                     <Table responsive style={{borderColor:'white',borderWidth:'1px',borderStyle:'solid',minWidth:'70%',maxWidth:'70%'}}>
                         <thead>
                         <tr>
@@ -713,11 +768,12 @@ function PokemonGenerator() {
                             <th>Range</th>
                             <th>Effect</th>
                             <th></th>
+                            <th></th>
                         </tr>
                         </thead>
                         <tbody>
                         {egg_moves.map(egg => {
-                                return <tr>
+                                return <tr style={{color:(egg && locked_egg_moves.findIndex(obj => obj === egg["move"]) > -1?'green':'')}}>
                                     <th>{egg["move"]}</th>
                                     <th>{egg["frequency"]}</th>
                                     <th>{egg["AC"]}</th>
@@ -726,17 +782,42 @@ function PokemonGenerator() {
                                     <th>{egg["classe"]}</th>
                                     <th>{egg["range"]}</th>
                                     <th>{egg["effect"]}</th>
+                                    {   locked_egg_moves.findIndex(obj => obj === egg["move"]) > -1 ?
+                                        <th><Button disabled={false} style={{marginLeft:'5px',marginTop:'5px',height:'30px'}} onClick={() => {
+                                        let index_to_remove = locked_egg_moves.findIndex(move_c => move_c === egg["move"]);
+                                        if (index_to_remove > -1) {
+                                            dispatch(removeMovePokemonLockedEggMoves({pokemon_locked_egg_moves:index_to_remove}));
+                                        }
+                                        }}> Unlock </Button></th>
+                                        :
+                                        <th><Button disabled={chosen_moves.length + locked_egg_moves.length >= 9} style={{marginLeft:'5px',marginTop:'5px',height:'30px'}} onClick={() => {
+                                            if (egg["move"] !== "") {
+                                                let index_to_remove = locked_egg_moves.findIndex(move_c => move_c === egg["move"]);
+                                                if (index_to_remove === -1) {
+                                                    dispatch(addMovePokemonLockedEggMoves({pokemon_locked_egg_moves: egg["move"]}));
+                                                }
+                                            }
+                                        }}> Lock </Button></th>
+                                    }
                                     <th><Button disabled={level===-1} style={{marginLeft:'5px',marginTop:'5px',height:'30px'}} onClick={() => {
                                         let index_to_remove = egg_moves.findIndex(move_c => move_c["move"] === egg["move"]);
                                         if (index_to_remove > -1) {
                                             dispatch(removeMovePokemonEggMoves({pokemon_chosen_egg_moves:index_to_remove}));
+                                        }
+                                        let index_to_remove_lock = locked_egg_moves.findIndex(move_c => move_c["move"] === egg["move"]);
+                                        if (index_to_remove_lock > -1) {
+                                            dispatch(removeMovePokemonLockedEggMoves({pokemon_locked_egg_moves:index_to_remove_lock}));
                                         }
                                     }}> remove </Button></th>
                                 </tr>
                         })}
                         </tbody>
                     </Table><br></br>
-                    <br></br>
+                    <Button disabled={locked_egg_moves.length === 0} style={{marginLeft:'60%',marginTop:'5px',height:'30px'}} onClick={() => {
+                        for (let i = 0; i < locked_egg_moves.length; i++) {
+                            dispatch(removeMovePokemonLockedEggMoves({pokemon_locked_egg_moves:i}));
+                        }
+                    }}> Unlock all </Button>
                 </div>
 
                 Add Egg moves : <Select
@@ -757,8 +838,107 @@ function PokemonGenerator() {
                         let moves_to_add = moves.find((m) => m["move"] === move_name);
                         if (moves_to_add) {
                             dispatch(addMovePokemonEggMoves({pokemon_chosen_egg_moves: moves_to_add}));
+
                         }
                     }
+
+
+                    value = "";
+                }}>
+
+            </Select>
+                <br></br>
+                <br></br>
+                <div>
+                    <h2>TM Moves :</h2>
+                    <p> (You can lock tm moves so they are forced to appear in the final sheet table)</p>
+                    <Table responsive style={{borderColor:'white',borderWidth:'1px',borderStyle:'solid',minWidth:'70%',maxWidth:'70%'}}>
+                        <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Freq</th>
+                            <th>AC</th>
+                            <th>Type</th>
+                            <th>Roll</th>
+                            <th>Dmg Type</th>
+                            <th>Range</th>
+                            <th>Effect</th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {tmhm_moves.map(egg => {
+                            return <tr style={{color:(egg && locked_egg_moves.findIndex(obj => obj === egg["move"]) > -1?'green':'')}}>
+                                <th>{egg["move"]}</th>
+                                <th>{egg["frequency"]}</th>
+                                <th>{egg["AC"]}</th>
+                                <th>{egg["type"]}</th>
+                                <th>{egg["roll"]}</th>
+                                <th>{egg["classe"]}</th>
+                                <th>{egg["range"]}</th>
+                                <th>{egg["effect"]}</th>
+                                {   locked_egg_moves.findIndex(obj => obj === egg["move"]) > -1 ?
+                                    <th><Button disabled={false} style={{marginLeft:'5px',marginTop:'5px',height:'30px'}} onClick={() => {
+                                        let index_to_remove = locked_egg_moves.findIndex(move_c => move_c === egg["move"]);
+                                        if (index_to_remove > -1) {
+                                            dispatch(removeMovePokemonLockedEggMoves({pokemon_locked_egg_moves:index_to_remove}));
+                                        }
+                                    }}> Unlock </Button></th>
+                                    :
+                                    <th><Button disabled={chosen_moves.length + locked_egg_moves.length >= 9} style={{marginLeft:'5px',marginTop:'5px',height:'30px'}} onClick={() => {
+                                        if (egg["move"] !== "") {
+                                            let index_to_remove = locked_egg_moves.findIndex(move_c => move_c === egg["move"]);
+                                            if (index_to_remove === -1) {
+                                                dispatch(addMovePokemonLockedEggMoves({pokemon_locked_egg_moves: egg["move"]}));
+                                            }
+                                        }
+                                    }}> Lock </Button></th>
+                                }
+                                <th><Button disabled={level===-1} style={{marginLeft:'5px',marginTop:'5px',height:'30px'}} onClick={() => {
+                                    let index_to_remove = egg_moves.findIndex(move_c => move_c["move"] === egg["move"]);
+                                    if (index_to_remove > -1) {
+                                        dispatch(removeMovePokemonTMHMMoves({pokemon_chosen_tmhm_moves:index_to_remove}));
+                                    }
+                                    let index_to_remove_lock = locked_egg_moves.findIndex(move_c => move_c["move"] === egg["move"]);
+                                    if (index_to_remove_lock > -1) {
+                                        dispatch(removeMovePokemonLockedEggMoves({pokemon_locked_egg_moves:index_to_remove_lock}));
+                                    }
+                                }}> remove </Button></th>
+                            </tr>
+                        })}
+                        </tbody>
+                    </Table><br></br>
+                    <Button disabled={locked_egg_moves.length === 0} style={{marginLeft:'60%',marginTop:'5px',height:'30px'}} onClick={() => {
+                        for (let i = 0; i < locked_egg_moves.length; i++) {
+                            dispatch(removeMovePokemonLockedEggMoves({pokemon_locked_egg_moves:i}));
+                        }
+                    }}> Unlock all </Button>
+                </div>
+
+                Add TM moves : <Select
+                showSearch
+                style={{width:'30%',height:'30px'}}
+                defaultValue={""}
+                options={
+                    final_tm_moves.map((m) =>
+                        { return {"value":m["move"].replace(':','').trim(),"label":m["move"]} }
+                    )}
+                onChange={(value) => {
+                    let move_name = value.replace(':','').trim();
+                    let index_to_remove = egg_moves.findIndex(move_c => move_c["move"] === move_name);
+                    if (index_to_remove > -1) {
+                        dispatch(removeMovePokemonTMHMMoves({pokemon_chosen_tmhm_moves:index_to_remove}));
+                    }
+                    else {
+                        let moves_to_add = moves.find((m) => m["move"] === move_name);
+                        if (moves_to_add) {
+                            dispatch(addMovePokemonTMHMMoves({pokemon_chosen_tmhm_moves: moves_to_add}));
+
+                        }
+                    }
+
+
                     value = "";
                 }}>
 
@@ -766,7 +946,11 @@ function PokemonGenerator() {
                 <br></br>
                 <br></br>
                 <br></br>
-                <Button disabled={!ready_to_generate} style={{marginLeft:'5px',width:'10%',height:'50px'}} onClick={() => {
+                <div>
+                <Button disabled={!ready_to_generate} style={{marginLeft:'5px',width:'15%',height:'50px'}} onClick={() => {
+                    console.log(egg_moves);
+                    console.log(locked_egg_moves);
+                    console.log(chosen_moves);
                     let final =`![](${"http://faeresdev.site"+local_png_img})\n`;
                     final += `# ${choosen_pokemon.charAt(0).toUpperCase() + choosen_pokemon.slice(1)}`;
                     final += `\n`
@@ -844,6 +1028,13 @@ function PokemonGenerator() {
                     const spe_evade = Math.round(final_spdef/10)
                     const speed_evade = Math.round(final_speed/10)
                     const injuries = 0;
+                    let added_moves = 0;
+                    let local_chosen_moves = chosen_moves.map(x => x);
+                    let local_egg_moves = egg_moves.map(x => x); // deep copy
+                    let local_tmhm_moves = tmhm_moves.map(x => x); // deep copy
+                    let local_locked_egg_moves = locked_egg_moves.map(x => x);// deep copy
+                    let egg_move_array = [];
+                    let normal_array = [];
                     final += `| **Derived stats** |                |\n`
                     final += `|-------------------|----------------|\n`
                     final += `| Phys Evade        | ${phy_evade}    |\n`
@@ -857,25 +1048,122 @@ function PokemonGenerator() {
                     final += `\n`
                     final += `| **Move**    | **Freq**         | **AC**    | **Type**    | **Roll**    | **Dmg. Type**      | **Range**    | **Special Effect** |\n`
                     final += `|-------------|------------------|-----------|-------------|-------------|--------------------|--------------|-------------------|\n`
-                    Array(6).keys().forEach(index => {
-                        if (index < chosen_moves.length) {
-                            final += `| ${chosen_moves[index]['move']} | ${chosen_moves[index]['frequency']} | ${chosen_moves[index]['AC']} | ${chosen_moves[index]['type']} | ${chosen_moves[index]['roll']} | ${chosen_moves[index]['classe']} | ${chosen_moves[index]['range']} | ${chosen_moves[index]['effect']}     |\n`
+
+
+                    while (added_moves < 3 && local_locked_egg_moves.length > 0) {
+                        const lock_egg_move_name = local_locked_egg_moves.pop();
+                        if (lock_egg_move_name) {
+                            const index_egg_move = local_egg_moves.findIndex(obj=> obj["move"] === lock_egg_move_name);
+                            if (index_egg_move > -1) {
+                                egg_move_array.push(`| ${local_egg_moves[index_egg_move]['move']} | ${local_egg_moves[index_egg_move]['frequency']} | ${local_egg_moves[index_egg_move]['AC']} | ${local_egg_moves[index_egg_move]['type']} | ${local_egg_moves[index_egg_move]['roll']} | ${local_egg_moves[index_egg_move]['classe']} | ${local_egg_moves[index_egg_move]['range']} | ${local_egg_moves[index_egg_move]['effect']}     |\n`)
+                                local_egg_moves.splice(index_egg_move,1)
+                                added_moves += 1;
+                            }
+                            else {
+                                const index_egg_move = local_tmhm_moves.findIndex(obj=> obj["move"] === lock_egg_move_name);
+                                if (index_egg_move > -1) {
+                                    egg_move_array.push(`| ${local_tmhm_moves[index_egg_move]['move']} | ${local_tmhm_moves[index_egg_move]['frequency']} | ${local_tmhm_moves[index_egg_move]['AC']} | ${local_tmhm_moves[index_egg_move]['type']} | ${local_tmhm_moves[index_egg_move]['roll']} | ${local_tmhm_moves[index_egg_move]['classe']} | ${local_tmhm_moves[index_egg_move]['range']} | ${local_tmhm_moves[index_egg_move]['effect']}     |\n`)
+                                    local_tmhm_moves.splice(index_egg_move,1)
+                                    added_moves += 1;
+                                }
+                            }
+
                         }
-                        else {
-                            final += `|  |  |  |  |  |  |  |      |\n`
+                    }
+
+
+                    while (added_moves < 3 && local_egg_moves.length > 0) {
+                        const egg_move_l = local_egg_moves.pop();
+                        if (egg_move_l) {
+                            egg_move_array.push(`| ${egg_move_l['move']} | ${egg_move_l['frequency']} | ${egg_move_l['AC']} | ${egg_move_l['type']} | ${egg_move_l['roll']} | ${egg_move_l['classe']} | ${egg_move_l['range']} | ${egg_move_l['effect']}     |\n`)
+                            added_moves += 1;
                         }
-                    });
-                    final += `\n`
-                    final += `|               |   |   |   |   |   |   |   |\n`
-                    final += `|---------------|---|---|---|---|---|---|---|\n`
-                    Array(3).keys().forEach(index => {
-                        if (index < egg_moves.length) {
-                            final += `| ${egg_moves[index]['move']} | ${egg_moves[index]['frequency']} | ${egg_moves[index]['AC']} | ${egg_moves[index]['type']} | ${egg_moves[index]['roll']} | ${egg_moves[index]['classe']} | ${egg_moves[index]['range']} | ${egg_moves[index]['effect']}     |\n`
+                    }
+                    while (added_moves < 3 && local_tmhm_moves.length > 0) {
+                        const egg_move_l = local_tmhm_moves.pop();
+                        if (egg_move_l) {
+                            egg_move_array.push(`| ${egg_move_l['move']} | ${egg_move_l['frequency']} | ${egg_move_l['AC']} | ${egg_move_l['type']} | ${egg_move_l['roll']} | ${egg_move_l['classe']} | ${egg_move_l['range']} | ${egg_move_l['effect']}     |\n`)
+                            added_moves += 1;
                         }
-                        else {
-                            final += `|               |   |   |   |   |   |   |   |\n`
+                    }
+
+
+
+                    while (added_moves < 3){
+                        egg_move_array.push(`|               |   |   |   |   |   |   |   |\n`)
+                        added_moves += 1;
+                    }
+
+
+
+                    while (added_moves < 9 && local_locked_egg_moves.length > 0) {
+                        const lock_egg_move_name = local_locked_egg_moves.pop();
+                        console.log(lock_egg_move_name);
+                        if (lock_egg_move_name) {
+                            const index_egg_move = local_egg_moves.findIndex(obj=> obj["move"] === lock_egg_move_name);
+                            if (index_egg_move > -1) {
+                                normal_array.push(`| ${local_egg_moves[index_egg_move]['move']} | ${local_egg_moves[index_egg_move]['frequency']} | ${local_egg_moves[index_egg_move]['AC']} | ${local_egg_moves[index_egg_move]['type']} | ${local_egg_moves[index_egg_move]['roll']} | ${local_egg_moves[index_egg_move]['classe']} | ${local_egg_moves[index_egg_move]['range']} | ${local_egg_moves[index_egg_move]['effect']}     |\n`)
+                                local_egg_moves.splice(index_egg_move,1)
+                                added_moves += 1;
+                            }
+                            else {
+                                const index_egg_move = local_tmhm_moves.findIndex(obj=> obj["move"] === lock_egg_move_name);
+                                if (index_egg_move > -1) {
+                                    normal_array.push(`| ${local_tmhm_moves[index_egg_move]['move']} | ${local_tmhm_moves[index_egg_move]['frequency']} | ${local_tmhm_moves[index_egg_move]['AC']} | ${local_tmhm_moves[index_egg_move]['type']} | ${local_tmhm_moves[index_egg_move]['roll']} | ${local_tmhm_moves[index_egg_move]['classe']} | ${local_tmhm_moves[index_egg_move]['range']} | ${local_tmhm_moves[index_egg_move]['effect']}     |\n`)
+                                    local_tmhm_moves.splice(index_egg_move,1)
+                                    added_moves += 1;
+                                }
+                            }
+
                         }
-                    });
+                    }
+
+
+                    while (added_moves < 9 && local_chosen_moves.length > 0) {
+                        const egg_move_l = local_chosen_moves.pop();
+                        if (egg_move_l) {
+                            normal_array.push(`| ${egg_move_l['move']} | ${egg_move_l['frequency']} | ${egg_move_l['AC']} | ${egg_move_l['type']} | ${egg_move_l['roll']} | ${egg_move_l['classe']} | ${egg_move_l['range']} | ${egg_move_l['effect']}     |\n`)
+                            added_moves += 1;
+                        }
+                    }
+
+                    while (added_moves < 9 && local_egg_moves.length > 0) {
+                        const egg_move_l = local_egg_moves.pop();
+                        if (egg_move_l) {
+                            normal_array.push(`| ${egg_move_l['move']} | ${egg_move_l['frequency']} | ${egg_move_l['AC']} | ${egg_move_l['type']} | ${egg_move_l['roll']} | ${egg_move_l['classe']} | ${egg_move_l['range']} | ${egg_move_l['effect']}     |\n`)
+                            added_moves += 1;
+                        }
+                    }
+
+                    while (added_moves < 9 && local_tmhm_moves.length > 0) {
+                        const egg_move_l = local_tmhm_moves.pop();
+                        if (egg_move_l) {
+                            normal_array.push(`| ${egg_move_l['move']} | ${egg_move_l['frequency']} | ${egg_move_l['AC']} | ${egg_move_l['type']} | ${egg_move_l['roll']} | ${egg_move_l['classe']} | ${egg_move_l['range']} | ${egg_move_l['effect']}     |\n`)
+                            added_moves += 1;
+                        }
+                    }
+
+
+
+
+
+                    while (added_moves < 9){
+                        normal_array.push(`|               |   |   |   |   |   |   |   |\n`)
+                        added_moves += 1;
+                    }
+
+                    normal_array.push(`\n`)
+                    normal_array.push(`|               |   |   |   |   |   |   |   |\n`)
+                    normal_array.push(`|---------------|---|---|---|---|---|---|---|\n`)
+
+                    normal_array.forEach((item, i) => {
+                        final += item;
+                    })
+
+                    egg_move_array.forEach((item, i) => {
+                        final += item;
+                    })
+
                     final += `\n`
                     const tutor_point = Math.floor(level/5)
                     final += `Tutor points = ${tutor_point}\n`
@@ -883,7 +1171,7 @@ function PokemonGenerator() {
                     final += `\n`
                     final += `## **Notes**\n`
                     final += `\n`
-                    final += `egg move : `
+                    final += `egg moves : `
                     if (egg_moves.length === 0) {
                         final += `None`
                     }
@@ -894,11 +1182,23 @@ function PokemonGenerator() {
                         final = final.substring(0,final.length-1);
                     }
 
+                    final += `\n`
+                    final += `TM moves : `
+                    if (tmhm_moves.length === 0) {
+                        final += `None`
+                    }
+                    else {
+                        tmhm_moves.forEach(egg_move => {
+                            final += `${egg_move["move"]},`
+                        })
+                        final = final.substring(0,final.length-1);
+                    }
+
                     console.log(final)
                     var blob = new Blob([final], { type: 'text/plain' });
                     download(blob, pokemon_obj["name"]+".md", "text/plain");
                 }}> Generate Markdown </Button>
-                <Button disabled={!ready_to_generate} style={{marginLeft:'10px',marginTop:'10px',width:'10%',height:'50px'}} onClick={() => {
+                <Button disabled={!ready_to_generate} style={{marginTop:'5px',marginLeft:'5px',display:'grid',width:'15%',height:'50px'}} onClick={() => {
                     const container = document.createElement("div");
 
                     container.innerHTML += `<img src="${"http://faeresdev.site"+local_png_img}" width="200">`;
@@ -1034,8 +1334,15 @@ function PokemonGenerator() {
 
 
                     container.innerHTML += `<h2>Moves</h2>`;
+                    let added_moves = 0;
+                    let local_chosen_moves = chosen_moves.map(x => x);
+                    let local_egg_moves = egg_moves.map(x => x); // deep copy
+                    let local_tmhm_moves = tmhm_moves.map(x => x); // deep copy
+                    let local_locked_egg_moves = locked_egg_moves.map(x => x);// deep copy
+                    let egg_move_array = [];
+                    let normal_array = [];
 
-                    let moveTable = `
+                    egg_move_array.push(`
                         <table border="1" style="border-collapse:collapse">
                         <tr>
                         <th>Move</th>
@@ -1047,79 +1354,233 @@ function PokemonGenerator() {
                         <th>Range</th>
                         <th>Special Effect</th>
                         </tr>
-                        `;
+                        `);
 
-                    Array(6).fill().forEach((_,index)=>{
-                        if(index < chosen_moves.length){
-                            const m = chosen_moves[index];
-                            moveTable += `
-                            <tr>
-                            <td>${m.move}</td>
-                            <td>${m.frequency}</td>
-                            <td>${m.AC}</td>
-                            <td>${m.type}</td>
-                            <td>${m.roll}</td>
-                            <td>${m.classe}</td>
-                            <td>${m.range}</td>
-                            <td>${m.effect}</td>
-                            </tr>`;
-                        } else {
-                            moveTable += `<tr>${"<td></td>".repeat(8)}</tr>`;
+                    while (added_moves < 3 && local_locked_egg_moves.length > 0) {
+                        const lock_egg_move_name = local_locked_egg_moves.pop();
+                        if (lock_egg_move_name) {
+                            const index_egg_move = local_egg_moves.findIndex(obj=> obj["move"] === lock_egg_move_name);
+                            if (index_egg_move > -1) {
+                                egg_move_array.push(`
+                                <tr>
+                                <td>${local_egg_moves[index_egg_move]['move']}</td>
+                                <td>${local_egg_moves[index_egg_move]['frequency']}</td>
+                                <td>${local_egg_moves[index_egg_move]['AC']}</td>
+                                <td>${local_egg_moves[index_egg_move]['type']}</td>
+                                <td>${local_egg_moves[index_egg_move]['roll']}</td>
+                                <td>${local_egg_moves[index_egg_move]['classe']}</td>
+                                <td>${local_egg_moves[index_egg_move]['range']}</td>
+                                <td>${local_egg_moves[index_egg_move]['effect']}</td>
+                                </tr>`);                                local_egg_moves.splice(index_egg_move,1)
+                                added_moves += 1;
+                            }
+                            else {
+                                const index_egg_move = local_tmhm_moves.findIndex(obj=> obj["move"] === lock_egg_move_name);
+                                if (index_egg_move > -1) {
+                                    egg_move_array.push(`
+                                <tr>
+                                <td>${local_tmhm_moves[index_egg_move]['move']}</td>
+                                <td>${local_tmhm_moves[index_egg_move]['frequency']}</td>
+                                <td>${local_tmhm_moves[index_egg_move]['AC']}</td>
+                                <td>${local_tmhm_moves[index_egg_move]['type']}</td>
+                                <td>${local_tmhm_moves[index_egg_move]['roll']}</td>
+                                <td>${local_tmhm_moves[index_egg_move]['classe']}</td>
+                                <td>${local_tmhm_moves[index_egg_move]['range']}</td>
+                                <td>${local_tmhm_moves[index_egg_move]['effect']}</td>
+                                </tr>`);                                    local_tmhm_moves.splice(index_egg_move,1)
+                                    added_moves += 1;
+                                }
+                            }
+
                         }
-                    });
+                    }
 
-                    moveTable += `</table>`;
-                    container.innerHTML += moveTable;
 
+
+                    while (added_moves < 3 && local_egg_moves.length > 0) {
+                        const egg_move_l = local_egg_moves.pop();
+                        if (egg_move_l) {
+                            egg_move_array.push(`
+                                <tr>
+                                <td>${egg_move_l['move']}</td>
+                                <td>${egg_move_l['frequency']}</td>
+                                <td>${egg_move_l['AC']}</td>
+                                <td>${egg_move_l['type']}</td>
+                                <td>${egg_move_l['roll']}</td>
+                                <td>${egg_move_l['classe']}</td>
+                                <td>${egg_move_l['range']}</td>
+                                <td>${egg_move_l['effect']}</td>
+                                </tr>`);                            added_moves += 1;
+                        }
+                    }
+                    while (added_moves < 3 && local_tmhm_moves.length > 0) {
+                        const egg_move_l = local_tmhm_moves.pop();
+                        if (egg_move_l) {
+                            egg_move_array.push(`
+                                <tr>
+                                <td>${egg_move_l['move']}</td>
+                                <td>${egg_move_l['frequency']}</td>
+                                <td>${egg_move_l['AC']}</td>
+                                <td>${egg_move_l['type']}</td>
+                                <td>${egg_move_l['roll']}</td>
+                                <td>${egg_move_l['classe']}</td>
+                                <td>${egg_move_l['range']}</td>
+                                <td>${egg_move_l['effect']}</td>
+                                </tr>`);                            added_moves += 1;
+                        }
+                    }
+                    while (added_moves < 3){
+                        egg_move_array.push(`<tr>${"<td></td>".repeat(8)}</tr>`);
+                        added_moves++;
+                    }
+                    egg_move_array.push(`</table>`);
+                    // container.innerHTML += moveTable;
+
+                    normal_array.push(`
+                        <table border="1" style="border-collapse:collapse">
+                        <tr>
+                        <th>Move</th>
+                        <th>Freq</th>
+                        <th>AC</th>
+                        <th>Type</th>
+                        <th>Roll</th>
+                        <th>Dmg Type</th>
+                        <th>Range</th>
+                        <th>Special Effect</th>
+                        </tr>
+                        `);
 
                     /* -------- EGG MOVES TABLE -------- */
 
-                    let eggTable = `
-                        <table border="1" style="border-collapse:collapse">
-                        <tr>
-                        <th>Move</th>
-                        <th>Freq</th>
-                        <th>AC</th>
-                        <th>Type</th>
-                        <th>Roll</th>
-                        <th>Dmg Type</th>
-                        <th>Range</th>
-                        <th>Special Effect</th>
-                        </tr>
-                        `;
 
-                    Array(3).fill().forEach((_,index)=>{
-                        if(index < egg_moves.length){
-                            const m = egg_moves[index];
-                            eggTable += `
-                            <tr>
-                            <td>${m.move}</td>
-                            <td>${m.frequency}</td>
-                            <td>${m.AC}</td>
-                            <td>${m.type}</td>
-                            <td>${m.roll}</td>
-                            <td>${m.classe}</td>
-                            <td>${m.range}</td>
-                            <td>${m.effect}</td>
-                            </tr>`;
-                        } else {
-                            eggTable += `<tr>${"<td></td>".repeat(8)}</tr>`;
+                    while (added_moves < 9 && local_locked_egg_moves.length > 0) {
+                        const lock_egg_move_name = local_locked_egg_moves.pop();
+                        console.log(lock_egg_move_name);
+                        if (lock_egg_move_name) {
+                            const index_egg_move = local_egg_moves.findIndex(obj=> obj["move"] === lock_egg_move_name);
+                            if (index_egg_move > -1) {
+                                normal_array.push(`
+                                <tr>
+                                <td>${local_egg_moves[index_egg_move]['move']}</td>
+                                <td>${local_egg_moves[index_egg_move]['frequency']}</td>
+                                <td>${local_egg_moves[index_egg_move]['AC']}</td>
+                                <td>${local_egg_moves[index_egg_move]['type']}</td>
+                                <td>${local_egg_moves[index_egg_move]['roll']}</td>
+                                <td>${local_egg_moves[index_egg_move]['classe']}</td>
+                                <td>${local_egg_moves[index_egg_move]['range']}</td>
+                                <td>${local_egg_moves[index_egg_move]['effect']}</td>
+                                </tr>`);                                local_egg_moves.splice(index_egg_move,1)
+                                added_moves += 1;
+                            }
+                            else {
+                                const index_egg_move = local_tmhm_moves.findIndex(obj=> obj["move"] === lock_egg_move_name);
+                                if (index_egg_move > -1) {
+                                    normal_array.push(`
+                                <tr>
+                                <td>${local_tmhm_moves[index_egg_move]['move']}</td>
+                                <td>${local_tmhm_moves[index_egg_move]['frequency']}</td>
+                                <td>${local_tmhm_moves[index_egg_move]['AC']}</td>
+                                <td>${local_tmhm_moves[index_egg_move]['type']}</td>
+                                <td>${local_tmhm_moves[index_egg_move]['roll']}</td>
+                                <td>${local_tmhm_moves[index_egg_move]['classe']}</td>
+                                <td>${local_tmhm_moves[index_egg_move]['range']}</td>
+                                <td>${local_tmhm_moves[index_egg_move]['effect']}</td>
+                                </tr>`);                                    local_tmhm_moves.splice(index_egg_move,1)
+                                    added_moves += 1;
+                                }
+                            }
+
                         }
-                    });
+                    }
 
-                    eggTable += `</table>`;
+
+                    while (added_moves < 9 && local_chosen_moves.length > 0) {
+                        const egg_move_l = local_chosen_moves.pop();
+                        if (egg_move_l) {
+                            normal_array.push(`
+                                <tr>
+                                <td>${egg_move_l['move']}</td>
+                                <td>${egg_move_l['frequency']}</td>
+                                <td>${egg_move_l['AC']}</td>
+                                <td>${egg_move_l['type']}</td>
+                                <td>${egg_move_l['roll']}</td>
+                                <td>${egg_move_l['classe']}</td>
+                                <td>${egg_move_l['range']}</td>
+                                <td>${egg_move_l['effect']}</td>
+                                </tr>`);                            added_moves += 1;
+                        }
+                    }
+
+                    while (added_moves < 9 && local_egg_moves.length > 0) {
+                        const egg_move_l = local_egg_moves.pop();
+                        if (egg_move_l) {
+                            normal_array.push(`
+                                <tr>
+                                <td>${egg_move_l['move']}</td>
+                                <td>${egg_move_l['frequency']}</td>
+                                <td>${egg_move_l['AC']}</td>
+                                <td>${egg_move_l['type']}</td>
+                                <td>${egg_move_l['roll']}</td>
+                                <td>${egg_move_l['classe']}</td>
+                                <td>${egg_move_l['range']}</td>
+                                <td>${egg_move_l['effect']}</td>
+                                </tr>`);                             added_moves += 1;
+                        }
+                    }
+
+                    while (added_moves < 9 && local_tmhm_moves.length > 0) {
+                        const egg_move_l = local_tmhm_moves.pop();
+                        if (egg_move_l) {
+                            normal_array.push(`
+                                <tr>
+                                <td>${egg_move_l['move']}</td>
+                                <td>${egg_move_l['frequency']}</td>
+                                <td>${egg_move_l['AC']}</td>
+                                <td>${egg_move_l['type']}</td>
+                                <td>${egg_move_l['roll']}</td>
+                                <td>${egg_move_l['classe']}</td>
+                                <td>${egg_move_l['range']}</td>
+                                <td>${egg_move_l['effect']}</td>
+                                </tr>`);                             added_moves += 1;
+                        }
+                    }
+
+                    while (added_moves < 9){
+                        normal_array.push(`<tr>${"<td></td>".repeat(8)}</tr>`);
+                        added_moves++;
+                    }
+
+                    normal_array.push(`</table>`);
+                    //
+
+                    let normalTable = "";
+                    normal_array.forEach((item,i) => {
+                        normalTable += item;
+                    })
+
+                    container.innerHTML += normalTable;
+                    let eggTable = "";
+                    egg_move_array.forEach((item,i) => {
+                        eggTable += item;
+                    })
+
                     container.innerHTML += eggTable;
-
 
                     const tutor_point = Math.floor(level/5);
                     container.innerHTML += `<p><b>Tutor points:</b> ${tutor_point}</p>`;
 
 
                     container.innerHTML += `<h2>Notes</h2>`;
-                    container.innerHTML += `<p>Egg move: ${
+                    container.innerHTML += `<p>Egg moves: ${
                         egg_moves.length === 0
                             ? "None"
                             : egg_moves.map(e=>e.move).join(", ")
+                    }</p>`;
+
+                    container.innerHTML += `<p>TM moves: ${
+                        tmhm_moves.length === 0
+                            ? "None"
+                            : tmhm_moves.map(e=>e.move).join(", ")
                     }</p>`;
 
 
@@ -1140,7 +1601,7 @@ function PokemonGenerator() {
                     container.remove();
 
                     console.log("Formatted content copied! Paste into Google Docs.");
-                }}> Copy google doc version to clipboard </Button>
+                }}> Copy google doc version to clipboard </Button></div>
                 <br></br>
                 <br></br>
                 <br></br>

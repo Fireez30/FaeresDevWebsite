@@ -19,7 +19,10 @@ export const pokemonSlice = createSlice({
         pokemon_bonus_points_by_stats : {"HP":0,"ATK":0,"DEF":0,"SPATK":0,"SPDEF":0,"SPD":0},
         pokemon_bonus_points_to_nature_stat : 0,
         pokemon_chosen_moves : [],
+        pokemon_locked_moves : [],
         pokemon_chosen_egg_moves : [],
+        pokemon_chosen_tmhm_moves : [],
+        pokemon_locked_egg_moves : [],
     },
     reducers: {
         choose_pokemon: (state, action) => {
@@ -40,7 +43,10 @@ export const pokemonSlice = createSlice({
                 state.pokemon_points_by_stats = {"HP":0,"ATK":0,"DEF":0,"SPATK":0,"SPDEF":0,"SPD":0};
                 state.pokemon_bonus_points_to_nature_stat = 0;
                 state.pokemon_chosen_moves = [];
+                state.pokemon_locked_moves = [];
                 state.pokemon_chosen_egg_moves = [];
+                state.pokemon_chosen_tmhm_moves = [];
+                state.pokemon_locked_egg_moves = [];
             }
         },
         decrement_remaining_rolls: state => {
@@ -102,6 +108,15 @@ export const pokemonSlice = createSlice({
             state.pokemon_chosen_moves.splice(move_index, 1);
 
         },
+        addMovePokemonLockedMoves(state, action) {
+            let move_obj = action.payload.pokemon_locked_moves;
+            state.pokemon_locked_moves.push(move_obj);
+        },
+        removeMovePokemonLockedMoves(state, action) {
+            let move_index = action.payload.pokemon_locked_moves;
+            state.pokemon_locked_moves.splice(move_index, 1);
+
+        },
         addMovePokemonEggMoves(state, action) {
             let move_obj = action.payload.pokemon_chosen_egg_moves;
             state.pokemon_chosen_egg_moves.push(move_obj);
@@ -111,10 +126,30 @@ export const pokemonSlice = createSlice({
             state.pokemon_chosen_egg_moves.splice(move_index, 1);
 
         },
+        addMovePokemonTMHMMoves(state, action) {
+            let move_obj = action.payload.pokemon_chosen_tmhm_moves;
+            state.pokemon_chosen_tmhm_moves.push(move_obj);
+        },
+        removeMovePokemonTMHMMoves(state, action) {
+            let move_index = action.payload.pokemon_chosen_tmhm_moves;
+            state.pokemon_chosen_tmhm_moves.splice(move_index, 1);
+
+        },
+        addMovePokemonLockedEggMoves(state, action) {
+            let move_obj = action.payload.pokemon_locked_egg_moves;
+            if ((state.pokemon_chosen_moves.length + state.pokemon_locked_egg_moves.length) < 9 && !state.pokemon_locked_egg_moves.includes(move_obj)){
+                state.pokemon_locked_egg_moves.push(move_obj);
+            }
+        },
+        removeMovePokemonLockedEggMoves(state, action) {
+            let move_index = action.payload.pokemon_locked_egg_moves;
+            state.pokemon_locked_egg_moves.splice(move_index, 1);
+
+        }
     }
 })
 
 // Action creators are generated for each case reducer function
-export const {addMovePokemonEggMoves,removeMovePokemonEggMoves, decrement_remaining_rolls,choose_pokemon ,setLevel,setRarity,setCard, setGender,setNature,setBuffedStat,setLoweredStat,setBaseAbility,setAdvancedAbility,setHighAbility,setPointsByStat,setBonusPointsByStat,setBonusPointsToNatureStat,setPokemonChosenMoves,addMovePokemonChosenMoves,removeMovePokemonChosenMoves} = pokemonSlice.actions
+export const {addMovePokemonTMHMMoves,removeMovePokemonTMHMMoves,addMovePokemonLockedEggMoves,removeMovePokemonLockedEggMoves,addMovePokemonLockedMoves,removeMovePokemonLockedMoves,addMovePokemonEggMoves,removeMovePokemonEggMoves, decrement_remaining_rolls,choose_pokemon ,setLevel,setRarity,setCard, setGender,setNature,setBuffedStat,setLoweredStat,setBaseAbility,setAdvancedAbility,setHighAbility,setPointsByStat,setBonusPointsByStat,setBonusPointsToNatureStat,setPokemonChosenMoves,addMovePokemonChosenMoves,removeMovePokemonChosenMoves} = pokemonSlice.actions
 
 export default pokemonSlice.reducer
