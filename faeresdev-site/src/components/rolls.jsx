@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import {setGender, setLevel} from "../features/pokemon/pokemonSlice.jsx";
+import "./Rolls.css";
 import Button from 'react-bootstrap/Button';
 import {Checkbox, Input, InputNumber} from "antd";
 function getRandomArbitrary(min, max) {
@@ -155,21 +155,36 @@ function Rolls() {
         }
 
     }
-    return (
-        <div style={{marginLeft:'5px',width:'100%',color:'white'}}>
-            <div >
-            <h3> Roll </h3>
-                <Input
-                    value={alt_rolls}
-                    onChange={e => {
-                        if (e){
-                            setAltRolls(e.target.value);
-                        }
 
-                    }}
-                    style={{marginLeft:'5px',marginTop:'5px',width:'8%',height:'30px'}}>
-                </Input>
-                <Button style={{marginLeft:'5px',marginRight:'5px',marginTop:'5px',width:'5%',height:'30px'}} onClick={() => {
+    const diceLines = rolled_dice.split("\n").filter((line) => line.trim() !== "");
+
+    return (
+        <div className="rolls-page">
+            <div className="rolls-hero">
+                <p className="rolls-kicker">Utility Board</p>
+                <h1>Dice Rolls</h1>
+                <p className="rolls-subtitle">Faster encounter, capture, shiny, and card checks in one view.</p>
+            </div>
+
+            <div className="rolls-grid">
+                <section className="roll-card roll-card-wide">
+                    <div className="roll-card-header">
+                        <h3>Expression Roller</h3>
+                        <span>Supports formulas like `2d6+1d8+3`.</span>
+                    </div>
+                    <div className="roll-inline-form">
+                        <Input
+                            value={alt_rolls}
+                            onChange={e => {
+                                if (e){
+                                    setAltRolls(e.target.value);
+                                }
+
+                            }}
+                            className="roll-input"
+                            placeholder="2d6+1d8+4"
+                        />
+                        <Button className="roll-action" onClick={() => {
                     let dice_rolls = rollDiceExpression(alt_rolls);
                     console.log(dice_rolls);
                     let final_roll = "";
@@ -181,18 +196,24 @@ function Rolls() {
                     setRolledDice(final_roll);
                 }}>
                     Roll
-                </Button><br></br><br></br>
-                { rolled_dice !== "" &&
-                    <div>
-                        {rolled_dice.split("\n").map((dice) => {
-                            return <div><text>{dice}</text></div>
-                        })
-                        }
+                        </Button>
+                    </div>
+                    { rolled_dice !== "" &&
+                    <div className="roll-output">
+                        {diceLines.map((dice, index) => {
+                            return <div className="roll-output-line" key={`dice-line-${index}`}>{dice}</div>
+                        })}
                     </div>
 
-                }
-            <h3>Encounter rolls</h3>
-                <Button style={{marginLeft:'5px',marginRight:'5px',marginTop:'5px',width:'5%',height:'30px'}} onClick={() => {
+                    }
+                </section>
+
+                <section className="roll-card">
+                    <div className="roll-card-header">
+                        <h3>Encounter Rolls</h3>
+                        <span>Generate bracket and encounter count together.</span>
+                    </div>
+                    <Button className="roll-action" onClick={() => {
                     const rolled_encounter_bracket_temp = getRandomArbitrary(0,100)+1;
                     const rolled_encounter_count_temp = getRandomArbitrary(0,20)+1;
                     setRolledEncounterBracket(rolled_encounter_bracket_temp);
@@ -200,17 +221,29 @@ function Rolls() {
 
                 }}>
                     Roll
-                </Button>
-                { rolled_encounter_bracket !== -1 &&
-                    <text>Bracket of encouter : <text style={{'color':(rolled_encounter_bracket===1?'red':rolled_encounter_bracket===100?'#00ff14':'white')}}>{rolled_encounter_bracket} / 100</text><br/></text>
-                }
-                { rolled_encounter_count !== -1 &&
-                    <text style={{marginLeft:'6%'}}> Count of encouter : <text style={{'color':(rolled_encounter_count===1?'red':rolled_encounter_count===20?'#00ff14':'white')}}>{rolled_encounter_count} / 20</text></text>
-                }
-            </div>
-            <div >
-            <h3>Capture rolls</h3>
-                <Button style={{marginLeft:'5px',marginRight:'5px',marginTop:'5px',width:'5%',height:'30px'}} onClick={() => {
+                    </Button>
+                    <div className="metric-stack">
+                        { rolled_encounter_bracket !== -1 &&
+                            <div className="metric-row">
+                                <span>Encounter bracket</span>
+                                <strong className={rolled_encounter_bracket===1 ? 'metric-danger' : rolled_encounter_bracket===100 ? 'metric-success' : ''}>{rolled_encounter_bracket} / 100</strong>
+                            </div>
+                        }
+                        { rolled_encounter_count !== -1 &&
+                            <div className="metric-row">
+                                <span>Encounter count</span>
+                                <strong className={rolled_encounter_count===1 ? 'metric-danger' : rolled_encounter_count===20 ? 'metric-success' : ''}>{rolled_encounter_count} / 20</strong>
+                            </div>
+                        }
+                    </div>
+                </section>
+
+                <section className="roll-card">
+                    <div className="roll-card-header">
+                        <h3>Capture Rolls</h3>
+                        <span>Accuracy and capture rate in one throw.</span>
+                    </div>
+                    <Button className="roll-action" onClick={() => {
                     const roll_capture_accuracy_temp = getRandomArbitrary(0,20)+1;
                     const roll_capture_rate_temp = getRandomArbitrary(0,100)+1;
                     setRollCaptureAccuracy(roll_capture_accuracy_temp);
@@ -218,18 +251,32 @@ function Rolls() {
 
                 }}>
                     Roll
-                </Button>
-                { roll_capture_accuracy !== -1 &&
-                    <text>Capture accuracy : <text style={{'color':(roll_capture_accuracy===1?'red':roll_capture_accuracy===20?'#00ff14':'white'),'border':(roll_capture_accuracy===1?'solid 1px red':roll_capture_accuracy===20?'solid 1px #00ff14':'')}}>{roll_capture_accuracy}</text><text> / 20</text><br/></text>
-                }
-                { roll_capture_rate !== -1 &&
-                    <text style={{marginLeft:'6%'}}> Capture rate : <text style={{'color':(roll_capture_rate===1?'red':roll_capture_rate===100?'#00ff14':'white'),'border':(roll_capture_rate===1?'solid 1px red':roll_capture_rate===100?'solid 1px #00ff14':'')}}>{roll_capture_rate}</text><text> / 100</text></text>
-                }
-            </div>
-            <div >
-            <h3>Shiny rolls</h3>
-                Your shiny number :
-                <InputNumber
+                    </Button>
+                    <div className="metric-stack">
+                        { roll_capture_accuracy !== -1 &&
+                            <div className="metric-row">
+                                <span>Capture accuracy</span>
+                                <strong className={roll_capture_accuracy===1 ? 'metric-danger' : roll_capture_accuracy===20 ? 'metric-success' : ''}>{roll_capture_accuracy} / 20</strong>
+                            </div>
+                        }
+                        { roll_capture_rate !== -1 &&
+                            <div className="metric-row">
+                                <span>Capture rate</span>
+                                <strong className={roll_capture_rate===1 ? 'metric-danger' : roll_capture_rate===100 ? 'metric-success' : ''}>{roll_capture_rate} / 100</strong>
+                            </div>
+                        }
+                    </div>
+                </section>
+
+                <section className="roll-card roll-card-wide">
+                    <div className="roll-card-header">
+                        <h3>Shiny Rolls</h3>
+                        <span>Set your target number, reroll window, and batch size.</span>
+                    </div>
+                    <div className="roll-form-grid">
+                        <label className="roll-field">
+                            <span>Your shiny number</span>
+                            <InputNumber
                 min={1}
                 max={100}
                 defaultValue={1}
@@ -244,10 +291,12 @@ function Rolls() {
                     }
 
                 }}
-                style={{marginLeft:'5px',marginTop:'5px',width:'8%',height:'30px'}}>
-            </InputNumber> <br></br>
-                Dexnav :
-                <InputNumber
+                            className="roll-number"
+                            />
+                        </label>
+                        <label className="roll-field">
+                            <span>Dexnav</span>
+                            <InputNumber
                     min={1}
                     max={90}
                     defaultValue={1}
@@ -262,10 +311,12 @@ function Rolls() {
                         }
 
                     }}
-                    style={{marginLeft:'5px',marginTop:'5px',width:'8%',height:'30px'}}>
-                </InputNumber> <br></br>
-                Number of dice rolls :
-                <InputNumber
+                            className="roll-number"
+                            />
+                        </label>
+                        <label className="roll-field">
+                            <span>Number of dice rolls</span>
+                            <InputNumber
                     min={1}
                     max={100}
                     defaultValue={1}
@@ -276,9 +327,11 @@ function Rolls() {
                         }
 
                     }}
-                    style={{marginLeft:'5px',marginTop:'5px',width:'8%',height:'30px'}}>
-                </InputNumber> <br></br>
-                <Button style={{marginLeft:'5px',marginRight:'5px',marginTop:'5px',width:'5%',height:'30px'}} onClick={() => {
+                            className="roll-number"
+                            />
+                        </label>
+                    </div>
+                    <Button className="roll-action" onClick={() => {
                     let rolls = [];
                     let final_rolls = [];
                     let reroll_under_or_equal = dexnav;
@@ -307,24 +360,31 @@ function Rolls() {
 
                 }}>
                     Roll
-                </Button>
+                    </Button>
 
                 { list_rolls_shiny_poke && list_rolls_shiny_poke.length > 0 &&
-                    <div>
-                        <text>List of rolls : </text>
+                    <div className="roll-badge-list">
                         {
                             list_rolls_shiny_poke.map((roll,index) => {
-                                return <text style={{'color':(roll===pokemonShinyRoll?'#00ff14':(roll===100 && list_rolls_shiny_poke.find(poke => {return poke === pokemonShinyRoll}))?'cyan':'white'),'border':(roll===pokemonShinyRoll?'solid 1px #00ff14':(roll===100 && list_rolls_shiny_poke.find(poke => {return poke === pokemonShinyRoll}))?'solid 1px cyan':'')}}>{roll} </text>
+                                const isTarget = roll === pokemonShinyRoll;
+                                const isBonus = roll === 100 && list_rolls_shiny_poke.find(poke => {return poke === pokemonShinyRoll});
+                                return <span className={`roll-badge ${isTarget ? 'roll-hit' : isBonus ? 'roll-platinum' : ''}`} key={`shiny-roll-${index}`}>{roll}</span>
                             })
                         }
 
                     </div>
                 }
-            </div >
-            <div >
-            <h3>Card rolls</h3>
-                Your normal cards numbers :
-                <InputNumber
+                </section>
+
+                <section className="roll-card roll-card-wide">
+                    <div className="roll-card-header">
+                        <h3>Card Rolls</h3>
+                        <span>Normal, shiny, and platine card outcomes with Dexnav rerolls.</span>
+                    </div>
+                    <div className="roll-form-grid roll-form-grid-cards">
+                        <label className="roll-field">
+                            <span>Normal card 1</span>
+                            <InputNumber
                     min={1}
                     max={100}
                     defaultValue={1}
@@ -339,9 +399,12 @@ function Rolls() {
                         }
 
                     }}
-                    style={{marginLeft:'5px',marginTop:'5px',width:'8%',height:'30px'}}>
-                </InputNumber>
-                <InputNumber
+                            className="roll-number"
+                            />
+                        </label>
+                        <label className="roll-field">
+                            <span>Normal card 2</span>
+                            <InputNumber
                     min={1}
                     max={100}
                     defaultValue={1}
@@ -356,9 +419,12 @@ function Rolls() {
                         }
 
                     }}
-                    style={{marginLeft:'5px',marginTop:'5px',width:'8%',height:'30px'}}>
-                </InputNumber>
-                <InputNumber
+                            className="roll-number"
+                            />
+                        </label>
+                        <label className="roll-field">
+                            <span>Normal card 3</span>
+                            <InputNumber
                     min={1}
                     max={100}
                     defaultValue={1}
@@ -373,10 +439,12 @@ function Rolls() {
                         }
 
                     }}
-                    style={{marginLeft:'5px',marginTop:'5px',width:'8%',height:'30px'}}>
-                </InputNumber> <br></br>
-                Your shiny cards numbers :
-                <InputNumber
+                            className="roll-number"
+                            />
+                        </label>
+                        <label className="roll-field">
+                            <span>Shiny card 1</span>
+                            <InputNumber
                     min={1}
                     max={100}
                     defaultValue={1}
@@ -391,9 +459,12 @@ function Rolls() {
                         }
 
                     }}
-                    style={{marginLeft:'5px',marginTop:'5px',width:'8%',height:'30px'}}>
-                </InputNumber>
-                <InputNumber
+                            className="roll-number"
+                            />
+                        </label>
+                        <label className="roll-field">
+                            <span>Shiny card 2</span>
+                            <InputNumber
                     min={1}
                     max={100}
                     defaultValue={1}
@@ -408,18 +479,22 @@ function Rolls() {
                         }
 
                     }}
-                    style={{marginLeft:'5px',marginTop:'5px',width:'8%',height:'30px'}}>
-                </InputNumber>
-                <Checkbox
-                    style={{marginLeft:'5px'}}
+                            className="roll-number"
+                            />
+                        </label>
+                        <label className="roll-field roll-field-toggle">
+                            <span>Shiny status</span>
+                            <Checkbox
                     checked={is_pokemon_shiny}
                     onChange={e => {
                         setIsPokemonShiny(e.target.checked);
                 }}>
                     Is caught pokemon shiny ?
-                </Checkbox> <br/>
-                Your platine cards number :
-                <InputNumber
+                            </Checkbox>
+                        </label>
+                        <label className="roll-field">
+                            <span>Platine card</span>
+                            <InputNumber
                     min={1}
                     max={100}
                     defaultValue={1}
@@ -434,17 +509,22 @@ function Rolls() {
                         }
 
                     }}
-                    style={{marginLeft:'5px',marginTop:'5px',width:'8%',height:'30px'}}>
-                </InputNumber><Checkbox
-                style={{marginLeft:'5px'}}
+                            className="roll-number"
+                            />
+                        </label>
+                        <label className="roll-field roll-field-toggle">
+                            <span>Platine status</span>
+                            <Checkbox
                 checked={is_pokemon_platine}
                 onChange={e => {
                     setIsPokemonPlatine(e.target.checked);
                 }}>
                 Is caught pokemon platine ?
-            </Checkbox><br></br>
-                Card Dexnav :
-                <InputNumber
+                            </Checkbox>
+                        </label>
+                        <label className="roll-field">
+                            <span>Card Dexnav</span>
+                            <InputNumber
                     min={1}
                     max={90}
                     defaultValue={1}
@@ -459,11 +539,12 @@ function Rolls() {
                         }
 
                     }}
-                    style={{marginLeft:'5px',marginTop:'5px',width:'8%',height:'30px'}}>
-                </InputNumber>
-                <br></br>
-                Number of dice rolls :
-                <InputNumber
+                            className="roll-number"
+                            />
+                        </label>
+                        <label className="roll-field">
+                            <span>Number of dice rolls</span>
+                            <InputNumber
                     min={1}
                     max={100}
                     defaultValue={1}
@@ -474,9 +555,11 @@ function Rolls() {
                         }
 
                     }}
-                    style={{marginLeft:'5px',marginTop:'5px',width:'8%',height:'30px'}}>
-                </InputNumber> <br></br>
-                <Button style={{marginLeft:'5px',marginRight:'5px',marginTop:'5px',width:'5%',height:'30px'}} onClick={() => {
+                            className="roll-number"
+                            />
+                        </label>
+                    </div>
+                    <Button className="roll-action" onClick={() => {
                     let rolls = [];
                     let final_rolls = [];
                     let reroll_under_or_equal = card_dexnav;
@@ -528,21 +611,21 @@ function Rolls() {
 
                 }}>
                     Roll
-                </Button>
+                    </Button>
                 {
                 list_rolls_normal_cards && list_rolls_normal_cards.length > 0 &&
-                <div>
-                    <text>List of rolls : </text>
+                <div className="roll-badge-list">
                     {
                         list_rolls_normal_cards.map((roll,index) => {
-                            return <text style={{'color':(roll===cardRoll1||roll===cardRoll2||roll===cardRoll3?'#00ff14':((is_pokemon_platine || is_pokemon_shiny )&& (roll===cardShinyRoll1||roll===cardShinyRoll2))?'yellow':(is_pokemon_platine && (roll===cardPlatineRoll1))?'cyan':'white'),'border':(roll===cardRoll1||roll===cardRoll2||roll===cardRoll3?'solid 1px #00ff14':((is_pokemon_platine || is_pokemon_shiny )&& (roll===cardShinyRoll1||roll===cardShinyRoll2))?'solid 1px yellow':(is_pokemon_platine && (roll===cardPlatineRoll1))?'solid 1px cyan':'')}}>{roll} </text>
+                            const isNormal = roll===cardRoll1||roll===cardRoll2||roll===cardRoll3;
+                            const isShiny = (is_pokemon_platine || is_pokemon_shiny )&& (roll===cardShinyRoll1||roll===cardShinyRoll2);
+                            const isPlatine = is_pokemon_platine && (roll===cardPlatineRoll1);
+                            return <span className={`roll-badge ${isNormal ? 'roll-hit' : isShiny ? 'roll-shiny' : isPlatine ? 'roll-platinum' : ''}`} key={`card-roll-${index}`}>{roll}</span>
                         })
                     }
-                    <br></br>
-                    <br></br>
-
                 </div>
                 }
+                </section>
             </div>
         </div>
     );

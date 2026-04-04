@@ -1,0 +1,163 @@
+.pokemon-generator-page {
+    display: grid;
+    grid-template-columns: minmax(0, 1.7fr) 320px;
+    grid-template-areas: "main sidebar";
+    gap: 24px;
+    align-items: start;
+    color: var(--text-main);
+}
+
+.pokemon-generator-main,
+.pokemon-generator-sidebar {
+    background:
+        linear-gradient(180deg, var(--surface-top) 0%, var(--surface-bottom) 100%);
+    border: 1px solid var(--surface-border);
+    border-radius: 28px;
+    box-shadow: 0 20px 46px var(--surface-shadow);
+}
+
+.pokemon-generator-main {
+    grid-area: main;
+    padding: 28px;
+    min-width: 0;
+}
+
+.pokemon-generator-sidebar {
+    grid-area: sidebar;
+    position: sticky;
+    top: 24px;
+    padding: 22px 20px 24px;
+    width: 100%;
+    max-width: 320px;
+    justify-self: end;
+}
+
+.pokemon-generator-title {
+    margin: 0 0 24px;
+    color: var(--title-color);
+    font-size: clamp(2rem, 3.8vw, 3rem);
+    line-height: 0.95;
+    letter-spacing: -0.04em;
+    text-transform: uppercase;
+}
+
+.pokemon-generator-image {
+    display: block;
+    width: 100%;
+    max-width: 280px;
+    margin: 0 auto;
+    object-fit: contain;
+    border-radius: 18px;
+    filter: drop-shadow(0 18px 28px rgba(0, 0, 0, 0.35));
+}
+
+.pokemon-generator-page .ant-select,
+.pokemon-generator-page .ant-input-number,
+.pokemon-generator-page .form-select {
+    border-radius: 14px !important;
+}
+
+.pokemon-generator-page .ant-select-selector,
+.pokemon-generator-page .ant-input-number,
+.pokemon-generator-page .form-select {
+    background: var(--input-bg) !important;
+    border: 1px solid var(--input-border) !important;
+    color: var(--text-main) !important;
+    box-shadow: none !important;
+}
+
+.pokemon-generator-page .ant-select-selection-item,
+.pokemon-generator-page .ant-select-selection-placeholder,
+.pokemon-generator-page .ant-input-number-input,
+.pokemon-generator-page .form-select {
+    color: var(--text-main) !important;
+}
+
+.pokemon-generator-page button.btn,
+.pokemon-generator-page .ant-btn,
+.pokemon-generator-page button {
+    border: none !important;
+    border-radius: 999px !important;
+    background: linear-gradient(135deg, var(--brand-start) 0%, var(--brand-end) 100%) !important;
+    color: var(--brand-text) !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.04em;
+    box-shadow: 0 10px 22px var(--button-shadow);
+}
+
+.pokemon-generator-page button:disabled {
+    opacity: 0.45;
+    box-shadow: none;
+}
+
+.pokemon-generator-page h2,
+.pokemon-generator-page h3 {
+    color: var(--heading-color);
+    letter-spacing: -0.03em;
+}
+
+.pokemon-generator-table {
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border) !important;
+    border-radius: 18px;
+    overflow: hidden;
+    color: var(--text-main);
+}
+
+.pokemon-generator-table th,
+.pokemon-generator-table td {
+    background: transparent !important;
+    color: var(--text-main) !important;
+    border-color: var(--panel-border) !important;
+    padding: 10px 12px !important;
+}
+
+.pokemon-generator-page a {
+    color: var(--link-color);
+}
+
+@media (max-width: 1180px) {
+    .pokemon-generator-page {
+        grid-template-columns: minmax(0, 1.45fr) 280px;
+        gap: 18px;
+    }
+
+    .pokemon-generator-main {
+        padding: 22px;
+    }
+
+    .pokemon-generator-sidebar {
+        max-width: 280px;
+        padding: 18px;
+    }
+}
+
+@media (max-width: 900px) {
+    .pokemon-generator-page {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            "main"
+            "sidebar";
+    }
+
+    .pokemon-generator-sidebar {
+        position: static;
+        max-width: 100%;
+        justify-self: stretch;
+    }
+}
+
+@media (max-width: 720px) {
+    .pokemon-generator-main,
+    .pokemon-generator-sidebar {
+        padding: 18px;
+        border-radius: 22px;
+    }
+
+    .pokemon-generator-page .ant-select,
+    .pokemon-generator-page .ant-input-number,
+    .pokemon-generator-page .form-select {
+        width: 100% !important;
+        max-width: 100%;
+    }
+}

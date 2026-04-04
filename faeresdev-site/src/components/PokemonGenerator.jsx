@@ -1,6 +1,7 @@
 import { useSelector,useDispatch } from "react-redux";
 import Form from 'react-bootstrap/Form';
 import React, {useEffect, useState} from "react";
+import './PokemonGenerator.css';
 import movesData from "../data/moves.json";
 import pokemonsData from "../data/pokemon.json";
 import abilitiesData from "../data/abilities.json";
@@ -300,20 +301,20 @@ function PokemonGenerator() {
 
     const ready_to_generate = (level > 0 && rarity !== "" && card !== "" && gender !== "" && final_buffed_stat !== "" && final_lowered_stat !== "" && available_points <= 0)
     return (
-        <div style={{width:'100%'}}>
+        <div className="pokemon-generator-page">
             {
                 choosen_pokemon && pokemon_obj &&
-                <div style={{color:'white',marginLeft:'5px',marginRight:'5px',float:'right',maxWidth:'19%'}}>
-                    <img style={{height:"300px"}} src={local_png_img}></img><br/>
+                <div className="pokemon-generator-sidebar">
+                    <img className="pokemon-generator-image" style={{height:"300px"}} src={local_png_img}></img><br/>
                     <br></br>
                     <br></br>
                     Base Stats :
-                    <Table responsive style={{borderColor:'white',borderWidth:'1px',borderStyle:'solid',minWidth:'90%',maxWidth:'90%'}}>
+                    <Table responsive className="pokemon-generator-table" style={{borderColor:'white',borderWidth:'1px',borderStyle:'solid',minWidth:'90%',maxWidth:'90%'}}>
                         <thead>
-                            <tr>
-                                <th>Stat</th>
-                                <th>Value</th>
-                            </tr>
+                        <tr>
+                            <th>Stat</th>
+                            <th>Value</th>
+                        </tr>
                         </thead>
                         <tbody>
                         <tr>
@@ -345,7 +346,7 @@ function PokemonGenerator() {
                     <br></br>
                     <br></br>
                     Card and rarity buffs :
-                    <Table responsive style={{borderColor:'white',borderWidth:'1px',borderStyle:'solid',minWidth:'90%',maxWidth:'90%'}}>
+                    <Table responsive className="pokemon-generator-table" style={{borderColor:'white',borderWidth:'1px',borderStyle:'solid',minWidth:'90%',maxWidth:'90%'}}>
                         <thead>
                         <tr>
                             <th>Stat</th>
@@ -382,7 +383,7 @@ function PokemonGenerator() {
                     <br></br>
                     <br></br>
                     Final stats :
-                    <Table responsive style={{borderColor:'white',borderWidth:'1px',borderStyle:'solid',minWidth:'90%',maxWidth:'90%'}}>
+                    <Table responsive className="pokemon-generator-table" style={{borderColor:'white',borderWidth:'1px',borderStyle:'solid',minWidth:'90%',maxWidth:'90%'}}>
                         <thead>
                         <tr>
                             <th>Stat</th>
@@ -418,7 +419,7 @@ function PokemonGenerator() {
                     </Table>
                     <br></br>
                     <br></br>
-                    <Table responsive style={{borderColor:'white',borderWidth:'1px',borderStyle:'solid',minWidth:'90%',maxWidth:'90%'}}>
+                    <Table responsive className="pokemon-generator-table" style={{borderColor:'white',borderWidth:'1px',borderStyle:'solid',minWidth:'90%',maxWidth:'90%'}}>
                         <tbody>
                         <tr>
                             <th>Base Ability</th>
@@ -437,774 +438,774 @@ function PokemonGenerator() {
                 </div>
             }
 
-        <div style={{marginLeft:'5px',maxWidth:'80%'}}>
-        <h1> Pokemon Generator</h1>
+            <div className="pokemon-generator-main">
+                <h1 className="pokemon-generator-title">Pokemon Generator</h1>
 
 
-         Pokemon : <Select
-            showSearch
-        style={{width:'30%',height:'30px'}}
-        value={choosen_pokemon}
-        options={pokemons.map((pokemon) => {return {"value":pokemon.name,"label":pokemon.name} })}
-        onChange={(e) => dispatch(choose_pokemon({chosen_pokemon:e}))}>
-
-        </Select>
-            {
-                choosen_pokemon && pokemon_obj &&
-            <div>
-                Level : <InputNumber
-                    min={1}
-                    max={150}
-                    defaultValue={1}
-                    value={level}
-                    onChange={(value) => dispatch(setLevel({pokemon_level:value}))}
-                    style={{marginTop:'5px',width:'30%',height:'30px'}}>
-                </InputNumber> <br></br>
-                Rarity : <Select
-                    showSearch
-                    style={{marginTop:'5px',width:'30%',height:'30px'}}
-                    value={rarity}
-                    options={rarity_options.map(rarity => {
-                            return {"value":rarity,"label":rarity}
-                        }
-                    )}
-                    onChange={(value) => dispatch(setRarity({pokemon_rarity:value}))}>
-
-                </Select><br></br>
-                Card : <Select
-                    showSearch
-                    options={cards_options.map(rarity => {
-                        return {"value":rarity,"label":rarity}}
-                    )}
-                    style={{marginTop:'5px',width:'30%',height:'30px'}}
-                    value={card}
-                    onChange={(value) => dispatch(setCard({pokemon_card:value}))}>
-
-            </Select><br></br>
-                Gender : <Form.Select
-                style={{marginTop:'5px',width:'30%',height:'30px'}}
-                disabled={true}
-                value={gender}>
-                {gender_options.map(rarity =>
-                    <option value={rarity} key={rarity}>{rarity}</option>
-                )}
-            </Form.Select><Button disabled={gender!==""} style={{marginLeft:'5px',marginRight:'5px',marginTop:'5px',width:'5%',height:'30px'}} onClick={() => {
-                let roll_male = parseFloat(pokemon_obj["gender_ratio_m"]);
-                let roll = getRandomArbitrary(0,100);
-                dispatch(setGender({pokemon_gender:(roll <roll_male?"Male":"Female")}));
-            }}> Roll </Button><br></br>
-                <br></br>Nature<br></br>
-                Buff : <Select
+                Pokemon : <Select
                 showSearch
-                options={nature_options.map(rarity =>{
-                    return {"value":rarity,"label":rarity}}
-                )}
-                style={{marginTop:'5px',width:'10%',height:'30px',marginRight:'5px'}}
-                onChange={(value) => dispatch(setBuffedStat({pokemon_final_buffed_stat:value}))}
-                value={final_buffed_stat}>
+                style={{width:'30%',height:'30px'}}
+                value={choosen_pokemon}
+                options={pokemons.map((pokemon) => {return {"value":pokemon.name,"label":pokemon.name} })}
+                onChange={(e) => dispatch(choose_pokemon({chosen_pokemon:e}))}>
+
             </Select>
-                Debuff : <Select
-                showSearch
-                options={nature_options.map(rarity =>{
-                    return {"value":rarity,"label":rarity}
-                    }
-                )}
-                style={{marginLeft:'5px',marginTop:'5px',width:'10%',height:'30px'}}
-                onChange={(value) => dispatch(setLoweredStat({pokemon_final_lowered_stat:value}))}
-                value={final_lowered_stat}>
-
-            </Select> <Button disabled={remaining_rolls<=0}
-                                   style={{marginLeft:'5px',marginTop:'5px',width:'5%',height:'30px'}} onClick={() => {
-                dispatch(decrement_remaining_rolls());
-                let buff_roll = getRandomArbitrary(0,6)+1;
-                let debuff_roll = getRandomArbitrary(0,6)+1;
-                dispatch(setBuffedStat({pokemon_final_buffed_stat:nature_options[buff_roll]}));
-                dispatch(setLoweredStat({pokemon_final_lowered_stat:nature_options[debuff_roll]}));
-            }}> Roll </Button>
-                { final_buffed_stat !== "" && final_buffed_stat !== "" &&
-                    <><br></br><br></br><h style={{marginLeft:'30px'}}>Nature chosen : {NATURE_MATRIX[final_buffed_stat][final_lowered_stat]}</h></>
-                }
                 {
-                    pokemon_obj && level > 0 &&
-                    <div><br></br>
-                        Base Ability : <Select
+                    choosen_pokemon && pokemon_obj &&
+                    <div>
+                        Level : <InputNumber
+                        min={1}
+                        max={150}
+                        defaultValue={1}
+                        value={level}
+                        onChange={(value) => dispatch(setLevel({pokemon_level:value}))}
+                        style={{marginTop:'5px',width:'30%',height:'30px'}}>
+                    </InputNumber> <br></br>
+                        Rarity : <Select
                         showSearch
-                        options={["",...pokemon_obj["base_abilities"]].map(rarity => {
+                        style={{marginTop:'5px',width:'30%',height:'30px'}}
+                        value={rarity}
+                        options={rarity_options.map(rarity => {
+                                return {"value":rarity,"label":rarity}
+                            }
+                        )}
+                        onChange={(value) => dispatch(setRarity({pokemon_rarity:value}))}>
+
+                    </Select><br></br>
+                        Card : <Select
+                        showSearch
+                        options={cards_options.map(rarity => {
                             return {"value":rarity,"label":rarity}}
                         )}
                         style={{marginTop:'5px',width:'30%',height:'30px'}}
-                        value={base_ability}
-                        onChange={(value) => {if (value !== "") {dispatch(setBaseAbility({pokemon_base_ability:value}));} return "";}}>
-                    </Select><Button disabled={base_ability!==""} style={{marginLeft:'5px',marginRight:'5px',marginTop:'5px',width:'5%',height:'30px'}} onClick={() => {
-                            const base_abilities = pokemon_obj["base_abilities"]
-                            if (base_abilities.length > 0){
-                                let roll = getRandomArbitrary(0,base_abilities.length);
-                                dispatch(setBaseAbility({pokemon_base_ability:base_abilities[roll]}));
-                            }
-                        }}> Roll </Button></div>
-                }
+                        value={card}
+                        onChange={(value) => dispatch(setCard({pokemon_card:value}))}>
 
-                {
-                    pokemon_obj && level >= 20 &&
-                    <div><br></br>
-                        Advanced Ability : <Select
-                            showSearch
-                            options={["",...pokemon_obj["advanced_abilities"]].map(rarity => {
-                                return {"value":rarity,"label":rarity}}
-                            )}
-                            style={{marginTop:'5px',width:'30%',height:'30px'}}
-                            value={advanced_ability}
-                            onChange={(value) => {if (value !== "") {dispatch(setAdvancedAbility({pokemon_advanced_ability:value}));} return "";}}>
-                        </Select><Button disabled={advanced_ability!==""} style={{marginLeft:'5px',marginRight:'5px',marginTop:'5px',width:'5%',height:'30px'}} onClick={() => {
-                            const base_abilities = pokemon_obj["advanced_abilities"]
-                            if (base_abilities.length > 0){
-                                let roll = getRandomArbitrary(0,base_abilities.length);
-                                dispatch(setAdvancedAbility({pokemon_advanced_ability:base_abilities[roll]}));
-                            }
-                        }}> Roll </Button></div>
-                }
-
-                {
-                    pokemon_obj && level >= 40 &&
-                    <div><br></br>
-                        High Ability : <Select
-                            showSearch
-                            options={["",...pokemon_obj["high_abilities"]].map(rarity => {
-                                return {"value":rarity,"label":rarity}}
-                            )}
-                            style={{marginTop:'5px',width:'30%',height:'30px'}}
-                            value={high_ability}
-                            onChange={(value) => {if (value !== "") {dispatch(setHighAbility({pokemon_high_ability:value}));} return "";}}>
-                        </Select><Button disabled={high_ability!==""} style={{marginLeft:'5px',marginRight:'5px',marginTop:'5px',width:'5%',height:'30px'}} onClick={() => {
-                            const base_abilities = pokemon_obj["high_abilities"]
-                            if (base_abilities.length > 0){
-                                let roll = getRandomArbitrary(0,base_abilities.length);
-                                dispatch(setHighAbility({pokemon_high_ability:base_abilities[roll]}));
-                            }
-                        }}> Roll </Button></div>
-                }
-
-                <br></br><h2>Level up points :</h2>
-                Available points : {available_points}<br></br>
-                HP <InputNumber onChange={(value) => dispatch(setPointsByStat({pokemon_points_by_stats:{"HP":value}}))} style={{width:50,marginRight:'3px'}} disabled={available_points<=0 || level === -1} min={0} max={available_points} value={points_by_stats["HP"]} defaultValue={0}></InputNumber>
-                ATK <InputNumber onChange={(value) => dispatch(setPointsByStat({pokemon_points_by_stats:{"ATK":value}}))} style={{width:50,marginRight:'3px'}} disabled={available_points<=0 || level === -1} min={0} max={available_points} value={points_by_stats["ATK"]} defaultValue={0}></InputNumber>
-                DEF <InputNumber onChange={(value) => dispatch(setPointsByStat({pokemon_points_by_stats:{"DEF":value}}))} style={{width:50,marginRight:'3px'}} disabled={available_points<=0 || level === -1} min={0} max={available_points} value={points_by_stats["DEF"]} defaultValue={0}></InputNumber>
-                SPATK <InputNumber onChange={(value) => dispatch(setPointsByStat({pokemon_points_by_stats:{"SPATK":value}}))} style={{width:50,marginRight:'3px'}} disabled={available_points<=0 || level === -1} min={0} max={available_points} value={points_by_stats["SPATK"]} defaultValue={0}></InputNumber>
-                SPDEF <InputNumber onChange={(value) => dispatch(setPointsByStat({pokemon_points_by_stats:{"SPDEF":value}}))} style={{width:50,marginRight:'3px'}} disabled={available_points<=0 || level === -1} min={0} max={available_points} value={points_by_stats["SPDEF"]} defaultValue={0}></InputNumber>
-                SPD <InputNumber onChange={(value) => dispatch(setPointsByStat({pokemon_points_by_stats:{"SPD":value}}))} style={{width:50,marginRight:'3px'}} disabled={available_points<=0 || level === -1} min={0} max={available_points} value={points_by_stats["SPD"]} defaultValue={0}></InputNumber>
-                <Button disabled={level===-1} style={{marginLeft:'5px',marginTop:'5px',width:'5%',height:'30px'}} onClick={() => {
-                    dispatch(setPointsByStat({pokemon_points_by_stats:{"HP":0,"ATK":0,"DEF":0,"SPATK":0,"SPDEF":0,"SPD":0}}));
-                }}> Reset </Button>
-                <Button disabled={level===-1} style={{marginLeft:'5px',marginTop:'5px',width:'5%',height:'30px'}} onClick={() => {
-                    const hp_stat = pokemon_obj["stat_hp"];
-                    let points_to_give = available_points;
-                    const atk_stat = pokemon_obj["stat_atk"];
-                    const def_stat = pokemon_obj["stat_def"];
-                    const spatk_stat = pokemon_obj["stat_sp_atk"];
-                    const spdef_stat = pokemon_obj["stat_sp_def"];
-                    const spd_stat = pokemon_obj["stat_spd"];
-                    const sum_poke_points = hp_stat+atk_stat+def_stat+spatk_stat+spdef_stat+spd_stat;
-                    const hp_weight = parseFloat(hp_stat)/parseFloat(sum_poke_points);
-                    const atk_weight = parseFloat(atk_stat)/parseFloat(sum_poke_points);
-                    const def_weight = parseFloat(def_stat)/parseFloat(sum_poke_points);
-                    const spatk_weight = parseFloat(spatk_stat)/parseFloat(sum_poke_points);
-                    const spdef_weight = parseFloat(spdef_stat)/parseFloat(sum_poke_points);
-                    const spd_weight = parseFloat(spd_stat)/parseFloat(sum_poke_points);
-                    let point_in_hp = Math.round(available_points*hp_weight);
-                    points_to_give -= point_in_hp;
-                    let point_in_atk = Math.round(available_points*atk_weight);
-                    points_to_give -= point_in_atk;
-                    let point_in_def = Math.round(available_points*def_weight);
-                    points_to_give -= point_in_def;
-                    let point_in_spatk = Math.round(available_points*spatk_weight);
-                    points_to_give -= point_in_spatk;
-                    let point_in_spdef = Math.round(available_points*spdef_weight);
-                    points_to_give -= point_in_spdef;
-                    let point_in_spd = Math.min(points_to_give,Math.round(available_points*spd_weight));
-                    points_to_give -= point_in_spd;
-                    const roll_for_hp = Math.round(hp_weight*100)
-                    const roll_for_atk = Math.round(atk_weight*100)+roll_for_hp
-                    const roll_for_def = Math.round(def_weight*100)+roll_for_atk
-                    const roll_for_spatk = Math.round(spatk_weight*100)+roll_for_def
-                    const roll_for_spdef = Math.round(spdef_weight*100)+roll_for_spatk
-                    const roll_for_speed = Math.min(100,Math.round(spd_weight*100)+roll_for_spdef)
-                    while (points_to_give > 0) {
+                    </Select><br></br>
+                        Gender : <Form.Select
+                        style={{marginTop:'5px',width:'30%',height:'30px'}}
+                        disabled={true}
+                        value={gender}>
+                        {gender_options.map(rarity =>
+                            <option value={rarity} key={rarity}>{rarity}</option>
+                        )}
+                    </Form.Select><Button disabled={gender!==""} style={{marginLeft:'5px',marginRight:'5px',marginTop:'5px',width:'5%',height:'30px'}} onClick={() => {
+                        let roll_male = parseFloat(pokemon_obj["gender_ratio_m"]);
                         let roll = getRandomArbitrary(0,100);
-                        if (roll < roll_for_hp) {
-                            point_in_hp += 1;
-                            points_to_give -= 1;
-                        }
-                        else if (roll < roll_for_atk) {
-                            point_in_atk += 1;
-                            points_to_give -= 1;
-                        }
-                        else if (roll < roll_for_def) {
-                            point_in_def += 1;
-                            points_to_give -= 1;
-                        }
-                        else if (roll < roll_for_spatk) {
-                            point_in_spatk += 1;
-                            points_to_give -= 1;
-                        }
-                        else if (roll < roll_for_spdef) {
-                            point_in_spdef += 1;
-                            points_to_give -= 1;
-                        }
-                        else if (roll < roll_for_speed) {
-                            point_in_spd += 1;
-                            points_to_give -= 1;
-                        }
-                    }
-                    dispatch(setPointsByStat({pokemon_points_by_stats:{"HP":point_in_hp,"ATK":point_in_atk,"DEF":point_in_def,"SPATK":point_in_spatk,"SPDEF":point_in_spdef,"SPD":point_in_spd}}));
-                }}> Auto </Button>
-                <br></br>
-                <br></br>
+                        dispatch(setGender({pokemon_gender:(roll <roll_male?"Male":"Female")}));
+                    }}> Roll </Button><br></br>
+                        <br></br>Nature<br></br>
+                        Buff : <Select
+                        showSearch
+                        options={nature_options.map(rarity =>{
+                            return {"value":rarity,"label":rarity}}
+                        )}
+                        style={{marginTop:'5px',width:'10%',height:'30px',marginRight:'5px'}}
+                        onChange={(value) => dispatch(setBuffedStat({pokemon_final_buffed_stat:value}))}
+                        value={final_buffed_stat}>
+                    </Select>
+                        Debuff : <Select
+                        showSearch
+                        options={nature_options.map(rarity =>{
+                                return {"value":rarity,"label":rarity}
+                            }
+                        )}
+                        style={{marginLeft:'5px',marginTop:'5px',width:'10%',height:'30px'}}
+                        onChange={(value) => dispatch(setLoweredStat({pokemon_final_lowered_stat:value}))}
+                        value={final_lowered_stat}>
 
-                {
-                    level > 0 &&
-                    <div>
-                        <h2> Moves : </h2>
-                        <Table responsive style={{borderColor:'white',borderWidth:'1px',borderStyle:'solid',minWidth:'70%',maxWidth:'70%'}}>
-                            <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Freq</th>
-                                <th>AC</th>
-                                <th>Type</th>
-                                <th>Roll</th>
-                                <th>Dmg Type</th>
-                                <th>Range</th>
-                                <th>Effect</th>
-                                <th></th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {Array(6).keys().map(key => {
-                                if (key < chosen_moves.length){
-                                    return <tr>
-                                        <th>{chosen_moves[key]["move"]}</th>
-                                        <th>{chosen_moves[key]["frequency"]}</th>
-                                        <th>{chosen_moves[key]["AC"]}</th>
-                                        <th>{chosen_moves[key]["type"]}</th>
-                                        <th>{chosen_moves[key]["roll"]}</th>
-                                        <th>{chosen_moves[key]["classe"]}</th>
-                                        <th>{chosen_moves[key]["range"]}</th>
-                                        <th>{chosen_moves[key]["effect"]}</th>
-                                        <th><Button disabled={level===-1} style={{marginLeft:'5px',marginTop:'5px',height:'30px'}} onClick={() => {
-                                            let index_to_remove = chosen_moves.findIndex(move_c => move_c["move"] === chosen_moves[key]["move"]);
+                    </Select> <Button disabled={remaining_rolls<=0}
+                                      style={{marginLeft:'5px',marginTop:'5px',width:'5%',height:'30px'}} onClick={() => {
+                        dispatch(decrement_remaining_rolls());
+                        let buff_roll = getRandomArbitrary(0,6)+1;
+                        let debuff_roll = getRandomArbitrary(0,6)+1;
+                        dispatch(setBuffedStat({pokemon_final_buffed_stat:nature_options[buff_roll]}));
+                        dispatch(setLoweredStat({pokemon_final_lowered_stat:nature_options[debuff_roll]}));
+                    }}> Roll </Button>
+                        { final_buffed_stat !== "" && final_buffed_stat !== "" &&
+                            <><br></br><br></br><h style={{marginLeft:'30px'}}>Nature chosen : {NATURE_MATRIX[final_buffed_stat][final_lowered_stat]}</h></>
+                        }
+                        {
+                            pokemon_obj && level > 0 &&
+                            <div><br></br>
+                                Base Ability : <Select
+                                    showSearch
+                                    options={["",...pokemon_obj["base_abilities"]].map(rarity => {
+                                        return {"value":rarity,"label":rarity}}
+                                    )}
+                                    style={{marginTop:'5px',width:'30%',height:'30px'}}
+                                    value={base_ability}
+                                    onChange={(value) => {if (value !== "") {dispatch(setBaseAbility({pokemon_base_ability:value}));} return "";}}>
+                                </Select><Button disabled={base_ability!==""} style={{marginLeft:'5px',marginRight:'5px',marginTop:'5px',width:'5%',height:'30px'}} onClick={() => {
+                                    const base_abilities = pokemon_obj["base_abilities"]
+                                    if (base_abilities.length > 0){
+                                        let roll = getRandomArbitrary(0,base_abilities.length);
+                                        dispatch(setBaseAbility({pokemon_base_ability:base_abilities[roll]}));
+                                    }
+                                }}> Roll </Button></div>
+                        }
+
+                        {
+                            pokemon_obj && level >= 20 &&
+                            <div><br></br>
+                                Advanced Ability : <Select
+                                    showSearch
+                                    options={["",...pokemon_obj["advanced_abilities"]].map(rarity => {
+                                        return {"value":rarity,"label":rarity}}
+                                    )}
+                                    style={{marginTop:'5px',width:'30%',height:'30px'}}
+                                    value={advanced_ability}
+                                    onChange={(value) => {if (value !== "") {dispatch(setAdvancedAbility({pokemon_advanced_ability:value}));} return "";}}>
+                                </Select><Button disabled={advanced_ability!==""} style={{marginLeft:'5px',marginRight:'5px',marginTop:'5px',width:'5%',height:'30px'}} onClick={() => {
+                                    const base_abilities = pokemon_obj["advanced_abilities"]
+                                    if (base_abilities.length > 0){
+                                        let roll = getRandomArbitrary(0,base_abilities.length);
+                                        dispatch(setAdvancedAbility({pokemon_advanced_ability:base_abilities[roll]}));
+                                    }
+                                }}> Roll </Button></div>
+                        }
+
+                        {
+                            pokemon_obj && level >= 40 &&
+                            <div><br></br>
+                                High Ability : <Select
+                                    showSearch
+                                    options={["",...pokemon_obj["high_abilities"]].map(rarity => {
+                                        return {"value":rarity,"label":rarity}}
+                                    )}
+                                    style={{marginTop:'5px',width:'30%',height:'30px'}}
+                                    value={high_ability}
+                                    onChange={(value) => {if (value !== "") {dispatch(setHighAbility({pokemon_high_ability:value}));} return "";}}>
+                                </Select><Button disabled={high_ability!==""} style={{marginLeft:'5px',marginRight:'5px',marginTop:'5px',width:'5%',height:'30px'}} onClick={() => {
+                                    const base_abilities = pokemon_obj["high_abilities"]
+                                    if (base_abilities.length > 0){
+                                        let roll = getRandomArbitrary(0,base_abilities.length);
+                                        dispatch(setHighAbility({pokemon_high_ability:base_abilities[roll]}));
+                                    }
+                                }}> Roll </Button></div>
+                        }
+
+                        <br></br><h2>Level up points :</h2>
+                        Available points : {available_points}<br></br>
+                        HP <InputNumber onChange={(value) => dispatch(setPointsByStat({pokemon_points_by_stats:{"HP":value}}))} style={{width:50,marginRight:'3px'}} disabled={available_points<=0 || level === -1} min={0} max={available_points} value={points_by_stats["HP"]} defaultValue={0}></InputNumber>
+                        ATK <InputNumber onChange={(value) => dispatch(setPointsByStat({pokemon_points_by_stats:{"ATK":value}}))} style={{width:50,marginRight:'3px'}} disabled={available_points<=0 || level === -1} min={0} max={available_points} value={points_by_stats["ATK"]} defaultValue={0}></InputNumber>
+                        DEF <InputNumber onChange={(value) => dispatch(setPointsByStat({pokemon_points_by_stats:{"DEF":value}}))} style={{width:50,marginRight:'3px'}} disabled={available_points<=0 || level === -1} min={0} max={available_points} value={points_by_stats["DEF"]} defaultValue={0}></InputNumber>
+                        SPATK <InputNumber onChange={(value) => dispatch(setPointsByStat({pokemon_points_by_stats:{"SPATK":value}}))} style={{width:50,marginRight:'3px'}} disabled={available_points<=0 || level === -1} min={0} max={available_points} value={points_by_stats["SPATK"]} defaultValue={0}></InputNumber>
+                        SPDEF <InputNumber onChange={(value) => dispatch(setPointsByStat({pokemon_points_by_stats:{"SPDEF":value}}))} style={{width:50,marginRight:'3px'}} disabled={available_points<=0 || level === -1} min={0} max={available_points} value={points_by_stats["SPDEF"]} defaultValue={0}></InputNumber>
+                        SPD <InputNumber onChange={(value) => dispatch(setPointsByStat({pokemon_points_by_stats:{"SPD":value}}))} style={{width:50,marginRight:'3px'}} disabled={available_points<=0 || level === -1} min={0} max={available_points} value={points_by_stats["SPD"]} defaultValue={0}></InputNumber>
+                        <Button disabled={level===-1} style={{marginLeft:'5px',marginTop:'5px',width:'5%',height:'30px'}} onClick={() => {
+                            dispatch(setPointsByStat({pokemon_points_by_stats:{"HP":0,"ATK":0,"DEF":0,"SPATK":0,"SPDEF":0,"SPD":0}}));
+                        }}> Reset </Button>
+                        <Button disabled={level===-1} style={{marginLeft:'5px',marginTop:'5px',width:'5%',height:'30px'}} onClick={() => {
+                            const hp_stat = pokemon_obj["stat_hp"];
+                            let points_to_give = available_points;
+                            const atk_stat = pokemon_obj["stat_atk"];
+                            const def_stat = pokemon_obj["stat_def"];
+                            const spatk_stat = pokemon_obj["stat_sp_atk"];
+                            const spdef_stat = pokemon_obj["stat_sp_def"];
+                            const spd_stat = pokemon_obj["stat_spd"];
+                            const sum_poke_points = hp_stat+atk_stat+def_stat+spatk_stat+spdef_stat+spd_stat;
+                            const hp_weight = parseFloat(hp_stat)/parseFloat(sum_poke_points);
+                            const atk_weight = parseFloat(atk_stat)/parseFloat(sum_poke_points);
+                            const def_weight = parseFloat(def_stat)/parseFloat(sum_poke_points);
+                            const spatk_weight = parseFloat(spatk_stat)/parseFloat(sum_poke_points);
+                            const spdef_weight = parseFloat(spdef_stat)/parseFloat(sum_poke_points);
+                            const spd_weight = parseFloat(spd_stat)/parseFloat(sum_poke_points);
+                            let point_in_hp = Math.round(available_points*hp_weight);
+                            points_to_give -= point_in_hp;
+                            let point_in_atk = Math.round(available_points*atk_weight);
+                            points_to_give -= point_in_atk;
+                            let point_in_def = Math.round(available_points*def_weight);
+                            points_to_give -= point_in_def;
+                            let point_in_spatk = Math.round(available_points*spatk_weight);
+                            points_to_give -= point_in_spatk;
+                            let point_in_spdef = Math.round(available_points*spdef_weight);
+                            points_to_give -= point_in_spdef;
+                            let point_in_spd = Math.min(points_to_give,Math.round(available_points*spd_weight));
+                            points_to_give -= point_in_spd;
+                            const roll_for_hp = Math.round(hp_weight*100)
+                            const roll_for_atk = Math.round(atk_weight*100)+roll_for_hp
+                            const roll_for_def = Math.round(def_weight*100)+roll_for_atk
+                            const roll_for_spatk = Math.round(spatk_weight*100)+roll_for_def
+                            const roll_for_spdef = Math.round(spdef_weight*100)+roll_for_spatk
+                            const roll_for_speed = Math.min(100,Math.round(spd_weight*100)+roll_for_spdef)
+                            while (points_to_give > 0) {
+                                let roll = getRandomArbitrary(0,100);
+                                if (roll < roll_for_hp) {
+                                    point_in_hp += 1;
+                                    points_to_give -= 1;
+                                }
+                                else if (roll < roll_for_atk) {
+                                    point_in_atk += 1;
+                                    points_to_give -= 1;
+                                }
+                                else if (roll < roll_for_def) {
+                                    point_in_def += 1;
+                                    points_to_give -= 1;
+                                }
+                                else if (roll < roll_for_spatk) {
+                                    point_in_spatk += 1;
+                                    points_to_give -= 1;
+                                }
+                                else if (roll < roll_for_spdef) {
+                                    point_in_spdef += 1;
+                                    points_to_give -= 1;
+                                }
+                                else if (roll < roll_for_speed) {
+                                    point_in_spd += 1;
+                                    points_to_give -= 1;
+                                }
+                            }
+                            dispatch(setPointsByStat({pokemon_points_by_stats:{"HP":point_in_hp,"ATK":point_in_atk,"DEF":point_in_def,"SPATK":point_in_spatk,"SPDEF":point_in_spdef,"SPD":point_in_spd}}));
+                        }}> Auto </Button>
+                        <br></br>
+                        <br></br>
+
+                        {
+                            level > 0 &&
+                            <div>
+                                <h2> Moves : </h2>
+                                <Table responsive style={{borderColor:'white',borderWidth:'1px',borderStyle:'solid',minWidth:'70%',maxWidth:'70%'}}>
+                                    <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Freq</th>
+                                        <th>AC</th>
+                                        <th>Type</th>
+                                        <th>Roll</th>
+                                        <th>Dmg Type</th>
+                                        <th>Range</th>
+                                        <th>Effect</th>
+                                        <th></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {Array(6).keys().map(key => {
+                                        if (key < chosen_moves.length){
+                                            return <tr>
+                                                <th>{chosen_moves[key]["move"]}</th>
+                                                <th>{chosen_moves[key]["frequency"]}</th>
+                                                <th>{chosen_moves[key]["AC"]}</th>
+                                                <th>{chosen_moves[key]["type"]}</th>
+                                                <th>{chosen_moves[key]["roll"]}</th>
+                                                <th>{chosen_moves[key]["classe"]}</th>
+                                                <th>{chosen_moves[key]["range"]}</th>
+                                                <th>{chosen_moves[key]["effect"]}</th>
+                                                <th><Button disabled={level===-1} style={{marginLeft:'5px',marginTop:'5px',height:'30px'}} onClick={() => {
+                                                    let index_to_remove = chosen_moves.findIndex(move_c => move_c["move"] === chosen_moves[key]["move"]);
+                                                    if (index_to_remove > -1) {
+                                                        dispatch(removeMovePokemonChosenMoves({pokemon_chosen_moves: index_to_remove}));
+                                                    }
+                                                }}> remove </Button></th>
+                                            </tr>
+                                        }
+                                        else {
+                                            return <tr>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                            </tr>
+                                        }
+                                    })}
+                                    </tbody>
+                                </Table>
+                                <br></br>
+                            </div>
+                        }
+
+                        {
+                            level > 0 &&
+                            <div>
+                                Add Moves :
+                                <Select
+                                    showSearch
+                                    options={pokemon_moves_available.map(move => {
+                                        return {"value":move["name"].replace(':','').trim(),"label":(move["name"]===""?"":"lvl "+move["level"]+" - "+move["name"]+" ("+move["type"]+")")}})}
+                                    defaultValue={""}
+                                    style={{marginLeft:'5px',marginTop:'5px',width:'30%',height:'30px'}}
+                                    onChange={(value) => {
+                                        let move_name = value.replace(':','').trim();
+                                        if (move_name !== "") {
+                                            let index_to_remove = chosen_moves.findIndex(move_c => move_c["move"] === move_name);
                                             if (index_to_remove > -1) {
                                                 dispatch(removeMovePokemonChosenMoves({pokemon_chosen_moves: index_to_remove}));
                                             }
-                                        }}> remove </Button></th>
-                                    </tr>
-                                }
-                                else {
-                                    return <tr>
-                                        <th></th>
-                                        <th></th>
-                                        <th></th>
-                                        <th></th>
-                                        <th></th>
-                                        <th></th>
-                                        <th></th>
-                                        <th></th>
-                                        <th></th>
-                                    </tr>
-                                }
-                            })}
-                            </tbody>
-                        </Table>
-                        <br></br>
-                    </div>
-                }
-
-                {
-                    level > 0 &&
-                    <div>
-                    Add Moves :
-                        <Select
-                            showSearch
-                            options={pokemon_moves_available.map(move => {
-                                return {"value":move["name"].replace(':','').trim(),"label":(move["name"]===""?"":"lvl "+move["level"]+" - "+move["name"]+" ("+move["type"]+")")}})}
-                            defaultValue={""}
-                            style={{marginLeft:'5px',marginTop:'5px',width:'30%',height:'30px'}}
-                            onChange={(value) => {
-                                let move_name = value.replace(':','').trim();
-                                if (move_name !== "") {
-                                    let index_to_remove = chosen_moves.findIndex(move_c => move_c["move"] === move_name);
-                                    if (index_to_remove > -1) {
-                                        dispatch(removeMovePokemonChosenMoves({pokemon_chosen_moves: index_to_remove}));
-                                    }
-                                    else {
-                                        let moves_to_add = moves.find((m) => m["move"] === move_name);
-                                        if (moves_to_add && chosen_moves.length < 6) {
-                                            dispatch(addMovePokemonChosenMoves({pokemon_chosen_moves: moves_to_add}));
-                                        }
-                                        else if (chosen_moves.length < 6) {
-                                            dispatch(addMovePokemonChosenMoves({pokemon_chosen_moves: {move:move_name,type:'',frequency:'',AC:'',blessing:'',classe:'',contest_effect:'',contest_type:'',damage_base:'',effect:'',extra_lines:[],range:'',roll:'',special_effect:''}}));
-                                        }
-                                    }
-                                }
-                                value = "";
-                            }}>
-
-                        </Select>
-
-                    </div>
-            }
-
-                <div>
-                    <h2>Egg Moves :</h2>
-                    <p> (You can lock egg moves so they are forced to appear in the final sheet table)</p>
-                    <Table responsive style={{borderColor:'white',borderWidth:'1px',borderStyle:'solid',minWidth:'70%',maxWidth:'70%'}}>
-                        <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Freq</th>
-                            <th>AC</th>
-                            <th>Type</th>
-                            <th>Roll</th>
-                            <th>Dmg Type</th>
-                            <th>Range</th>
-                            <th>Effect</th>
-                            <th></th>
-                            <th></th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {egg_moves.map(egg => {
-                                return <tr style={{color:(egg && locked_egg_moves.findIndex(obj => obj === egg["move"]) > -1?'green':'')}}>
-                                    <th>{egg["move"]}</th>
-                                    <th>{egg["frequency"]}</th>
-                                    <th>{egg["AC"]}</th>
-                                    <th>{egg["type"]}</th>
-                                    <th>{egg["roll"]}</th>
-                                    <th>{egg["classe"]}</th>
-                                    <th>{egg["range"]}</th>
-                                    <th>{egg["effect"]}</th>
-                                    {   locked_egg_moves.findIndex(obj => obj === egg["move"]) > -1 ?
-                                        <th><Button disabled={false} style={{marginLeft:'5px',marginTop:'5px',height:'30px'}} onClick={() => {
-                                        let index_to_remove = locked_egg_moves.findIndex(move_c => move_c === egg["move"]);
-                                        if (index_to_remove > -1) {
-                                            dispatch(removeMovePokemonLockedEggMoves({pokemon_locked_egg_moves:index_to_remove}));
-                                        }
-                                        }}> Unlock </Button></th>
-                                        :
-                                        <th><Button disabled={chosen_moves.length + locked_egg_moves.length >= 9} style={{marginLeft:'5px',marginTop:'5px',height:'30px'}} onClick={() => {
-                                            if (egg["move"] !== "") {
-                                                let index_to_remove = locked_egg_moves.findIndex(move_c => move_c === egg["move"]);
-                                                if (index_to_remove === -1) {
-                                                    dispatch(addMovePokemonLockedEggMoves({pokemon_locked_egg_moves: egg["move"]}));
+                                            else {
+                                                let moves_to_add = moves.find((m) => m["move"] === move_name);
+                                                if (moves_to_add && chosen_moves.length < 6) {
+                                                    dispatch(addMovePokemonChosenMoves({pokemon_chosen_moves: moves_to_add}));
+                                                }
+                                                else if (chosen_moves.length < 6) {
+                                                    dispatch(addMovePokemonChosenMoves({pokemon_chosen_moves: {move:move_name,type:'',frequency:'',AC:'',blessing:'',classe:'',contest_effect:'',contest_type:'',damage_base:'',effect:'',extra_lines:[],range:'',roll:'',special_effect:''}}));
                                                 }
                                             }
-                                        }}> Lock </Button></th>
-                                    }
-                                    <th><Button disabled={level===-1} style={{marginLeft:'5px',marginTop:'5px',height:'30px'}} onClick={() => {
-                                        let index_to_remove = egg_moves.findIndex(move_c => move_c["move"] === egg["move"]);
-                                        if (index_to_remove > -1) {
-                                            dispatch(removeMovePokemonEggMoves({pokemon_chosen_egg_moves:index_to_remove}));
                                         }
-                                        let index_to_remove_lock = locked_egg_moves.findIndex(move_c => move_c["move"] === egg["move"]);
-                                        if (index_to_remove_lock > -1) {
-                                            dispatch(removeMovePokemonLockedEggMoves({pokemon_locked_egg_moves:index_to_remove_lock}));
-                                        }
-                                    }}> remove </Button></th>
+                                        value = "";
+                                    }}>
+
+                                </Select>
+
+                            </div>
+                        }
+
+                        <div>
+                            <h2>Egg Moves :</h2>
+                            <p> (You can lock egg moves so they are forced to appear in the final sheet table)</p>
+                            <Table responsive style={{borderColor:'white',borderWidth:'1px',borderStyle:'solid',minWidth:'70%',maxWidth:'70%'}}>
+                                <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Freq</th>
+                                    <th>AC</th>
+                                    <th>Type</th>
+                                    <th>Roll</th>
+                                    <th>Dmg Type</th>
+                                    <th>Range</th>
+                                    <th>Effect</th>
+                                    <th></th>
+                                    <th></th>
                                 </tr>
-                        })}
-                        </tbody>
-                    </Table><br></br>
-                    <Button disabled={locked_egg_moves.length === 0} style={{marginLeft:'60%',marginTop:'5px',height:'30px'}} onClick={() => {
-                        for (let i = 0; i < locked_egg_moves.length; i++) {
-                            dispatch(removeMovePokemonLockedEggMoves({pokemon_locked_egg_moves:i}));
-                        }
-                    }}> Unlock all </Button>
-                </div>
-
-                Add Egg moves : <Select
-                showSearch
-                style={{width:'30%',height:'30px'}}
-                defaultValue={""}
-                options={
-                    final_egg_moves.map((m) =>
-                     { return {"value":m["move"].replace(':','').trim(),"label":m["move"]} }
-                    )}
-                onChange={(value) => {
-                    let move_name = value.replace(':','').trim();
-                    let index_to_remove = egg_moves.findIndex(move_c => move_c["move"] === move_name);
-                    if (index_to_remove > -1) {
-                        dispatch(removeMovePokemonEggMoves({pokemon_chosen_egg_moves:index_to_remove}));
-                    }
-                    else {
-                        let moves_to_add = moves.find((m) => m["move"] === move_name);
-                        if (moves_to_add) {
-                            dispatch(addMovePokemonEggMoves({pokemon_chosen_egg_moves: moves_to_add}));
-
-                        }
-                    }
-
-
-                    value = "";
-                }}>
-
-            </Select>
-                <br></br>
-                <br></br>
-                <div>
-                    <h2>TM Moves :</h2>
-                    <p> (You can lock tm moves so they are forced to appear in the final sheet table)</p>
-                    <Table responsive style={{borderColor:'white',borderWidth:'1px',borderStyle:'solid',minWidth:'70%',maxWidth:'70%'}}>
-                        <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Freq</th>
-                            <th>AC</th>
-                            <th>Type</th>
-                            <th>Roll</th>
-                            <th>Dmg Type</th>
-                            <th>Range</th>
-                            <th>Effect</th>
-                            <th></th>
-                            <th></th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {tmhm_moves.map(egg => {
-                            return <tr style={{color:(egg && locked_egg_moves.findIndex(obj => obj === egg["move"]) > -1?'green':'')}}>
-                                <th>{egg["move"]}</th>
-                                <th>{egg["frequency"]}</th>
-                                <th>{egg["AC"]}</th>
-                                <th>{egg["type"]}</th>
-                                <th>{egg["roll"]}</th>
-                                <th>{egg["classe"]}</th>
-                                <th>{egg["range"]}</th>
-                                <th>{egg["effect"]}</th>
-                                {   locked_egg_moves.findIndex(obj => obj === egg["move"]) > -1 ?
-                                    <th><Button disabled={false} style={{marginLeft:'5px',marginTop:'5px',height:'30px'}} onClick={() => {
-                                        let index_to_remove = locked_egg_moves.findIndex(move_c => move_c === egg["move"]);
-                                        if (index_to_remove > -1) {
-                                            dispatch(removeMovePokemonLockedEggMoves({pokemon_locked_egg_moves:index_to_remove}));
+                                </thead>
+                                <tbody>
+                                {egg_moves.map(egg => {
+                                    return <tr style={{color:(egg && locked_egg_moves.findIndex(obj => obj === egg["move"]) > -1?'green':'')}}>
+                                        <th>{egg["move"]}</th>
+                                        <th>{egg["frequency"]}</th>
+                                        <th>{egg["AC"]}</th>
+                                        <th>{egg["type"]}</th>
+                                        <th>{egg["roll"]}</th>
+                                        <th>{egg["classe"]}</th>
+                                        <th>{egg["range"]}</th>
+                                        <th>{egg["effect"]}</th>
+                                        {   locked_egg_moves.findIndex(obj => obj === egg["move"]) > -1 ?
+                                            <th><Button disabled={false} style={{marginLeft:'5px',marginTop:'5px',height:'30px'}} onClick={() => {
+                                                let index_to_remove = locked_egg_moves.findIndex(move_c => move_c === egg["move"]);
+                                                if (index_to_remove > -1) {
+                                                    dispatch(removeMovePokemonLockedEggMoves({pokemon_locked_egg_moves:index_to_remove}));
+                                                }
+                                            }}> Unlock </Button></th>
+                                            :
+                                            <th><Button disabled={chosen_moves.length + locked_egg_moves.length >= 9} style={{marginLeft:'5px',marginTop:'5px',height:'30px'}} onClick={() => {
+                                                if (egg["move"] !== "") {
+                                                    let index_to_remove = locked_egg_moves.findIndex(move_c => move_c === egg["move"]);
+                                                    if (index_to_remove === -1) {
+                                                        dispatch(addMovePokemonLockedEggMoves({pokemon_locked_egg_moves: egg["move"]}));
+                                                    }
+                                                }
+                                            }}> Lock </Button></th>
                                         }
-                                    }}> Unlock </Button></th>
-                                    :
-                                    <th><Button disabled={chosen_moves.length + locked_egg_moves.length >= 9} style={{marginLeft:'5px',marginTop:'5px',height:'30px'}} onClick={() => {
-                                        if (egg["move"] !== "") {
-                                            let index_to_remove = locked_egg_moves.findIndex(move_c => move_c === egg["move"]);
-                                            if (index_to_remove === -1) {
-                                                dispatch(addMovePokemonLockedEggMoves({pokemon_locked_egg_moves: egg["move"]}));
+                                        <th><Button disabled={level===-1} style={{marginLeft:'5px',marginTop:'5px',height:'30px'}} onClick={() => {
+                                            let index_to_remove = egg_moves.findIndex(move_c => move_c["move"] === egg["move"]);
+                                            if (index_to_remove > -1) {
+                                                dispatch(removeMovePokemonEggMoves({pokemon_chosen_egg_moves:index_to_remove}));
+                                            }
+                                            let index_to_remove_lock = locked_egg_moves.findIndex(move_c => move_c["move"] === egg["move"]);
+                                            if (index_to_remove_lock > -1) {
+                                                dispatch(removeMovePokemonLockedEggMoves({pokemon_locked_egg_moves:index_to_remove_lock}));
+                                            }
+                                        }}> remove </Button></th>
+                                    </tr>
+                                })}
+                                </tbody>
+                            </Table><br></br>
+                            <Button disabled={locked_egg_moves.length === 0} style={{marginLeft:'60%',marginTop:'5px',height:'30px'}} onClick={() => {
+                                for (let i = 0; i < locked_egg_moves.length; i++) {
+                                    dispatch(removeMovePokemonLockedEggMoves({pokemon_locked_egg_moves:i}));
+                                }
+                            }}> Unlock all </Button>
+                        </div>
+
+                        Add Egg moves : <Select
+                        showSearch
+                        style={{width:'30%',height:'30px'}}
+                        defaultValue={""}
+                        options={
+                            final_egg_moves.map((m) =>
+                                { return {"value":m["move"].replace(':','').trim(),"label":m["move"]} }
+                            )}
+                        onChange={(value) => {
+                            let move_name = value.replace(':','').trim();
+                            let index_to_remove = egg_moves.findIndex(move_c => move_c["move"] === move_name);
+                            if (index_to_remove > -1) {
+                                dispatch(removeMovePokemonEggMoves({pokemon_chosen_egg_moves:index_to_remove}));
+                            }
+                            else {
+                                let moves_to_add = moves.find((m) => m["move"] === move_name);
+                                if (moves_to_add) {
+                                    dispatch(addMovePokemonEggMoves({pokemon_chosen_egg_moves: moves_to_add}));
+
+                                }
+                            }
+
+
+                            value = "";
+                        }}>
+
+                    </Select>
+                        <br></br>
+                        <br></br>
+                        <div>
+                            <h2>TM Moves :</h2>
+                            <p> (You can lock tm moves so they are forced to appear in the final sheet table)</p>
+                            <Table responsive style={{borderColor:'white',borderWidth:'1px',borderStyle:'solid',minWidth:'70%',maxWidth:'70%'}}>
+                                <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Freq</th>
+                                    <th>AC</th>
+                                    <th>Type</th>
+                                    <th>Roll</th>
+                                    <th>Dmg Type</th>
+                                    <th>Range</th>
+                                    <th>Effect</th>
+                                    <th></th>
+                                    <th></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {tmhm_moves.map(egg => {
+                                    return <tr style={{color:(egg && locked_egg_moves.findIndex(obj => obj === egg["move"]) > -1?'green':'')}}>
+                                        <th>{egg["move"]}</th>
+                                        <th>{egg["frequency"]}</th>
+                                        <th>{egg["AC"]}</th>
+                                        <th>{egg["type"]}</th>
+                                        <th>{egg["roll"]}</th>
+                                        <th>{egg["classe"]}</th>
+                                        <th>{egg["range"]}</th>
+                                        <th>{egg["effect"]}</th>
+                                        {   locked_egg_moves.findIndex(obj => obj === egg["move"]) > -1 ?
+                                            <th><Button disabled={false} style={{marginLeft:'5px',marginTop:'5px',height:'30px'}} onClick={() => {
+                                                let index_to_remove = locked_egg_moves.findIndex(move_c => move_c === egg["move"]);
+                                                if (index_to_remove > -1) {
+                                                    dispatch(removeMovePokemonLockedEggMoves({pokemon_locked_egg_moves:index_to_remove}));
+                                                }
+                                            }}> Unlock </Button></th>
+                                            :
+                                            <th><Button disabled={chosen_moves.length + locked_egg_moves.length >= 9} style={{marginLeft:'5px',marginTop:'5px',height:'30px'}} onClick={() => {
+                                                if (egg["move"] !== "") {
+                                                    let index_to_remove = locked_egg_moves.findIndex(move_c => move_c === egg["move"]);
+                                                    if (index_to_remove === -1) {
+                                                        dispatch(addMovePokemonLockedEggMoves({pokemon_locked_egg_moves: egg["move"]}));
+                                                    }
+                                                }
+                                            }}> Lock </Button></th>
+                                        }
+                                        <th><Button disabled={level===-1} style={{marginLeft:'5px',marginTop:'5px',height:'30px'}} onClick={() => {
+                                            let index_to_remove = egg_moves.findIndex(move_c => move_c["move"] === egg["move"]);
+                                            if (index_to_remove > -1) {
+                                                dispatch(removeMovePokemonTMHMMoves({pokemon_chosen_tmhm_moves:index_to_remove}));
+                                            }
+                                            let index_to_remove_lock = locked_egg_moves.findIndex(move_c => move_c["move"] === egg["move"]);
+                                            if (index_to_remove_lock > -1) {
+                                                dispatch(removeMovePokemonLockedEggMoves({pokemon_locked_egg_moves:index_to_remove_lock}));
+                                            }
+                                        }}> remove </Button></th>
+                                    </tr>
+                                })}
+                                </tbody>
+                            </Table><br></br>
+                            <Button disabled={locked_egg_moves.length === 0} style={{marginLeft:'60%',marginTop:'5px',height:'30px'}} onClick={() => {
+                                for (let i = 0; i < locked_egg_moves.length; i++) {
+                                    dispatch(removeMovePokemonLockedEggMoves({pokemon_locked_egg_moves:i}));
+                                }
+                            }}> Unlock all </Button>
+                        </div>
+
+                        Add TM moves : <Select
+                        showSearch
+                        style={{width:'30%',height:'30px'}}
+                        defaultValue={""}
+                        options={
+                            final_tm_moves.map((m) =>
+                                { return {"value":m["move"].replace(':','').trim(),"label":m["move"]} }
+                            )}
+                        onChange={(value) => {
+                            let move_name = value.replace(':','').trim();
+                            let index_to_remove = egg_moves.findIndex(move_c => move_c["move"] === move_name);
+                            if (index_to_remove > -1) {
+                                dispatch(removeMovePokemonTMHMMoves({pokemon_chosen_tmhm_moves:index_to_remove}));
+                            }
+                            else {
+                                let moves_to_add = moves.find((m) => m["move"] === move_name);
+                                if (moves_to_add) {
+                                    dispatch(addMovePokemonTMHMMoves({pokemon_chosen_tmhm_moves: moves_to_add}));
+
+                                }
+                            }
+
+
+                            value = "";
+                        }}>
+
+                    </Select>
+                        <br></br>
+                        <br></br>
+                        <br></br>
+                        <div>
+                            <Button disabled={!ready_to_generate} style={{marginLeft:'5px',width:'15%',height:'50px'}} onClick={() => {
+                                console.log(egg_moves);
+                                console.log(locked_egg_moves);
+                                console.log(chosen_moves);
+                                let final =`![](${"http://faeresdev.site"+local_png_img})\n`;
+                                final += `# ${choosen_pokemon.charAt(0).toUpperCase() + choosen_pokemon.slice(1)}`;
+                                final += `\n`
+                                final += `Card: ${card}\n`
+                                final += `Gender: ${gender}\n`
+                                final += `Item: \n`
+                                final += `Nature: ${NATURE_MATRIX[final_buffed_stat][final_lowered_stat]}\n`
+                                final += `Level: ${level}\n`
+                                final += `Type: ${pokemon_obj["pokemon_types"]}\n`
+                                final += `Rarity: ${rarity}\n`
+                                final += `Weight: ${pokemon_obj["weight"]}\n`
+                                final += `Height: ${pokemon_obj["height"]}\n`
+                                final += `\n`
+                                final += `## **Abilities**\n`
+                                final += `\n`
+                                final += `| **Ability** | **Effect** |\n`
+                                final += `| ---------------- | ------------------ |\n`
+                                if (base_ability !== "") {
+                                    const found_ability = abilities.find(ability => ability["name"] === base_ability);
+                                    if (found_ability) {
+                                        final += `| ${found_ability["name"]} |  ${found_ability["effect"]} | \n`
+                                    }
+                                }
+
+                                if (advanced_ability !== "") {
+                                    const found_ability = abilities.find(ability => ability["name"] === advanced_ability);
+                                    if (found_ability) {
+                                        final += `| ${found_ability["name"]} |  ${found_ability["effect"]}} | \n`
+                                    }
+                                }
+
+                                if (high_ability !== "") {
+                                    const found_ability = abilities.find(ability => ability["name"] === high_ability);
+                                    if (found_ability) {
+                                        final += `| ${found_ability["name"]} |  ${found_ability["effect"]}} | \n`
+                                    }
+                                }
+                                final += `\n`
+                                final += `\n`
+                                final += `## **Capabilities**\n`
+                                final += `\n`
+                                final += `| **Capability** | **Value** |\n`
+                                final += `| ---------------- | ------------------ |\n`
+                                pokemon_obj["capabilities"].map(cat => {
+                                    if (cat["name"] !== ""){
+                                        final += `| ${cat['name']} | ${cat['value']} | \n`
+                                    }
+                                })
+                                final += `\n`
+                                final += `\n`
+                                final += `## **Skills**\n`
+                                final += `\n`
+                                final += `| **Skill** | **Roll** |\n`
+                                final += `| ---------------- | ------------------ |\n`
+                                pokemon_obj["skills"].map(cat => {
+                                    if (cat["name"] !== ""){
+                                        final += `| ${cat['name']} | ${cat['roll']} | \n`
+                                    }
+                                })
+                                final += `\n`
+                                final += `\n`
+                                final += `## **Stats**\n`
+                                final += `\n`
+                                const hit_points = level+(3*final_hp)+10
+                                final += `| **Hit Points Max :${hit_points}**                           | **Hit Points: ${hit_points}/${hit_points}** |\n`
+                                final += `|-------------------------------------------------------------|---------------------------------------------|\n`
+                                final += `| **Max HP**: ${pokemon_obj["stat_hp"]}+${hp_auto_buff}+${points_by_stats["HP"]}=${final_hp}              | **Current HP**:${final_hp}                 |\n`.replace("+-","-")
+                                final += `| **Max ATK**: ${pokemon_obj["stat_atk"]}+${atk_auto_buff}+${points_by_stats["ATK"]}=${final_atk}              | **Current ATK**:${final_atk}                 |\n`.replace("+-","-")
+                                final += `| **Max DEF**: ${pokemon_obj["stat_def"]}+${def_auto_buff}+${points_by_stats["DEF"]}=${final_def}              | **Current DEF**:${final_def}                 |\n`.replace("+-","-")
+                                final += `| **Max SPATK**: ${pokemon_obj["stat_sp_atk"]}+${spatk_auto_buff}+${points_by_stats["SPATK"]}=${final_spatk}              | **Current SPATK**:${final_spatk}                 |\n`.replace("+-","-")
+                                final += `| **Max SPDEF**: ${pokemon_obj["stat_sp_def"]}+${spdef_auto_buff}+${points_by_stats["SPDEF"]}=${final_spdef}              | **Current SPDEF**:${final_spdef}                 |\n`.replace("+-","-")
+                                final += `| **Max SPEED**: ${pokemon_obj["stat_spd"]}+${spd_auto_buff}+${points_by_stats["SPD"]}=${final_speed}              | **Current SPEED**:${final_speed}                 |\n`.replace("+-","-")
+                                final += `\n`
+                                const phy_evade = Math.round(final_def/10)
+                                const spe_evade = Math.round(final_spdef/10)
+                                const speed_evade = Math.round(final_speed/10)
+                                const injuries = 0;
+                                let added_moves = 0;
+                                let local_chosen_moves = chosen_moves.map(x => x);
+                                let local_egg_moves = egg_moves.map(x => x); // deep copy
+                                let local_tmhm_moves = tmhm_moves.map(x => x); // deep copy
+                                let local_locked_egg_moves = locked_egg_moves.map(x => x);// deep copy
+                                let egg_move_array = [];
+                                let normal_array = [];
+                                final += `| **Derived stats** |                |\n`
+                                final += `|-------------------|----------------|\n`
+                                final += `| Phys Evade        | ${phy_evade}    |\n`
+                                final += `| Spec Evade        | ${spe_evade}    |\n`
+                                final += `| Speed Evade       | ${speed_evade}  |\n`
+                                final += `| Injuries          | ${injuries}     |\n`
+                                final += `\n`
+                                final += `*Pokémon Hit Points = Pokémon Level + (HP x3) + 10*\n`
+                                final += `\n`
+                                final += `## **Moves** :\n`
+                                final += `\n`
+                                final += `| **Move**    | **Freq**         | **AC**    | **Type**    | **Roll**    | **Dmg. Type**      | **Range**    | **Special Effect** |\n`
+                                final += `|-------------|------------------|-----------|-------------|-------------|--------------------|--------------|-------------------|\n`
+
+
+                                while (added_moves < 3 && local_locked_egg_moves.length > 0) {
+                                    const lock_egg_move_name = local_locked_egg_moves.pop();
+                                    if (lock_egg_move_name) {
+                                        const index_egg_move = local_egg_moves.findIndex(obj=> obj["move"] === lock_egg_move_name);
+                                        if (index_egg_move > -1) {
+                                            egg_move_array.push(`| ${local_egg_moves[index_egg_move]['move']} | ${local_egg_moves[index_egg_move]['frequency']} | ${local_egg_moves[index_egg_move]['AC']} | ${local_egg_moves[index_egg_move]['type']} | ${local_egg_moves[index_egg_move]['roll']} | ${local_egg_moves[index_egg_move]['classe']} | ${local_egg_moves[index_egg_move]['range']} | ${local_egg_moves[index_egg_move]['effect']}     |\n`)
+                                            local_egg_moves.splice(index_egg_move,1)
+                                            added_moves += 1;
+                                        }
+                                        else {
+                                            const index_egg_move = local_tmhm_moves.findIndex(obj=> obj["move"] === lock_egg_move_name);
+                                            if (index_egg_move > -1) {
+                                                egg_move_array.push(`| ${local_tmhm_moves[index_egg_move]['move']} | ${local_tmhm_moves[index_egg_move]['frequency']} | ${local_tmhm_moves[index_egg_move]['AC']} | ${local_tmhm_moves[index_egg_move]['type']} | ${local_tmhm_moves[index_egg_move]['roll']} | ${local_tmhm_moves[index_egg_move]['classe']} | ${local_tmhm_moves[index_egg_move]['range']} | ${local_tmhm_moves[index_egg_move]['effect']}     |\n`)
+                                                local_tmhm_moves.splice(index_egg_move,1)
+                                                added_moves += 1;
                                             }
                                         }
-                                    }}> Lock </Button></th>
+
+                                    }
                                 }
-                                <th><Button disabled={level===-1} style={{marginLeft:'5px',marginTop:'5px',height:'30px'}} onClick={() => {
-                                    let index_to_remove = egg_moves.findIndex(move_c => move_c["move"] === egg["move"]);
-                                    if (index_to_remove > -1) {
-                                        dispatch(removeMovePokemonTMHMMoves({pokemon_chosen_tmhm_moves:index_to_remove}));
+
+
+                                while (added_moves < 3 && local_egg_moves.length > 0) {
+                                    const egg_move_l = local_egg_moves.pop();
+                                    if (egg_move_l) {
+                                        egg_move_array.push(`| ${egg_move_l['move']} | ${egg_move_l['frequency']} | ${egg_move_l['AC']} | ${egg_move_l['type']} | ${egg_move_l['roll']} | ${egg_move_l['classe']} | ${egg_move_l['range']} | ${egg_move_l['effect']}     |\n`)
+                                        added_moves += 1;
                                     }
-                                    let index_to_remove_lock = locked_egg_moves.findIndex(move_c => move_c["move"] === egg["move"]);
-                                    if (index_to_remove_lock > -1) {
-                                        dispatch(removeMovePokemonLockedEggMoves({pokemon_locked_egg_moves:index_to_remove_lock}));
+                                }
+                                while (added_moves < 3 && local_tmhm_moves.length > 0) {
+                                    const egg_move_l = local_tmhm_moves.pop();
+                                    if (egg_move_l) {
+                                        egg_move_array.push(`| ${egg_move_l['move']} | ${egg_move_l['frequency']} | ${egg_move_l['AC']} | ${egg_move_l['type']} | ${egg_move_l['roll']} | ${egg_move_l['classe']} | ${egg_move_l['range']} | ${egg_move_l['effect']}     |\n`)
+                                        added_moves += 1;
                                     }
-                                }}> remove </Button></th>
-                            </tr>
-                        })}
-                        </tbody>
-                    </Table><br></br>
-                    <Button disabled={locked_egg_moves.length === 0} style={{marginLeft:'60%',marginTop:'5px',height:'30px'}} onClick={() => {
-                        for (let i = 0; i < locked_egg_moves.length; i++) {
-                            dispatch(removeMovePokemonLockedEggMoves({pokemon_locked_egg_moves:i}));
-                        }
-                    }}> Unlock all </Button>
-                </div>
-
-                Add TM moves : <Select
-                showSearch
-                style={{width:'30%',height:'30px'}}
-                defaultValue={""}
-                options={
-                    final_tm_moves.map((m) =>
-                        { return {"value":m["move"].replace(':','').trim(),"label":m["move"]} }
-                    )}
-                onChange={(value) => {
-                    let move_name = value.replace(':','').trim();
-                    let index_to_remove = egg_moves.findIndex(move_c => move_c["move"] === move_name);
-                    if (index_to_remove > -1) {
-                        dispatch(removeMovePokemonTMHMMoves({pokemon_chosen_tmhm_moves:index_to_remove}));
-                    }
-                    else {
-                        let moves_to_add = moves.find((m) => m["move"] === move_name);
-                        if (moves_to_add) {
-                            dispatch(addMovePokemonTMHMMoves({pokemon_chosen_tmhm_moves: moves_to_add}));
-
-                        }
-                    }
+                                }
 
 
-                    value = "";
-                }}>
 
-            </Select>
-                <br></br>
-                <br></br>
-                <br></br>
-                <div>
-                <Button disabled={!ready_to_generate} style={{marginLeft:'5px',width:'15%',height:'50px'}} onClick={() => {
-                    console.log(egg_moves);
-                    console.log(locked_egg_moves);
-                    console.log(chosen_moves);
-                    let final =`![](${"http://faeresdev.site"+local_png_img})\n`;
-                    final += `# ${choosen_pokemon.charAt(0).toUpperCase() + choosen_pokemon.slice(1)}`;
-                    final += `\n`
-                    final += `Card: ${card}\n`
-                    final += `Gender: ${gender}\n`
-                    final += `Item: \n`
-                    final += `Nature: ${NATURE_MATRIX[final_buffed_stat][final_lowered_stat]}\n`
-                    final += `Level: ${level}\n`
-                    final += `Type: ${pokemon_obj["pokemon_types"]}\n`
-                    final += `Rarity: ${rarity}\n`
-                    final += `Weight: ${pokemon_obj["weight"]}\n`
-                    final += `Height: ${pokemon_obj["height"]}\n`
-                    final += `\n`
-                    final += `## **Abilities**\n`
-                    final += `\n`
-                    final += `| **Ability** | **Effect** |\n`
-                    final += `| ---------------- | ------------------ |\n`
-                    if (base_ability !== "") {
-                        const found_ability = abilities.find(ability => ability["name"] === base_ability);
-                        if (found_ability) {
-                            final += `| ${found_ability["name"]} |  ${found_ability["effect"]} | \n`
-                        }
-                    }
-
-                    if (advanced_ability !== "") {
-                        const found_ability = abilities.find(ability => ability["name"] === advanced_ability);
-                        if (found_ability) {
-                            final += `| ${found_ability["name"]} |  ${found_ability["effect"]}} | \n`
-                        }
-                    }
-
-                    if (high_ability !== "") {
-                        const found_ability = abilities.find(ability => ability["name"] === high_ability);
-                        if (found_ability) {
-                            final += `| ${found_ability["name"]} |  ${found_ability["effect"]}} | \n`
-                        }
-                    }
-                    final += `\n`
-                    final += `\n`
-                    final += `## **Capabilities**\n`
-                    final += `\n`
-                    final += `| **Capability** | **Value** |\n`
-                    final += `| ---------------- | ------------------ |\n`
-                    pokemon_obj["capabilities"].map(cat => {
-                        if (cat["name"] !== ""){
-                            final += `| ${cat['name']} | ${cat['value']} | \n`
-                        }
-                    })
-                    final += `\n`
-                    final += `\n`
-                    final += `## **Skills**\n`
-                    final += `\n`
-                    final += `| **Skill** | **Roll** |\n`
-                    final += `| ---------------- | ------------------ |\n`
-                    pokemon_obj["skills"].map(cat => {
-                        if (cat["name"] !== ""){
-                            final += `| ${cat['name']} | ${cat['roll']} | \n`
-                        }
-                    })
-                    final += `\n`
-                    final += `\n`
-                    final += `## **Stats**\n`
-                    final += `\n`
-                    const hit_points = level+(3*final_hp)+10
-                    final += `| **Hit Points Max :${hit_points}**                           | **Hit Points: ${hit_points}/${hit_points}** |\n`
-                    final += `|-------------------------------------------------------------|---------------------------------------------|\n`
-                    final += `| **Max HP**: ${pokemon_obj["stat_hp"]}+${hp_auto_buff}+${points_by_stats["HP"]}=${final_hp}              | **Current HP**:${final_hp}                 |\n`.replace("+-","-")
-                    final += `| **Max ATK**: ${pokemon_obj["stat_atk"]}+${atk_auto_buff}+${points_by_stats["ATK"]}=${final_atk}              | **Current ATK**:${final_atk}                 |\n`.replace("+-","-")
-                    final += `| **Max DEF**: ${pokemon_obj["stat_def"]}+${def_auto_buff}+${points_by_stats["DEF"]}=${final_def}              | **Current DEF**:${final_def}                 |\n`.replace("+-","-")
-                    final += `| **Max SPATK**: ${pokemon_obj["stat_sp_atk"]}+${spatk_auto_buff}+${points_by_stats["SPATK"]}=${final_spatk}              | **Current SPATK**:${final_spatk}                 |\n`.replace("+-","-")
-                    final += `| **Max SPDEF**: ${pokemon_obj["stat_sp_def"]}+${spdef_auto_buff}+${points_by_stats["SPDEF"]}=${final_spdef}              | **Current SPDEF**:${final_spdef}                 |\n`.replace("+-","-")
-                    final += `| **Max SPEED**: ${pokemon_obj["stat_spd"]}+${spd_auto_buff}+${points_by_stats["SPD"]}=${final_speed}              | **Current SPEED**:${final_speed}                 |\n`.replace("+-","-")
-                    final += `\n`
-                    const phy_evade = Math.round(final_def/10)
-                    const spe_evade = Math.round(final_spdef/10)
-                    const speed_evade = Math.round(final_speed/10)
-                    const injuries = 0;
-                    let added_moves = 0;
-                    let local_chosen_moves = chosen_moves.map(x => x);
-                    let local_egg_moves = egg_moves.map(x => x); // deep copy
-                    let local_tmhm_moves = tmhm_moves.map(x => x); // deep copy
-                    let local_locked_egg_moves = locked_egg_moves.map(x => x);// deep copy
-                    let egg_move_array = [];
-                    let normal_array = [];
-                    final += `| **Derived stats** |                |\n`
-                    final += `|-------------------|----------------|\n`
-                    final += `| Phys Evade        | ${phy_evade}    |\n`
-                    final += `| Spec Evade        | ${spe_evade}    |\n`
-                    final += `| Speed Evade       | ${speed_evade}  |\n`
-                    final += `| Injuries          | ${injuries}     |\n`
-                    final += `\n`
-                    final += `*Pokémon Hit Points = Pokémon Level + (HP x3) + 10*\n`
-                    final += `\n`
-                    final += `## **Moves** :\n`
-                    final += `\n`
-                    final += `| **Move**    | **Freq**         | **AC**    | **Type**    | **Roll**    | **Dmg. Type**      | **Range**    | **Special Effect** |\n`
-                    final += `|-------------|------------------|-----------|-------------|-------------|--------------------|--------------|-------------------|\n`
-
-
-                    while (added_moves < 3 && local_locked_egg_moves.length > 0) {
-                        const lock_egg_move_name = local_locked_egg_moves.pop();
-                        if (lock_egg_move_name) {
-                            const index_egg_move = local_egg_moves.findIndex(obj=> obj["move"] === lock_egg_move_name);
-                            if (index_egg_move > -1) {
-                                egg_move_array.push(`| ${local_egg_moves[index_egg_move]['move']} | ${local_egg_moves[index_egg_move]['frequency']} | ${local_egg_moves[index_egg_move]['AC']} | ${local_egg_moves[index_egg_move]['type']} | ${local_egg_moves[index_egg_move]['roll']} | ${local_egg_moves[index_egg_move]['classe']} | ${local_egg_moves[index_egg_move]['range']} | ${local_egg_moves[index_egg_move]['effect']}     |\n`)
-                                local_egg_moves.splice(index_egg_move,1)
-                                added_moves += 1;
-                            }
-                            else {
-                                const index_egg_move = local_tmhm_moves.findIndex(obj=> obj["move"] === lock_egg_move_name);
-                                if (index_egg_move > -1) {
-                                    egg_move_array.push(`| ${local_tmhm_moves[index_egg_move]['move']} | ${local_tmhm_moves[index_egg_move]['frequency']} | ${local_tmhm_moves[index_egg_move]['AC']} | ${local_tmhm_moves[index_egg_move]['type']} | ${local_tmhm_moves[index_egg_move]['roll']} | ${local_tmhm_moves[index_egg_move]['classe']} | ${local_tmhm_moves[index_egg_move]['range']} | ${local_tmhm_moves[index_egg_move]['effect']}     |\n`)
-                                    local_tmhm_moves.splice(index_egg_move,1)
+                                while (added_moves < 3){
+                                    egg_move_array.push(`|               |   |   |   |   |   |   |   |\n`)
                                     added_moves += 1;
                                 }
-                            }
-
-                        }
-                    }
-
-
-                    while (added_moves < 3 && local_egg_moves.length > 0) {
-                        const egg_move_l = local_egg_moves.pop();
-                        if (egg_move_l) {
-                            egg_move_array.push(`| ${egg_move_l['move']} | ${egg_move_l['frequency']} | ${egg_move_l['AC']} | ${egg_move_l['type']} | ${egg_move_l['roll']} | ${egg_move_l['classe']} | ${egg_move_l['range']} | ${egg_move_l['effect']}     |\n`)
-                            added_moves += 1;
-                        }
-                    }
-                    while (added_moves < 3 && local_tmhm_moves.length > 0) {
-                        const egg_move_l = local_tmhm_moves.pop();
-                        if (egg_move_l) {
-                            egg_move_array.push(`| ${egg_move_l['move']} | ${egg_move_l['frequency']} | ${egg_move_l['AC']} | ${egg_move_l['type']} | ${egg_move_l['roll']} | ${egg_move_l['classe']} | ${egg_move_l['range']} | ${egg_move_l['effect']}     |\n`)
-                            added_moves += 1;
-                        }
-                    }
 
 
 
-                    while (added_moves < 3){
-                        egg_move_array.push(`|               |   |   |   |   |   |   |   |\n`)
-                        added_moves += 1;
-                    }
+                                while (added_moves < 9 && local_locked_egg_moves.length > 0) {
+                                    const lock_egg_move_name = local_locked_egg_moves.pop();
+                                    console.log(lock_egg_move_name);
+                                    if (lock_egg_move_name) {
+                                        const index_egg_move = local_egg_moves.findIndex(obj=> obj["move"] === lock_egg_move_name);
+                                        if (index_egg_move > -1) {
+                                            normal_array.push(`| ${local_egg_moves[index_egg_move]['move']} | ${local_egg_moves[index_egg_move]['frequency']} | ${local_egg_moves[index_egg_move]['AC']} | ${local_egg_moves[index_egg_move]['type']} | ${local_egg_moves[index_egg_move]['roll']} | ${local_egg_moves[index_egg_move]['classe']} | ${local_egg_moves[index_egg_move]['range']} | ${local_egg_moves[index_egg_move]['effect']}     |\n`)
+                                            local_egg_moves.splice(index_egg_move,1)
+                                            added_moves += 1;
+                                        }
+                                        else {
+                                            const index_egg_move = local_tmhm_moves.findIndex(obj=> obj["move"] === lock_egg_move_name);
+                                            if (index_egg_move > -1) {
+                                                normal_array.push(`| ${local_tmhm_moves[index_egg_move]['move']} | ${local_tmhm_moves[index_egg_move]['frequency']} | ${local_tmhm_moves[index_egg_move]['AC']} | ${local_tmhm_moves[index_egg_move]['type']} | ${local_tmhm_moves[index_egg_move]['roll']} | ${local_tmhm_moves[index_egg_move]['classe']} | ${local_tmhm_moves[index_egg_move]['range']} | ${local_tmhm_moves[index_egg_move]['effect']}     |\n`)
+                                                local_tmhm_moves.splice(index_egg_move,1)
+                                                added_moves += 1;
+                                            }
+                                        }
+
+                                    }
+                                }
+
+
+                                while (added_moves < 9 && local_chosen_moves.length > 0) {
+                                    const egg_move_l = local_chosen_moves.pop();
+                                    if (egg_move_l) {
+                                        normal_array.push(`| ${egg_move_l['move']} | ${egg_move_l['frequency']} | ${egg_move_l['AC']} | ${egg_move_l['type']} | ${egg_move_l['roll']} | ${egg_move_l['classe']} | ${egg_move_l['range']} | ${egg_move_l['effect']}     |\n`)
+                                        added_moves += 1;
+                                    }
+                                }
+
+                                while (added_moves < 9 && local_egg_moves.length > 0) {
+                                    const egg_move_l = local_egg_moves.pop();
+                                    if (egg_move_l) {
+                                        normal_array.push(`| ${egg_move_l['move']} | ${egg_move_l['frequency']} | ${egg_move_l['AC']} | ${egg_move_l['type']} | ${egg_move_l['roll']} | ${egg_move_l['classe']} | ${egg_move_l['range']} | ${egg_move_l['effect']}     |\n`)
+                                        added_moves += 1;
+                                    }
+                                }
+
+                                while (added_moves < 9 && local_tmhm_moves.length > 0) {
+                                    const egg_move_l = local_tmhm_moves.pop();
+                                    if (egg_move_l) {
+                                        normal_array.push(`| ${egg_move_l['move']} | ${egg_move_l['frequency']} | ${egg_move_l['AC']} | ${egg_move_l['type']} | ${egg_move_l['roll']} | ${egg_move_l['classe']} | ${egg_move_l['range']} | ${egg_move_l['effect']}     |\n`)
+                                        added_moves += 1;
+                                    }
+                                }
 
 
 
-                    while (added_moves < 9 && local_locked_egg_moves.length > 0) {
-                        const lock_egg_move_name = local_locked_egg_moves.pop();
-                        console.log(lock_egg_move_name);
-                        if (lock_egg_move_name) {
-                            const index_egg_move = local_egg_moves.findIndex(obj=> obj["move"] === lock_egg_move_name);
-                            if (index_egg_move > -1) {
-                                normal_array.push(`| ${local_egg_moves[index_egg_move]['move']} | ${local_egg_moves[index_egg_move]['frequency']} | ${local_egg_moves[index_egg_move]['AC']} | ${local_egg_moves[index_egg_move]['type']} | ${local_egg_moves[index_egg_move]['roll']} | ${local_egg_moves[index_egg_move]['classe']} | ${local_egg_moves[index_egg_move]['range']} | ${local_egg_moves[index_egg_move]['effect']}     |\n`)
-                                local_egg_moves.splice(index_egg_move,1)
-                                added_moves += 1;
-                            }
-                            else {
-                                const index_egg_move = local_tmhm_moves.findIndex(obj=> obj["move"] === lock_egg_move_name);
-                                if (index_egg_move > -1) {
-                                    normal_array.push(`| ${local_tmhm_moves[index_egg_move]['move']} | ${local_tmhm_moves[index_egg_move]['frequency']} | ${local_tmhm_moves[index_egg_move]['AC']} | ${local_tmhm_moves[index_egg_move]['type']} | ${local_tmhm_moves[index_egg_move]['roll']} | ${local_tmhm_moves[index_egg_move]['classe']} | ${local_tmhm_moves[index_egg_move]['range']} | ${local_tmhm_moves[index_egg_move]['effect']}     |\n`)
-                                    local_tmhm_moves.splice(index_egg_move,1)
+
+
+                                while (added_moves < 9){
+                                    normal_array.push(`|               |   |   |   |   |   |   |   |\n`)
                                     added_moves += 1;
                                 }
-                            }
 
-                        }
-                    }
+                                normal_array.push(`\n`)
+                                normal_array.push(`|               |   |   |   |   |   |   |   |\n`)
+                                normal_array.push(`|---------------|---|---|---|---|---|---|---|\n`)
 
+                                normal_array.forEach((item, i) => {
+                                    final += item;
+                                })
 
-                    while (added_moves < 9 && local_chosen_moves.length > 0) {
-                        const egg_move_l = local_chosen_moves.pop();
-                        if (egg_move_l) {
-                            normal_array.push(`| ${egg_move_l['move']} | ${egg_move_l['frequency']} | ${egg_move_l['AC']} | ${egg_move_l['type']} | ${egg_move_l['roll']} | ${egg_move_l['classe']} | ${egg_move_l['range']} | ${egg_move_l['effect']}     |\n`)
-                            added_moves += 1;
-                        }
-                    }
+                                egg_move_array.forEach((item, i) => {
+                                    final += item;
+                                })
 
-                    while (added_moves < 9 && local_egg_moves.length > 0) {
-                        const egg_move_l = local_egg_moves.pop();
-                        if (egg_move_l) {
-                            normal_array.push(`| ${egg_move_l['move']} | ${egg_move_l['frequency']} | ${egg_move_l['AC']} | ${egg_move_l['type']} | ${egg_move_l['roll']} | ${egg_move_l['classe']} | ${egg_move_l['range']} | ${egg_move_l['effect']}     |\n`)
-                            added_moves += 1;
-                        }
-                    }
+                                final += `\n`
+                                const tutor_point = Math.floor(level/5)
+                                final += `Tutor points = ${tutor_point}\n`
+                                final += `\n`
+                                final += `\n`
+                                final += `## **Notes**\n`
+                                final += `\n`
+                                final += `egg moves : `
+                                if (egg_moves.length === 0) {
+                                    final += `None`
+                                }
+                                else {
+                                    egg_moves.forEach(egg_move => {
+                                        final += `${egg_move["move"]},`
+                                    })
+                                    final = final.substring(0,final.length-1);
+                                }
 
-                    while (added_moves < 9 && local_tmhm_moves.length > 0) {
-                        const egg_move_l = local_tmhm_moves.pop();
-                        if (egg_move_l) {
-                            normal_array.push(`| ${egg_move_l['move']} | ${egg_move_l['frequency']} | ${egg_move_l['AC']} | ${egg_move_l['type']} | ${egg_move_l['roll']} | ${egg_move_l['classe']} | ${egg_move_l['range']} | ${egg_move_l['effect']}     |\n`)
-                            added_moves += 1;
-                        }
-                    }
+                                final += `\n`
+                                final += `TM moves : `
+                                if (tmhm_moves.length === 0) {
+                                    final += `None`
+                                }
+                                else {
+                                    tmhm_moves.forEach(egg_move => {
+                                        final += `${egg_move["move"]},`
+                                    })
+                                    final = final.substring(0,final.length-1);
+                                }
 
+                                console.log(final)
+                                var blob = new Blob([final], { type: 'text/plain' });
+                                download(blob, pokemon_obj["name"]+".md", "text/plain");
+                            }}> Generate Markdown </Button>
+                            <Button disabled={!ready_to_generate} style={{marginTop:'5px',marginLeft:'5px',display:'grid',width:'15%',height:'50px'}} onClick={() => {
+                                const container = document.createElement("div");
 
+                                container.innerHTML += `<img src="${"http://faeresdev.site"+local_png_img}" width="200">`;
+                                container.innerHTML += `<h1>${choosen_pokemon.charAt(0).toUpperCase() + choosen_pokemon.slice(1)}</h1>`;
 
-
-
-                    while (added_moves < 9){
-                        normal_array.push(`|               |   |   |   |   |   |   |   |\n`)
-                        added_moves += 1;
-                    }
-
-                    normal_array.push(`\n`)
-                    normal_array.push(`|               |   |   |   |   |   |   |   |\n`)
-                    normal_array.push(`|---------------|---|---|---|---|---|---|---|\n`)
-
-                    normal_array.forEach((item, i) => {
-                        final += item;
-                    })
-
-                    egg_move_array.forEach((item, i) => {
-                        final += item;
-                    })
-
-                    final += `\n`
-                    const tutor_point = Math.floor(level/5)
-                    final += `Tutor points = ${tutor_point}\n`
-                    final += `\n`
-                    final += `\n`
-                    final += `## **Notes**\n`
-                    final += `\n`
-                    final += `egg moves : `
-                    if (egg_moves.length === 0) {
-                        final += `None`
-                    }
-                    else {
-                        egg_moves.forEach(egg_move => {
-                            final += `${egg_move["move"]},`
-                        })
-                        final = final.substring(0,final.length-1);
-                    }
-
-                    final += `\n`
-                    final += `TM moves : `
-                    if (tmhm_moves.length === 0) {
-                        final += `None`
-                    }
-                    else {
-                        tmhm_moves.forEach(egg_move => {
-                            final += `${egg_move["move"]},`
-                        })
-                        final = final.substring(0,final.length-1);
-                    }
-
-                    console.log(final)
-                    var blob = new Blob([final], { type: 'text/plain' });
-                    download(blob, pokemon_obj["name"]+".md", "text/plain");
-                }}> Generate Markdown </Button>
-                <Button disabled={!ready_to_generate} style={{marginTop:'5px',marginLeft:'5px',display:'grid',width:'15%',height:'50px'}} onClick={() => {
-                    const container = document.createElement("div");
-
-                    container.innerHTML += `<img src="${"http://faeresdev.site"+local_png_img}" width="200">`;
-                    container.innerHTML += `<h1>${choosen_pokemon.charAt(0).toUpperCase() + choosen_pokemon.slice(1)}</h1>`;
-
-                    container.innerHTML += `
+                                container.innerHTML += `
                     <p>
                     Card: ${card}<br>
                     Gender: ${gender}<br>
@@ -1218,65 +1219,65 @@ function PokemonGenerator() {
                     </p>
                     `;
 
-                    container.innerHTML += `<h2>Abilities</h2>`;
+                                container.innerHTML += `<h2>Abilities</h2>`;
 
-                    let abilityTable = `<table border="1" style="border-collapse:collapse">
+                                let abilityTable = `<table border="1" style="border-collapse:collapse">
                     <tr><th>Ability</th><th>Effect</th></tr>`;
 
-                    if (base_ability !== "") {
-                        const a = abilities.find(x => x.name === base_ability);
-                        if (a) abilityTable += `<tr><td>${a.name}</td><td>${a.effect}</td></tr>`;
-                    }
+                                if (base_ability !== "") {
+                                    const a = abilities.find(x => x.name === base_ability);
+                                    if (a) abilityTable += `<tr><td>${a.name}</td><td>${a.effect}</td></tr>`;
+                                }
 
-                    if (advanced_ability !== "") {
-                        const a = abilities.find(x => x.name === advanced_ability);
-                        if (a) abilityTable += `<tr><td>${a.name}</td><td>${a.effect}</td></tr>`;
-                    }
+                                if (advanced_ability !== "") {
+                                    const a = abilities.find(x => x.name === advanced_ability);
+                                    if (a) abilityTable += `<tr><td>${a.name}</td><td>${a.effect}</td></tr>`;
+                                }
 
-                    if (high_ability !== "") {
-                        const a = abilities.find(x => x.name === high_ability);
-                        if (a) abilityTable += `<tr><td>${a.name}</td><td>${a.effect}</td></tr>`;
-                    }
+                                if (high_ability !== "") {
+                                    const a = abilities.find(x => x.name === high_ability);
+                                    if (a) abilityTable += `<tr><td>${a.name}</td><td>${a.effect}</td></tr>`;
+                                }
 
-                    abilityTable += `</table>`;
-                    container.innerHTML += abilityTable;
+                                abilityTable += `</table>`;
+                                container.innerHTML += abilityTable;
 
 
-                    container.innerHTML += `<h2>Capabilities</h2>`;
+                                container.innerHTML += `<h2>Capabilities</h2>`;
 
-                    let capTable = `<table border="1" style="border-collapse:collapse">
+                                let capTable = `<table border="1" style="border-collapse:collapse">
                     <tr><th>Capability</th><th>Value</th></tr>`;
 
-                    pokemon_obj.capabilities.forEach(cat=>{
-                        if(cat.name!==""){
-                            capTable += `<tr><td>${cat.name}</td><td>${cat.value}</td></tr>`;
-                        }
-                    });
+                                pokemon_obj.capabilities.forEach(cat=>{
+                                    if(cat.name!==""){
+                                        capTable += `<tr><td>${cat.name}</td><td>${cat.value}</td></tr>`;
+                                    }
+                                });
 
-                    capTable += `</table>`;
-                    container.innerHTML += capTable;
+                                capTable += `</table>`;
+                                container.innerHTML += capTable;
 
 
-                    container.innerHTML += `<h2>Skills</h2>`;
+                                container.innerHTML += `<h2>Skills</h2>`;
 
-                    let skillTable = `<table border="1" style="border-collapse:collapse">
+                                let skillTable = `<table border="1" style="border-collapse:collapse">
                     <tr><th>Skill</th><th>Roll</th></tr>`;
 
-                    pokemon_obj.skills.forEach(skill=>{
-                        if(skill.name!==""){
-                            skillTable += `<tr><td>${skill.name}</td><td>${skill.roll}</td></tr>`;
-                        }
-                    });
+                                pokemon_obj.skills.forEach(skill=>{
+                                    if(skill.name!==""){
+                                        skillTable += `<tr><td>${skill.name}</td><td>${skill.roll}</td></tr>`;
+                                    }
+                                });
 
-                    skillTable += `</table>`;
-                    container.innerHTML += skillTable;
+                                skillTable += `</table>`;
+                                container.innerHTML += skillTable;
 
 
-                    const hit_points = level + (3 * final_hp) + 10;
+                                const hit_points = level + (3 * final_hp) + 10;
 
-                    container.innerHTML += `<h2>Stats</h2>`;
+                                container.innerHTML += `<h2>Stats</h2>`;
 
-                    let statsTable = `
+                                let statsTable = `
                         <table border="1" style="border-collapse:collapse">
                         <tr>
                         <td><b>Hit Points Max: ${hit_points}</b></td>
@@ -1315,14 +1316,14 @@ function PokemonGenerator() {
                         </table>
                         `;
 
-                    container.innerHTML += statsTable;
+                                container.innerHTML += statsTable;
 
 
-                    const phy_evade = Math.round(final_def/10);
-                    const spe_evade = Math.round(final_spdef/10);
-                    const speed_evade = Math.round(final_speed/10);
+                                const phy_evade = Math.round(final_def/10);
+                                const spe_evade = Math.round(final_spdef/10);
+                                const speed_evade = Math.round(final_speed/10);
 
-                    container.innerHTML += `
+                                container.innerHTML += `
                         <h3>Derived Stats</h3>
                         <table border="1" style="border-collapse:collapse">
                         <tr><td>Phys Evade</td><td>${phy_evade}</td></tr>
@@ -1333,110 +1334,16 @@ function PokemonGenerator() {
                         `;
 
 
-                    container.innerHTML += `<h2>Moves</h2>`;
-                    let added_moves = 0;
-                    let local_chosen_moves = chosen_moves.map(x => x);
-                    let local_egg_moves = egg_moves.map(x => x); // deep copy
-                    let local_tmhm_moves = tmhm_moves.map(x => x); // deep copy
-                    let local_locked_egg_moves = locked_egg_moves.map(x => x);// deep copy
-                    let egg_move_array = [];
-                    let normal_array = [];
+                                container.innerHTML += `<h2>Moves</h2>`;
+                                let added_moves = 0;
+                                let local_chosen_moves = chosen_moves.map(x => x);
+                                let local_egg_moves = egg_moves.map(x => x); // deep copy
+                                let local_tmhm_moves = tmhm_moves.map(x => x); // deep copy
+                                let local_locked_egg_moves = locked_egg_moves.map(x => x);// deep copy
+                                let egg_move_array = [];
+                                let normal_array = [];
 
-                    egg_move_array.push(`
-                        <table border="1" style="border-collapse:collapse">
-                        <tr>
-                        <th>Move</th>
-                        <th>Freq</th>
-                        <th>AC</th>
-                        <th>Type</th>
-                        <th>Roll</th>
-                        <th>Dmg Type</th>
-                        <th>Range</th>
-                        <th>Special Effect</th>
-                        </tr>
-                        `);
-
-                    while (added_moves < 3 && local_locked_egg_moves.length > 0) {
-                        const lock_egg_move_name = local_locked_egg_moves.pop();
-                        if (lock_egg_move_name) {
-                            const index_egg_move = local_egg_moves.findIndex(obj=> obj["move"] === lock_egg_move_name);
-                            if (index_egg_move > -1) {
                                 egg_move_array.push(`
-                                <tr>
-                                <td>${local_egg_moves[index_egg_move]['move']}</td>
-                                <td>${local_egg_moves[index_egg_move]['frequency']}</td>
-                                <td>${local_egg_moves[index_egg_move]['AC']}</td>
-                                <td>${local_egg_moves[index_egg_move]['type']}</td>
-                                <td>${local_egg_moves[index_egg_move]['roll']}</td>
-                                <td>${local_egg_moves[index_egg_move]['classe']}</td>
-                                <td>${local_egg_moves[index_egg_move]['range']}</td>
-                                <td>${local_egg_moves[index_egg_move]['effect']}</td>
-                                </tr>`);                                local_egg_moves.splice(index_egg_move,1)
-                                added_moves += 1;
-                            }
-                            else {
-                                const index_egg_move = local_tmhm_moves.findIndex(obj=> obj["move"] === lock_egg_move_name);
-                                if (index_egg_move > -1) {
-                                    egg_move_array.push(`
-                                <tr>
-                                <td>${local_tmhm_moves[index_egg_move]['move']}</td>
-                                <td>${local_tmhm_moves[index_egg_move]['frequency']}</td>
-                                <td>${local_tmhm_moves[index_egg_move]['AC']}</td>
-                                <td>${local_tmhm_moves[index_egg_move]['type']}</td>
-                                <td>${local_tmhm_moves[index_egg_move]['roll']}</td>
-                                <td>${local_tmhm_moves[index_egg_move]['classe']}</td>
-                                <td>${local_tmhm_moves[index_egg_move]['range']}</td>
-                                <td>${local_tmhm_moves[index_egg_move]['effect']}</td>
-                                </tr>`);                                    local_tmhm_moves.splice(index_egg_move,1)
-                                    added_moves += 1;
-                                }
-                            }
-
-                        }
-                    }
-
-
-
-                    while (added_moves < 3 && local_egg_moves.length > 0) {
-                        const egg_move_l = local_egg_moves.pop();
-                        if (egg_move_l) {
-                            egg_move_array.push(`
-                                <tr>
-                                <td>${egg_move_l['move']}</td>
-                                <td>${egg_move_l['frequency']}</td>
-                                <td>${egg_move_l['AC']}</td>
-                                <td>${egg_move_l['type']}</td>
-                                <td>${egg_move_l['roll']}</td>
-                                <td>${egg_move_l['classe']}</td>
-                                <td>${egg_move_l['range']}</td>
-                                <td>${egg_move_l['effect']}</td>
-                                </tr>`);                            added_moves += 1;
-                        }
-                    }
-                    while (added_moves < 3 && local_tmhm_moves.length > 0) {
-                        const egg_move_l = local_tmhm_moves.pop();
-                        if (egg_move_l) {
-                            egg_move_array.push(`
-                                <tr>
-                                <td>${egg_move_l['move']}</td>
-                                <td>${egg_move_l['frequency']}</td>
-                                <td>${egg_move_l['AC']}</td>
-                                <td>${egg_move_l['type']}</td>
-                                <td>${egg_move_l['roll']}</td>
-                                <td>${egg_move_l['classe']}</td>
-                                <td>${egg_move_l['range']}</td>
-                                <td>${egg_move_l['effect']}</td>
-                                </tr>`);                            added_moves += 1;
-                        }
-                    }
-                    while (added_moves < 3){
-                        egg_move_array.push(`<tr>${"<td></td>".repeat(8)}</tr>`);
-                        added_moves++;
-                    }
-                    egg_move_array.push(`</table>`);
-                    // container.innerHTML += moveTable;
-
-                    normal_array.push(`
                         <table border="1" style="border-collapse:collapse">
                         <tr>
                         <th>Move</th>
@@ -1450,16 +1357,12 @@ function PokemonGenerator() {
                         </tr>
                         `);
 
-                    /* -------- EGG MOVES TABLE -------- */
-
-
-                    while (added_moves < 9 && local_locked_egg_moves.length > 0) {
-                        const lock_egg_move_name = local_locked_egg_moves.pop();
-                        console.log(lock_egg_move_name);
-                        if (lock_egg_move_name) {
-                            const index_egg_move = local_egg_moves.findIndex(obj=> obj["move"] === lock_egg_move_name);
-                            if (index_egg_move > -1) {
-                                normal_array.push(`
+                                while (added_moves < 3 && local_locked_egg_moves.length > 0) {
+                                    const lock_egg_move_name = local_locked_egg_moves.pop();
+                                    if (lock_egg_move_name) {
+                                        const index_egg_move = local_egg_moves.findIndex(obj=> obj["move"] === lock_egg_move_name);
+                                        if (index_egg_move > -1) {
+                                            egg_move_array.push(`
                                 <tr>
                                 <td>${local_egg_moves[index_egg_move]['move']}</td>
                                 <td>${local_egg_moves[index_egg_move]['frequency']}</td>
@@ -1470,12 +1373,12 @@ function PokemonGenerator() {
                                 <td>${local_egg_moves[index_egg_move]['range']}</td>
                                 <td>${local_egg_moves[index_egg_move]['effect']}</td>
                                 </tr>`);                                local_egg_moves.splice(index_egg_move,1)
-                                added_moves += 1;
-                            }
-                            else {
-                                const index_egg_move = local_tmhm_moves.findIndex(obj=> obj["move"] === lock_egg_move_name);
-                                if (index_egg_move > -1) {
-                                    normal_array.push(`
+                                            added_moves += 1;
+                                        }
+                                        else {
+                                            const index_egg_move = local_tmhm_moves.findIndex(obj=> obj["move"] === lock_egg_move_name);
+                                            if (index_egg_move > -1) {
+                                                egg_move_array.push(`
                                 <tr>
                                 <td>${local_tmhm_moves[index_egg_move]['move']}</td>
                                 <td>${local_tmhm_moves[index_egg_move]['frequency']}</td>
@@ -1486,18 +1389,19 @@ function PokemonGenerator() {
                                 <td>${local_tmhm_moves[index_egg_move]['range']}</td>
                                 <td>${local_tmhm_moves[index_egg_move]['effect']}</td>
                                 </tr>`);                                    local_tmhm_moves.splice(index_egg_move,1)
-                                    added_moves += 1;
+                                                added_moves += 1;
+                                            }
+                                        }
+
+                                    }
                                 }
-                            }
-
-                        }
-                    }
 
 
-                    while (added_moves < 9 && local_chosen_moves.length > 0) {
-                        const egg_move_l = local_chosen_moves.pop();
-                        if (egg_move_l) {
-                            normal_array.push(`
+
+                                while (added_moves < 3 && local_egg_moves.length > 0) {
+                                    const egg_move_l = local_egg_moves.pop();
+                                    if (egg_move_l) {
+                                        egg_move_array.push(`
                                 <tr>
                                 <td>${egg_move_l['move']}</td>
                                 <td>${egg_move_l['frequency']}</td>
@@ -1508,13 +1412,110 @@ function PokemonGenerator() {
                                 <td>${egg_move_l['range']}</td>
                                 <td>${egg_move_l['effect']}</td>
                                 </tr>`);                            added_moves += 1;
-                        }
-                    }
+                                    }
+                                }
+                                while (added_moves < 3 && local_tmhm_moves.length > 0) {
+                                    const egg_move_l = local_tmhm_moves.pop();
+                                    if (egg_move_l) {
+                                        egg_move_array.push(`
+                                <tr>
+                                <td>${egg_move_l['move']}</td>
+                                <td>${egg_move_l['frequency']}</td>
+                                <td>${egg_move_l['AC']}</td>
+                                <td>${egg_move_l['type']}</td>
+                                <td>${egg_move_l['roll']}</td>
+                                <td>${egg_move_l['classe']}</td>
+                                <td>${egg_move_l['range']}</td>
+                                <td>${egg_move_l['effect']}</td>
+                                </tr>`);                            added_moves += 1;
+                                    }
+                                }
+                                while (added_moves < 3){
+                                    egg_move_array.push(`<tr>${"<td></td>".repeat(8)}</tr>`);
+                                    added_moves++;
+                                }
+                                egg_move_array.push(`</table>`);
+                                // container.innerHTML += moveTable;
 
-                    while (added_moves < 9 && local_egg_moves.length > 0) {
-                        const egg_move_l = local_egg_moves.pop();
-                        if (egg_move_l) {
-                            normal_array.push(`
+                                normal_array.push(`
+                        <table border="1" style="border-collapse:collapse">
+                        <tr>
+                        <th>Move</th>
+                        <th>Freq</th>
+                        <th>AC</th>
+                        <th>Type</th>
+                        <th>Roll</th>
+                        <th>Dmg Type</th>
+                        <th>Range</th>
+                        <th>Special Effect</th>
+                        </tr>
+                        `);
+
+                                /* -------- EGG MOVES TABLE -------- */
+
+
+                                while (added_moves < 9 && local_locked_egg_moves.length > 0) {
+                                    const lock_egg_move_name = local_locked_egg_moves.pop();
+                                    console.log(lock_egg_move_name);
+                                    if (lock_egg_move_name) {
+                                        const index_egg_move = local_egg_moves.findIndex(obj=> obj["move"] === lock_egg_move_name);
+                                        if (index_egg_move > -1) {
+                                            normal_array.push(`
+                                <tr>
+                                <td>${local_egg_moves[index_egg_move]['move']}</td>
+                                <td>${local_egg_moves[index_egg_move]['frequency']}</td>
+                                <td>${local_egg_moves[index_egg_move]['AC']}</td>
+                                <td>${local_egg_moves[index_egg_move]['type']}</td>
+                                <td>${local_egg_moves[index_egg_move]['roll']}</td>
+                                <td>${local_egg_moves[index_egg_move]['classe']}</td>
+                                <td>${local_egg_moves[index_egg_move]['range']}</td>
+                                <td>${local_egg_moves[index_egg_move]['effect']}</td>
+                                </tr>`);                                local_egg_moves.splice(index_egg_move,1)
+                                            added_moves += 1;
+                                        }
+                                        else {
+                                            const index_egg_move = local_tmhm_moves.findIndex(obj=> obj["move"] === lock_egg_move_name);
+                                            if (index_egg_move > -1) {
+                                                normal_array.push(`
+                                <tr>
+                                <td>${local_tmhm_moves[index_egg_move]['move']}</td>
+                                <td>${local_tmhm_moves[index_egg_move]['frequency']}</td>
+                                <td>${local_tmhm_moves[index_egg_move]['AC']}</td>
+                                <td>${local_tmhm_moves[index_egg_move]['type']}</td>
+                                <td>${local_tmhm_moves[index_egg_move]['roll']}</td>
+                                <td>${local_tmhm_moves[index_egg_move]['classe']}</td>
+                                <td>${local_tmhm_moves[index_egg_move]['range']}</td>
+                                <td>${local_tmhm_moves[index_egg_move]['effect']}</td>
+                                </tr>`);                                    local_tmhm_moves.splice(index_egg_move,1)
+                                                added_moves += 1;
+                                            }
+                                        }
+
+                                    }
+                                }
+
+
+                                while (added_moves < 9 && local_chosen_moves.length > 0) {
+                                    const egg_move_l = local_chosen_moves.pop();
+                                    if (egg_move_l) {
+                                        normal_array.push(`
+                                <tr>
+                                <td>${egg_move_l['move']}</td>
+                                <td>${egg_move_l['frequency']}</td>
+                                <td>${egg_move_l['AC']}</td>
+                                <td>${egg_move_l['type']}</td>
+                                <td>${egg_move_l['roll']}</td>
+                                <td>${egg_move_l['classe']}</td>
+                                <td>${egg_move_l['range']}</td>
+                                <td>${egg_move_l['effect']}</td>
+                                </tr>`);                            added_moves += 1;
+                                    }
+                                }
+
+                                while (added_moves < 9 && local_egg_moves.length > 0) {
+                                    const egg_move_l = local_egg_moves.pop();
+                                    if (egg_move_l) {
+                                        normal_array.push(`
                                 <tr>
                                 <td>${egg_move_l['move']}</td>
                                 <td>${egg_move_l['frequency']}</td>
@@ -1525,13 +1526,13 @@ function PokemonGenerator() {
                                 <td>${egg_move_l['range']}</td>
                                 <td>${egg_move_l['effect']}</td>
                                 </tr>`);                             added_moves += 1;
-                        }
-                    }
+                                    }
+                                }
 
-                    while (added_moves < 9 && local_tmhm_moves.length > 0) {
-                        const egg_move_l = local_tmhm_moves.pop();
-                        if (egg_move_l) {
-                            normal_array.push(`
+                                while (added_moves < 9 && local_tmhm_moves.length > 0) {
+                                    const egg_move_l = local_tmhm_moves.pop();
+                                    if (egg_move_l) {
+                                        normal_array.push(`
                                 <tr>
                                 <td>${egg_move_l['move']}</td>
                                 <td>${egg_move_l['frequency']}</td>
@@ -1542,72 +1543,72 @@ function PokemonGenerator() {
                                 <td>${egg_move_l['range']}</td>
                                 <td>${egg_move_l['effect']}</td>
                                 </tr>`);                             added_moves += 1;
-                        }
-                    }
+                                    }
+                                }
 
-                    while (added_moves < 9){
-                        normal_array.push(`<tr>${"<td></td>".repeat(8)}</tr>`);
-                        added_moves++;
-                    }
+                                while (added_moves < 9){
+                                    normal_array.push(`<tr>${"<td></td>".repeat(8)}</tr>`);
+                                    added_moves++;
+                                }
 
-                    normal_array.push(`</table>`);
-                    //
+                                normal_array.push(`</table>`);
+                                //
 
-                    let normalTable = "";
-                    normal_array.forEach((item,i) => {
-                        normalTable += item;
-                    })
+                                let normalTable = "";
+                                normal_array.forEach((item,i) => {
+                                    normalTable += item;
+                                })
 
-                    container.innerHTML += normalTable;
-                    let eggTable = "";
-                    egg_move_array.forEach((item,i) => {
-                        eggTable += item;
-                    })
+                                container.innerHTML += normalTable;
+                                let eggTable = "";
+                                egg_move_array.forEach((item,i) => {
+                                    eggTable += item;
+                                })
 
-                    container.innerHTML += eggTable;
+                                container.innerHTML += eggTable;
 
-                    const tutor_point = Math.floor(level/5);
-                    container.innerHTML += `<p><b>Tutor points:</b> ${tutor_point}</p>`;
-
-
-                    container.innerHTML += `<h2>Notes</h2>`;
-                    container.innerHTML += `<p>Egg moves: ${
-                        egg_moves.length === 0
-                            ? "None"
-                            : egg_moves.map(e=>e.move).join(", ")
-                    }</p>`;
-
-                    container.innerHTML += `<p>TM moves: ${
-                        tmhm_moves.length === 0
-                            ? "None"
-                            : tmhm_moves.map(e=>e.move).join(", ")
-                    }</p>`;
+                                const tutor_point = Math.floor(level/5);
+                                container.innerHTML += `<p><b>Tutor points:</b> ${tutor_point}</p>`;
 
 
-                    /* COPY AS RICH TEXT */
+                                container.innerHTML += `<h2>Notes</h2>`;
+                                container.innerHTML += `<p>Egg moves: ${
+                                    egg_moves.length === 0
+                                        ? "None"
+                                        : egg_moves.map(e=>e.move).join(", ")
+                                }</p>`;
 
-                    document.body.appendChild(container);
+                                container.innerHTML += `<p>TM moves: ${
+                                    tmhm_moves.length === 0
+                                        ? "None"
+                                        : tmhm_moves.map(e=>e.move).join(", ")
+                                }</p>`;
 
-                    const range = document.createRange();
-                    range.selectNode(container);
 
-                    const selection = window.getSelection();
-                    selection.removeAllRanges();
-                    selection.addRange(range);
+                                /* COPY AS RICH TEXT */
 
-                    document.execCommand("copy");
+                                document.body.appendChild(container);
 
-                    selection.removeAllRanges();
-                    container.remove();
+                                const range = document.createRange();
+                                range.selectNode(container);
 
-                    console.log("Formatted content copied! Paste into Google Docs.");
-                }}> Copy google doc version to clipboard </Button></div>
-                <br></br>
-                <br></br>
-                <br></br>
-            </div>
-            }
-        </div></div>
+                                const selection = window.getSelection();
+                                selection.removeAllRanges();
+                                selection.addRange(range);
+
+                                document.execCommand("copy");
+
+                                selection.removeAllRanges();
+                                container.remove();
+
+                                console.log("Formatted content copied! Paste into Google Docs.");
+                            }}> Copy google doc version to clipboard </Button></div>
+                        <br></br>
+                        <br></br>
+                        <br></br>
+                    </div>
+                }
+            </div></div>
     );
 
 }
