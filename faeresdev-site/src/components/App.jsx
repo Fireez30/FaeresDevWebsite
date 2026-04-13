@@ -3,6 +3,7 @@ import './App.css'
 import React from 'react';
 import { Layout,Menu } from 'antd';
 import PokemonGenerator from "./PokemonGenerator.jsx";
+import PokemonTeamCard from "./PokemonTeamCard.jsx";
 import Rolls from "./rolls.jsx";
 import HiraganaTrainer from "./HiraganaTrainer.jsx";
 import KatakanaTrainer from "./KatakanaTrainer.jsx";
@@ -13,8 +14,9 @@ const items = [
     {key: 0,label: 'Home'},
     {key: 1,label: 'Pokemon Generator',},
     {key: 2,label: 'Pokemon rolls'},
-    {key: 3,label: 'Hiragana Training'},
-    {key: 4,label: 'Katakana Training'},
+    {key: 3,label: 'Pokemon Team Card'},
+    {key: 4,label: 'Hiragana Training'},
+    {key: 5,label: 'Katakana Training'},
 ];
 
 function App() {
@@ -34,8 +36,9 @@ function App() {
                     if (key.key === 0 || key.key === "0"){ setCurrentKey("home") }
                     if (key.key === 1 || key.key === "1"){ setCurrentKey('pokemon') }
                     if (key.key === 2 || key.key === "2"){ setCurrentKey('rolls') }
-                    if (key.key === 3 || key.key === "3"){ setCurrentKey('hiragana') }
-                    if (key.key === 4 || key.key === "4"){ setCurrentKey('katakana') }
+                    if (key.key === 3 || key.key === "3"){ setCurrentKey('pokemon-team-card') }
+                    if (key.key === 4 || key.key === "4"){ setCurrentKey('hiragana') }
+                    if (key.key === 5 || key.key === "5"){ setCurrentKey('katakana') }
                 }}
                 items={items}
             />
@@ -47,6 +50,8 @@ function App() {
                 <PokemonGenerator />
             : current_key === "rolls" ?
                 <Rolls />
+            : current_key === "pokemon-team-card" ?
+                <PokemonTeamCard />
             : current_key === "hiragana" ?
                 <HiraganaTrainer />
             : current_key === "katakana" ?

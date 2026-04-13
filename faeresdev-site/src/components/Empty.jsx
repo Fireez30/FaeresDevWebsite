@@ -12,6 +12,10 @@ const sections = [
                 title: "Pokemon Rolls",
                 description: "Handle encounter, capture, shiny, and card rolls with dedicated utilities and quick result feedback.",
             },
+            {
+                title: "Pokemon Team Card",
+                description: "Pick up to six Pokemon in order, upload a custom image, and export a 480p team card with the full squad layout.",
+            },
         ],
     },
     {
@@ -34,7 +38,7 @@ function Empty() {
         <div className="home-page">
             <section className="home-hero">
                 <p className="home-kicker">Faeres Dev Website</p>
-                <h1>Four focused tools in one place.</h1>
+                <h1>Five focused tools in one place.</h1>
                 <p className="home-subtitle">
                     Use the navigation above to switch between Pokemon utilities and Japanese writing practice.
                 </p>
