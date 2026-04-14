@@ -15,7 +15,11 @@ const rarityOptions = [
     { value: "platine", label: "Platine" },
 ];
 
-const pokemonOptions = [...pokemonsData]
+const uniquePokemons = Array.from(
+    new Map(pokemonsData.map((pokemon) => [pokemon.name, pokemon])).values(),
+);
+
+const pokemonOptions = [...uniquePokemons]
     .sort((a, b) => a.name.localeCompare(b.name))
     .map((pokemon) => ({
         value: pokemon.name,
@@ -25,7 +29,7 @@ const pokemonOptions = [...pokemonsData]
             .join(" "),
     }));
 
-const pokemonByName = new Map(pokemonsData.map((pokemon) => [pokemon.name, pokemon]));
+const pokemonByName = new Map(uniquePokemons.map((pokemon) => [pokemon.name, pokemon]));
 const pokemonLabelByName = new Map(pokemonOptions.map((option) => [option.value, option.label]));
 const pokemonTypeOptions = [
     "Bug",
@@ -257,20 +261,95 @@ function drawStar(context, centerX, centerY, outerRadius, innerRadius, color) {
     context.closePath();
     context.fillStyle = color;
     context.fill();
+    context.lineWidth = 2;
+    context.strokeStyle = "rgba(79, 42, 36, 0.9)";
+    context.stroke();
     context.restore();
 }
 
-function drawDiamond(context, centerX, centerY, radius, color) {
+function drawPlatinumSparkle(context, centerX, centerY, radius, color) {
     context.save();
     context.beginPath();
-    context.moveTo(centerX, centerY - radius);
-    context.lineTo(centerX + radius, centerY);
-    context.lineTo(centerX, centerY + radius);
-    context.lineTo(centerX - radius, centerY);
+
+    for (let pointIndex = 0; pointIndex < 8; pointIndex += 1) {
+        const angle = (Math.PI / 4) * pointIndex - Math.PI / 2;
+        const currentRadius = pointIndex % 2 === 0 ? radius : radius * 0.38;
+        const x = centerX + Math.cos(angle) * currentRadius;
+        const y = centerY + Math.sin(angle) * currentRadius;
+
+        if (pointIndex === 0) {
+            context.moveTo(x, y);
+        } else {
+            context.lineTo(x, y);
+        }
+    }
+
     context.closePath();
     context.fillStyle = color;
     context.fill();
+    context.lineWidth = 2;
+    context.strokeStyle = "rgba(79, 42, 36, 0.9)";
+    context.stroke();
+
+    context.beginPath();
+    context.arc(centerX - radius * 0.18, centerY - radius * 0.18, radius * 0.18, 0, Math.PI * 2);
+    context.fillStyle = "rgba(255, 255, 255, 0.8)";
+    context.fill();
     context.restore();
+}
+
+function drawWrappedText(context, text, x, y, maxWidth, lineHeight, maxLines) {
+    if (!text) {
+        return 0;
+    }
+
+    const words = text.split(/\s+/).filter(Boolean);
+    const lines = [];
+    let currentLine = "";
+
+    words.forEach((word) => {
+        const tentativeLine = currentLine ? `${currentLine} ${word}` : word;
+
+        if (context.measureText(tentativeLine).width <= maxWidth) {
+            currentLine = tentativeLine;
+            return;
+        }
+
+        if (currentLine) {
+            lines.push(currentLine);
+            currentLine = word;
+        } else {
+            lines.push(word);
+            currentLine = "";
+        }
+    });
+
+    if (currentLine) {
+        lines.push(currentLine);
+    }
+
+    const visibleLines = lines.slice(0, maxLines);
+
+    if (lines.length > maxLines) {
+        let lastLine = visibleLines[maxLines - 1];
+
+        while (`${lastLine}...` !== "..." && context.measureText(`${lastLine}...`).width > maxWidth) {
+            const lastSpaceIndex = lastLine.lastIndexOf(" ");
+            if (lastSpaceIndex === -1) {
+                lastLine = lastLine.slice(0, -1);
+            } else {
+                lastLine = lastLine.slice(0, lastSpaceIndex);
+            }
+        }
+
+        visibleLines[maxLines - 1] = `${lastLine || ""}...`;
+    }
+
+    visibleLines.forEach((line, index) => {
+        context.fillText(line, x, y + index * lineHeight, maxWidth);
+    });
+
+    return visibleLines.length;
 }
 
 function PokemonTeamCard() {
@@ -409,7 +488,7 @@ function PokemonTeamCard() {
                 const cardInsetY = 36;
                 const cardInnerWidth = CARD_WIDTH - 72;
                 const cardInnerHeight = CARD_HEIGHT - 72;
-                const leftColumnWidth = 368;
+                const leftColumnWidth = 344;
                 const columnGap = 24;
                 const rightColumnX = cardInsetX + leftColumnWidth + columnGap;
                 const rightColumnWidth = cardInnerWidth - leftColumnWidth - columnGap;
@@ -422,7 +501,7 @@ function PokemonTeamCard() {
                 context.textAlign = "left";
                 context.textBaseline = "alphabetic";
 
-                const heroWidth = 328;
+                const heroWidth = 296;
                 const heroHeight = 364;
                 const heroX = cardInsetX + (leftColumnWidth - heroWidth) / 2;
                 const heroY = cardInsetY + (cardInnerHeight - heroHeight) / 2;
@@ -438,13 +517,13 @@ function PokemonTeamCard() {
                 context.lineWidth = 2;
                 context.strokeRect(heroX, heroY, heroWidth, heroHeight);
 
-                const cellWidth = 182;
-                const cellHeight = 100;
+                const cellWidth = 198;
+                const cellHeight = 104;
                 const gapX = 18;
-                const gapY = 16;
+                const gapY = 12;
                 const gridWidth = cellWidth * 2 + gapX;
                 const gridX = rightColumnX + (rightColumnWidth - gridWidth) / 2;
-                const gridY = 102;
+                const gridY = 98;
 
                 team.forEach((name, index) => {
                     const column = index % 2;
@@ -469,47 +548,62 @@ function PokemonTeamCard() {
                     context.fillStyle = "#8f3027";
                     context.font = "700 14px 'Trebuchet MS', sans-serif";
                     context.textAlign = "right";
-                    context.fillText(`#${index + 1}`, x + cellWidth - 12, y + 22);
+                    context.fillText(`#${index + 1}`, x + cellWidth - 8, y + 16);
                     context.textAlign = "left";
 
+                    const artworkX = x + 10;
+                    const artworkY = y + 10;
+                    const artworkWidth = 102;
+                    const artworkHeight = cellHeight - 20;
+                    const textX = x + 120;
+                    const textWidth = cellWidth - 132;
+
                     if (image && slot?.imagePath) {
-                        drawCoverImage(context, image, x + 10, y + 10, 94, cellHeight - 20, 16);
+                        drawCoverImage(context, image, artworkX, artworkY, artworkWidth, artworkHeight, 16);
                     } else {
                         context.fillStyle = "#ead7c1";
-                        context.fillRect(x + 10, y + 10, 94, cellHeight - 20);
+                        context.fillRect(artworkX, artworkY, artworkWidth, artworkHeight);
                         context.fillStyle = "rgba(106, 59, 52, 0.5)";
                         context.font = "600 13px 'Trebuchet MS', sans-serif";
-                        context.fillText(name ? "No image" : "Empty", x + 28, y + 60);
+                        context.fillText(name ? "No image" : "Empty", artworkX + 16, y + 60);
                     }
 
                     context.fillStyle = "#4f2a24";
-                    context.font = "700 15px 'Trebuchet MS', sans-serif";
-                    context.fillText(displayName, x + 116, y + 34, cellWidth - 128);
+                    context.font = "700 14px 'Trebuchet MS', sans-serif";
+                    const nameLineCount = drawWrappedText(context, displayName, textX, y + 28, textWidth, 15, 2);
 
                     if (typesLabel) {
                         context.fillStyle = "rgba(79, 42, 36, 0.82)";
-                        context.font = "600 12px 'Trebuchet MS', sans-serif";
-                        context.fillText(typesLabel, x + 116, y + 54, cellWidth - 128);
+                        context.font = "italic 600 11px 'Trebuchet MS', sans-serif";
+                        drawWrappedText(
+                            context,
+                            typesLabel,
+                            textX,
+                            y + 28 + nameLineCount * 15 + 4,
+                            textWidth,
+                            13,
+                            2,
+                        );
                     }
 
                     if (name && level !== "") {
                         context.fillStyle = "rgba(79, 42, 36, 0.8)";
                         context.font = "600 13px 'Trebuchet MS', sans-serif";
-                        context.fillText(`Level ${level}`, x + 116, y + 76, cellWidth - 128);
+                        context.fillText(`Level ${level}`, textX, y + 88, textWidth);
                     }
 
                     if (!name) {
                         context.fillStyle = "rgba(79, 42, 36, 0.72)";
                         context.font = "600 13px 'Trebuchet MS', sans-serif";
-                        context.fillText("No Pokemon selected", x + 116, y + 72, cellWidth - 128);
+                        context.fillText("No Pokemon selected", textX, y + 72, textWidth);
                     }
 
                     if (rarity === "shiny") {
-                        drawStar(context, x + 24, y + 24, 10, 5, "#f2c94c");
+                        drawStar(context, x + 14, y + 14, 10, 5, "#f2c94c");
                     }
 
                     if (rarity === "platine") {
-                        drawDiamond(context, x + 24, y + 24, 10, "#8aa4d6");
+                        drawPlatinumSparkle(context, x + 14, y + 14, 10, "#8fdcff");
                     }
                 });
 
