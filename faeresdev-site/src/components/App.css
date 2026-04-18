@@ -118,6 +118,8 @@ body {
   align-items: center;
   gap: 12px;
   min-width: max-content;
+  color: inherit;
+  text-decoration: none;
 }
 
 .site-brand-mark {
@@ -154,13 +156,84 @@ body {
   letter-spacing: 0.03em;
 }
 
+.site-nav .ant-menu-submenu-title,
+.site-nav .ant-menu-overflow-item-rest {
+  color: var(--nav-text) !important;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
 .site-nav .ant-menu-item-selected {
   color: var(--nav-selected-text) !important;
   background: var(--nav-selected-bg) !important;
-  border-radius: 999px;
+  border-radius: 12px;
+}
+
+.site-nav .ant-menu-submenu-selected > .ant-menu-submenu-title,
+.site-nav .ant-menu-submenu-open > .ant-menu-submenu-title,
+.site-nav .ant-menu-overflow-item-rest:hover,
+.site-nav .ant-menu-submenu-title:hover,
+.site-nav .ant-menu-item:hover {
+  color: var(--nav-selected-text) !important;
+}
+
+.site-nav .ant-menu-submenu-selected > .ant-menu-submenu-title {
+  background: var(--nav-selected-bg) !important;
+  border-radius: 12px;
+}
+
+.site-nav .ant-menu-item,
+.site-nav .ant-menu-submenu-title {
+  border-radius: 12px !important;
 }
 
 .site-nav .ant-menu-item::after {
+  display: none !important;
+}
+
+.site-nav .ant-menu-submenu::after,
+.site-nav .ant-menu-submenu-title::after,
+.site-nav .ant-menu-overflow-item-rest::after {
+  display: none !important;
+}
+
+.site-nav-overflow {
+  display: inline-flex;
+  align-items: center;
+}
+
+.ant-menu-submenu-popup .ant-menu {
+  background: linear-gradient(180deg, var(--surface-top) 0%, var(--surface-bottom) 100%) !important;
+  border: 1px solid var(--surface-border) !important;
+  border-radius: 18px !important;
+  box-shadow: 0 20px 46px var(--surface-shadow) !important;
+  padding: 8px !important;
+  min-width: 280px !important;
+}
+
+.ant-menu-submenu-popup .ant-menu-item {
+  color: var(--text-main) !important;
+  border-radius: 12px !important;
+  margin: 4px 0 !important;
+  white-space: normal !important;
+  line-height: 1.35 !important;
+  height: auto !important;
+  min-height: 40px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  padding-inline: 16px !important;
+}
+
+.ant-menu-submenu-popup .ant-menu-item:hover,
+.ant-menu-submenu-popup .ant-menu-item-active,
+.ant-menu-submenu-popup .ant-menu-item-selected {
+  background: var(--nav-selected-bg) !important;
+  color: var(--title-color) !important;
+}
+
+.ant-menu-submenu-popup .ant-menu-item::after {
   display: none !important;
 }
 
@@ -184,6 +257,14 @@ body {
     flex-direction: column;
     align-items: stretch;
     padding: 16px;
+  }
+
+  .site-brand {
+    justify-content: center;
+  }
+
+  .site-nav .ant-menu-overflow {
+    justify-content: center;
   }
 
   .MainFrame {

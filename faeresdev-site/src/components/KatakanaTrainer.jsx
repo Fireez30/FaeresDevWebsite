@@ -12,16 +12,31 @@ const KATAKANA_SET = [
     { kana: "ク", romaji: "ku" },
     { kana: "ケ", romaji: "ke" },
     { kana: "コ", romaji: "ko" },
+    { kana: "ガ", romaji: "ga" },
+    { kana: "ギ", romaji: "gi" },
+    { kana: "グ", romaji: "gu" },
+    { kana: "ゲ", romaji: "ge" },
+    { kana: "ゴ", romaji: "go" },
     { kana: "サ", romaji: "sa" },
     { kana: "シ", romaji: "shi" },
     { kana: "ス", romaji: "su" },
     { kana: "セ", romaji: "se" },
     { kana: "ソ", romaji: "so" },
+    { kana: "ザ", romaji: "za" },
+    { kana: "ジ", romaji: "ji" },
+    { kana: "ズ", romaji: "zu" },
+    { kana: "ゼ", romaji: "ze" },
+    { kana: "ゾ", romaji: "zo" },
     { kana: "タ", romaji: "ta" },
     { kana: "チ", romaji: "chi" },
     { kana: "ツ", romaji: "tsu" },
     { kana: "テ", romaji: "te" },
     { kana: "ト", romaji: "to" },
+    { kana: "ダ", romaji: "da" },
+    { kana: "ヂ", romaji: "ji" },
+    { kana: "ヅ", romaji: "zu" },
+    { kana: "デ", romaji: "de" },
+    { kana: "ド", romaji: "do" },
     { kana: "ナ", romaji: "na" },
     { kana: "ニ", romaji: "ni" },
     { kana: "ヌ", romaji: "nu" },
@@ -32,6 +47,16 @@ const KATAKANA_SET = [
     { kana: "フ", romaji: "fu" },
     { kana: "ヘ", romaji: "he" },
     { kana: "ホ", romaji: "ho" },
+    { kana: "バ", romaji: "ba" },
+    { kana: "ビ", romaji: "bi" },
+    { kana: "ブ", romaji: "bu" },
+    { kana: "ベ", romaji: "be" },
+    { kana: "ボ", romaji: "bo" },
+    { kana: "パ", romaji: "pa" },
+    { kana: "ピ", romaji: "pi" },
+    { kana: "プ", romaji: "pu" },
+    { kana: "ペ", romaji: "pe" },
+    { kana: "ポ", romaji: "po" },
     { kana: "マ", romaji: "ma" },
     { kana: "ミ", romaji: "mi" },
     { kana: "ム", romaji: "mu" },
@@ -70,9 +95,9 @@ function buildQuestion(previousIndex = -1) {
     }
 
     const answers = [
-        KATAKANA_SET[correctIndex].romaji,
-        KATAKANA_SET[distractorIndexes[0]].romaji,
-        KATAKANA_SET[distractorIndexes[1]].romaji,
+        correctIndex,
+        distractorIndexes[0],
+        distractorIndexes[1],
     ].sort(() => Math.random() - 0.5);
 
     return {
@@ -81,15 +106,19 @@ function buildQuestion(previousIndex = -1) {
     };
 }
 
+function formatKatakanaRomaji(romaji) {
+    return romaji.toUpperCase();
+}
+
 function KatakanaTrainer() {
     const [quizMode, setQuizMode] = useState("kana-to-romaji");
     const [question, setQuestion] = useState(() => buildQuestion());
-    const [selectedAnswer, setSelectedAnswer] = useState("");
+    const [selectedAnswer, setSelectedAnswer] = useState(null);
     const [score, setScore] = useState({ correct: 0, total: 0 });
 
     const currentKana = KATAKANA_SET[question.correctIndex];
-    const correctAnswer = currentKana.romaji;
-    const hasAnswered = selectedAnswer !== "";
+    const correctAnswer = question.correctIndex;
+    const hasAnswered = selectedAnswer !== null;
     const isCorrect = selectedAnswer === correctAnswer;
     const scoreRatio = score.total > 0 ? score.correct / score.total : null;
     const scoreState = scoreRatio === null
@@ -103,21 +132,21 @@ function KatakanaTrainer() {
     const switchQuizMode = (nextMode) => {
         setQuizMode(nextMode);
         setQuestion(buildQuestion(question.correctIndex));
-        setSelectedAnswer("");
+        setSelectedAnswer(null);
     };
 
     const goToNextKana = () => {
         setQuestion(buildQuestion(question.correctIndex));
-        setSelectedAnswer("");
+        setSelectedAnswer(null);
     };
 
-    const handleAnswer = (answer) => {
+    const handleAnswer = (answerIndex) => {
         if (hasAnswered) {
             return;
         }
 
-        const answerIsCorrect = answer === correctAnswer;
-        setSelectedAnswer(answer);
+        const answerIsCorrect = answerIndex === correctAnswer;
+        setSelectedAnswer(answerIndex);
         setScore((currentScore) => ({
             correct: currentScore.correct + (answerIsCorrect ? 1 : 0),
             total: currentScore.total + 1,
@@ -159,29 +188,32 @@ function KatakanaTrainer() {
                         <span className="katakana-label">
                             {quizMode === "kana-to-romaji" ? "What is this katakana?" : "Which katakana matches this romaji?"}
                         </span>
-                        <div className="katakana-symbol">{quizMode === "kana-to-romaji" ? currentKana.kana : currentKana.romaji}</div>
+                        <div className="katakana-symbol">
+                            {quizMode === "kana-to-romaji" ? currentKana.kana : formatKatakanaRomaji(currentKana.romaji)}
+                        </div>
                     </div>
 
                     <div className="katakana-answers">
-                        {question.answers.map((answer) => {
+                        {question.answers.map((answerIndex) => {
+                            const answerEntry = KATAKANA_SET[answerIndex];
                             const displayedAnswer = quizMode === "kana-to-romaji"
-                                ? answer
-                                : KATAKANA_SET.find((entry) => entry.romaji === answer)?.kana ?? answer;
+                                ? formatKatakanaRomaji(answerEntry.romaji)
+                                : answerEntry.kana;
                             let answerClass = "katakana-answer";
 
-                            if (hasAnswered && answer === selectedAnswer) {
+                            if (hasAnswered && answerIndex === selectedAnswer) {
                                 answerClass += isCorrect ? " is-correct" : " is-wrong";
                             }
 
-                            if (hasAnswered && !isCorrect && answer === correctAnswer) {
+                            if (hasAnswered && !isCorrect && answerIndex === correctAnswer) {
                                 answerClass += " reveal-correct";
                             }
 
                             return (
                                 <button
-                                    key={answer}
+                                    key={`${answerEntry.kana}-${answerIndex}`}
                                     className={answerClass}
-                                    onClick={() => handleAnswer(answer)}
+                                    onClick={() => handleAnswer(answerIndex)}
                                     disabled={hasAnswered}
                                     type="button"
                                 >
@@ -197,7 +229,7 @@ function KatakanaTrainer() {
                                 <p className="katakana-feedback-text feedback-correct">Correct.</p>
                             ) : (
                                 <p className="katakana-feedback-text feedback-wrong">
-                                    Wrong. Correct answer: <strong>{quizMode === "kana-to-romaji" ? currentKana.romaji : currentKana.kana}</strong>
+                                    Wrong. Correct answer: <strong>{quizMode === "kana-to-romaji" ? formatKatakanaRomaji(currentKana.romaji) : currentKana.kana}</strong>
                                 </p>
                             )
                         ) : (

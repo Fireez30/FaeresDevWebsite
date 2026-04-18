@@ -1,64 +1,69 @@
-import { useState } from 'react'
 import './App.css'
 import React from 'react';
 import { Layout,Menu } from 'antd';
+import { Link, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import PokemonGenerator from "./PokemonGenerator.jsx";
 import PokemonTeamCard from "./PokemonTeamCard.jsx";
 import Rolls from "./rolls.jsx";
 import HiraganaTrainer from "./HiraganaTrainer.jsx";
 import KatakanaTrainer from "./KatakanaTrainer.jsx";
 import Empty from "./Empty.jsx";
+import PokemonEncounterGenerator from "./PokemonEncounterGenerator.jsx";
 const { Header,Footer,Content } = Layout;
 
 const items = [
-    {key: 0,label: 'Home'},
-    {key: 1,label: 'Pokemon Generator',},
-    {key: 2,label: 'Pokemon rolls'},
-    {key: 3,label: 'Pokemon Team Card'},
-    {key: 4,label: 'Hiragana Training'},
-    {key: 5,label: 'Katakana Training'},
+    {key: '/',label: 'Home'},
+    {
+        key: 'pokemon-rpg',
+        label: 'Pokemon RPG',
+        children: [
+            {key: '/pokemon-generator',label: 'Pokemon Generator'},
+            {key: '/pokemon-rolls',label: 'Pokemon Rolls'},
+            {key: '/pokemon-team-card',label: 'Pokemon Team Card'},
+            {key: '/pokemon-encounter-generator',label: 'Pokemon Encounter Generator'},
+        ],
+    },
+    {
+        key: 'japanese',
+        label: 'Japonais',
+        children: [
+            {key: '/hiragana-training',label: 'Hiragana Training'},
+            {key: '/katakana-training',label: 'Katakana Training'},
+        ],
+    },
 ];
 
 function App() {
-  const [current_key,setCurrentKey] = useState("home")
+  const location = useLocation();
+  const navigate = useNavigate();
+
   return (
     <Layout className="site-shell">
         <Header className="site-header">
-            <div className="site-brand">
+            <Link className="site-brand" to="/">
                 <span className="site-brand-mark">FD</span>
                 <span className="site-brand-text">Faeres Dev</span>
-            </div>
+            </Link>
             <Menu
                 className="site-nav"
                 mode="horizontal"
-                defaultSelectedKeys={[0]}
-                onClick={(key) =>  {
-                    if (key.key === 0 || key.key === "0"){ setCurrentKey("home") }
-                    if (key.key === 1 || key.key === "1"){ setCurrentKey('pokemon') }
-                    if (key.key === 2 || key.key === "2"){ setCurrentKey('rolls') }
-                    if (key.key === 3 || key.key === "3"){ setCurrentKey('pokemon-team-card') }
-                    if (key.key === 4 || key.key === "4"){ setCurrentKey('hiragana') }
-                    if (key.key === 5 || key.key === "5"){ setCurrentKey('katakana') }
-                }}
+                selectedKeys={[location.pathname]}
+                onClick={({ key }) => navigate(key)}
+                overflowedIndicator={<span className="site-nav-overflow">More</span>}
                 items={items}
             />
         </Header>
         <Content className="MainFrame">
-            {current_key === "home" ?
-                <Empty />
-            : current_key === "pokemon" ?
-                <PokemonGenerator />
-            : current_key === "rolls" ?
-                <Rolls />
-            : current_key === "pokemon-team-card" ?
-                <PokemonTeamCard />
-            : current_key === "hiragana" ?
-                <HiraganaTrainer />
-            : current_key === "katakana" ?
-                <KatakanaTrainer />
-            :
-                <Empty />
-            }
+            <Routes>
+                <Route path="/" element={<Empty />} />
+                <Route path="/pokemon-generator" element={<PokemonGenerator />} />
+                <Route path="/pokemon-rolls" element={<Rolls />} />
+                <Route path="/pokemon-team-card" element={<PokemonTeamCard />} />
+                <Route path="/hiragana-training" element={<HiraganaTrainer />} />
+                <Route path="/katakana-training" element={<KatakanaTrainer />} />
+                <Route path="/pokemon-encounter-generator" element={<PokemonEncounterGenerator />} />
+                <Route path="*" element={<Empty />} />
+            </Routes>
         </Content>
 
         <Footer className="MainFooter">

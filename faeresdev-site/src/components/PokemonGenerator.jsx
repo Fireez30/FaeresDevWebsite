@@ -682,12 +682,13 @@ function PokemonGenerator() {
                                     <tbody>
                                     {Array(6).keys().map(key => {
                                         if (key < chosen_moves.length){
+                                            const final_roll = (chosen_moves[key]["roll"].includes("/")?chosen_moves[key]["roll"].split("/")[0]:chosen_moves[key]["roll"]);
                                             return <tr>
                                                 <th>{chosen_moves[key]["move"]}</th>
                                                 <th>{chosen_moves[key]["frequency"]}</th>
                                                 <th>{chosen_moves[key]["AC"]}</th>
                                                 <th>{chosen_moves[key]["type"]}</th>
-                                                <th>{chosen_moves[key]["roll"]}</th>
+                                                <th>{final_roll}</th>
                                                 <th>{chosen_moves[key]["classe"]}</th>
                                                 <th>{chosen_moves[key]["range"]}</th>
                                                 <th>{chosen_moves[key]["effect"]}</th>
@@ -774,12 +775,14 @@ function PokemonGenerator() {
                                 </thead>
                                 <tbody>
                                 {egg_moves.map(egg => {
+                                    const final_roll = (egg["roll"].includes("/")?egg["roll"].split("/")[0]:egg["roll"]);
+
                                     return <tr style={{color:(egg && locked_egg_moves.findIndex(obj => obj === egg["move"]) > -1?'green':'')}}>
                                         <th>{egg["move"]}</th>
                                         <th>{egg["frequency"]}</th>
                                         <th>{egg["AC"]}</th>
                                         <th>{egg["type"]}</th>
-                                        <th>{egg["roll"]}</th>
+                                        <th>{final_roll}</th>
                                         <th>{egg["classe"]}</th>
                                         <th>{egg["range"]}</th>
                                         <th>{egg["effect"]}</th>
@@ -870,12 +873,13 @@ function PokemonGenerator() {
                                 </thead>
                                 <tbody>
                                 {tmhm_moves.map(egg => {
+                                    const final_roll = (egg["roll"].includes("/")?egg["roll"].split("/")[0]:egg["roll"]);
                                     return <tr style={{color:(egg && locked_egg_moves.findIndex(obj => obj === egg["move"]) > -1?'green':'')}}>
                                         <th>{egg["move"]}</th>
                                         <th>{egg["frequency"]}</th>
                                         <th>{egg["AC"]}</th>
                                         <th>{egg["type"]}</th>
-                                        <th>{egg["roll"]}</th>
+                                        <th>{final_roll}</th>
                                         <th>{egg["classe"]}</th>
                                         <th>{egg["range"]}</th>
                                         <th>{egg["effect"]}</th>
@@ -1076,14 +1080,16 @@ function PokemonGenerator() {
                                 while (added_moves < 3 && local_egg_moves.length > 0) {
                                     const egg_move_l = local_egg_moves.pop();
                                     if (egg_move_l) {
-                                        egg_move_array.push(`| ${egg_move_l['move']} | ${egg_move_l['frequency']} | ${egg_move_l['AC']} | ${egg_move_l['type']} | ${egg_move_l['roll']} | ${egg_move_l['classe']} | ${egg_move_l['range']} | ${egg_move_l['effect']}     |\n`)
+                                        const final_roll = (egg_move_l['roll'].includes("/")?egg_move_l['roll'].split("/")[0]:egg_move_l['roll']);
+                                        egg_move_array.push(`| ${egg_move_l['move']} | ${egg_move_l['frequency']} | ${egg_move_l['AC']} | ${egg_move_l['type']} | ${final_roll} | ${egg_move_l['classe']} | ${egg_move_l['range']} | ${egg_move_l['effect']}     |\n`)
                                         added_moves += 1;
                                     }
                                 }
                                 while (added_moves < 3 && local_tmhm_moves.length > 0) {
                                     const egg_move_l = local_tmhm_moves.pop();
                                     if (egg_move_l) {
-                                        egg_move_array.push(`| ${egg_move_l['move']} | ${egg_move_l['frequency']} | ${egg_move_l['AC']} | ${egg_move_l['type']} | ${egg_move_l['roll']} | ${egg_move_l['classe']} | ${egg_move_l['range']} | ${egg_move_l['effect']}     |\n`)
+                                        const final_roll = (egg_move_l['roll'].includes("/")?egg_move_l['roll'].split("/")[0]:egg_move_l['roll']);
+                                        egg_move_array.push(`| ${egg_move_l['move']} | ${egg_move_l['frequency']} | ${egg_move_l['AC']} | ${egg_move_l['type']} | ${final_roll} | ${egg_move_l['classe']} | ${egg_move_l['range']} | ${egg_move_l['effect']}     |\n`)
                                         added_moves += 1;
                                     }
                                 }
@@ -1103,14 +1109,16 @@ function PokemonGenerator() {
                                     if (lock_egg_move_name) {
                                         const index_egg_move = local_egg_moves.findIndex(obj=> obj["move"] === lock_egg_move_name);
                                         if (index_egg_move > -1) {
-                                            normal_array.push(`| ${local_egg_moves[index_egg_move]['move']} | ${local_egg_moves[index_egg_move]['frequency']} | ${local_egg_moves[index_egg_move]['AC']} | ${local_egg_moves[index_egg_move]['type']} | ${local_egg_moves[index_egg_move]['roll']} | ${local_egg_moves[index_egg_move]['classe']} | ${local_egg_moves[index_egg_move]['range']} | ${local_egg_moves[index_egg_move]['effect']}     |\n`)
+                                            const final_roll = (local_egg_moves['roll'].includes("/")?local_egg_moves['roll'].split("/")[0]:local_egg_moves['roll']);
+                                            normal_array.push(`| ${local_egg_moves[index_egg_move]['move']} | ${local_egg_moves[index_egg_move]['frequency']} | ${local_egg_moves[index_egg_move]['AC']} | ${local_egg_moves[index_egg_move]['type']} | ${final_roll} | ${local_egg_moves[index_egg_move]['classe']} | ${local_egg_moves[index_egg_move]['range']} | ${local_egg_moves[index_egg_move]['effect']}     |\n`)
                                             local_egg_moves.splice(index_egg_move,1)
                                             added_moves += 1;
                                         }
                                         else {
                                             const index_egg_move = local_tmhm_moves.findIndex(obj=> obj["move"] === lock_egg_move_name);
                                             if (index_egg_move > -1) {
-                                                normal_array.push(`| ${local_tmhm_moves[index_egg_move]['move']} | ${local_tmhm_moves[index_egg_move]['frequency']} | ${local_tmhm_moves[index_egg_move]['AC']} | ${local_tmhm_moves[index_egg_move]['type']} | ${local_tmhm_moves[index_egg_move]['roll']} | ${local_tmhm_moves[index_egg_move]['classe']} | ${local_tmhm_moves[index_egg_move]['range']} | ${local_tmhm_moves[index_egg_move]['effect']}     |\n`)
+                                                const final_roll = (local_tmhm_moves['roll'].includes("/")?local_tmhm_moves['roll'].split("/")[0]:local_tmhm_moves['roll']);
+                                                normal_array.push(`| ${local_tmhm_moves[index_egg_move]['move']} | ${local_tmhm_moves[index_egg_move]['frequency']} | ${local_tmhm_moves[index_egg_move]['AC']} | ${local_tmhm_moves[index_egg_move]['type']} | ${final_roll} | ${local_tmhm_moves[index_egg_move]['classe']} | ${local_tmhm_moves[index_egg_move]['range']} | ${local_tmhm_moves[index_egg_move]['effect']}     |\n`)
                                                 local_tmhm_moves.splice(index_egg_move,1)
                                                 added_moves += 1;
                                             }
@@ -1123,7 +1131,8 @@ function PokemonGenerator() {
                                 while (added_moves < 9 && local_chosen_moves.length > 0) {
                                     const egg_move_l = local_chosen_moves.pop();
                                     if (egg_move_l) {
-                                        normal_array.push(`| ${egg_move_l['move']} | ${egg_move_l['frequency']} | ${egg_move_l['AC']} | ${egg_move_l['type']} | ${egg_move_l['roll']} | ${egg_move_l['classe']} | ${egg_move_l['range']} | ${egg_move_l['effect']}     |\n`)
+                                        const final_roll = (egg_move_l['roll'].includes("/")?egg_move_l['roll'].split("/")[0]:egg_move_l['roll']);
+                                        normal_array.push(`| ${egg_move_l['move']} | ${egg_move_l['frequency']} | ${egg_move_l['AC']} | ${egg_move_l['type']} | ${final_roll} | ${egg_move_l['classe']} | ${egg_move_l['range']} | ${egg_move_l['effect']}     |\n`)
                                         added_moves += 1;
                                     }
                                 }
@@ -1131,7 +1140,8 @@ function PokemonGenerator() {
                                 while (added_moves < 9 && local_egg_moves.length > 0) {
                                     const egg_move_l = local_egg_moves.pop();
                                     if (egg_move_l) {
-                                        normal_array.push(`| ${egg_move_l['move']} | ${egg_move_l['frequency']} | ${egg_move_l['AC']} | ${egg_move_l['type']} | ${egg_move_l['roll']} | ${egg_move_l['classe']} | ${egg_move_l['range']} | ${egg_move_l['effect']}     |\n`)
+                                        const final_roll = (egg_move_l['roll'].includes("/")?egg_move_l['roll'].split("/")[0]:egg_move_l['roll']);
+                                        normal_array.push(`| ${egg_move_l['move']} | ${egg_move_l['frequency']} | ${egg_move_l['AC']} | ${egg_move_l['type']} | ${final_roll} | ${egg_move_l['classe']} | ${egg_move_l['range']} | ${egg_move_l['effect']}     |\n`)
                                         added_moves += 1;
                                     }
                                 }
@@ -1139,7 +1149,8 @@ function PokemonGenerator() {
                                 while (added_moves < 9 && local_tmhm_moves.length > 0) {
                                     const egg_move_l = local_tmhm_moves.pop();
                                     if (egg_move_l) {
-                                        normal_array.push(`| ${egg_move_l['move']} | ${egg_move_l['frequency']} | ${egg_move_l['AC']} | ${egg_move_l['type']} | ${egg_move_l['roll']} | ${egg_move_l['classe']} | ${egg_move_l['range']} | ${egg_move_l['effect']}     |\n`)
+                                        const final_roll = (egg_move_l['roll'].includes("/")?egg_move_l['roll'].split("/")[0]:egg_move_l['roll']);
+                                        normal_array.push(`| ${egg_move_l['move']} | ${egg_move_l['frequency']} | ${egg_move_l['AC']} | ${egg_move_l['type']} | ${final_roll} | ${egg_move_l['classe']} | ${egg_move_l['range']} | ${egg_move_l['effect']}     |\n`)
                                         added_moves += 1;
                                     }
                                 }
@@ -1362,13 +1373,14 @@ function PokemonGenerator() {
                                     if (lock_egg_move_name) {
                                         const index_egg_move = local_egg_moves.findIndex(obj=> obj["move"] === lock_egg_move_name);
                                         if (index_egg_move > -1) {
+                                            const final_roll = (local_egg_moves[index_egg_move]['roll'].includes("/")?local_egg_moves[index_egg_move]['roll'].split("/")[0]:local_egg_moves[index_egg_move]['roll']);
                                             egg_move_array.push(`
                                 <tr>
                                 <td>${local_egg_moves[index_egg_move]['move']}</td>
                                 <td>${local_egg_moves[index_egg_move]['frequency']}</td>
                                 <td>${local_egg_moves[index_egg_move]['AC']}</td>
                                 <td>${local_egg_moves[index_egg_move]['type']}</td>
-                                <td>${local_egg_moves[index_egg_move]['roll']}</td>
+                                <td>${final_roll}</td>
                                 <td>${local_egg_moves[index_egg_move]['classe']}</td>
                                 <td>${local_egg_moves[index_egg_move]['range']}</td>
                                 <td>${local_egg_moves[index_egg_move]['effect']}</td>
@@ -1378,13 +1390,14 @@ function PokemonGenerator() {
                                         else {
                                             const index_egg_move = local_tmhm_moves.findIndex(obj=> obj["move"] === lock_egg_move_name);
                                             if (index_egg_move > -1) {
+                                                const final_roll = (local_tmhm_moves[index_egg_move]['roll'].includes("/")?local_tmhm_moves[index_egg_move]['roll'].split("/")[0]:local_tmhm_moves[index_egg_move]['roll']);
                                                 egg_move_array.push(`
                                 <tr>
                                 <td>${local_tmhm_moves[index_egg_move]['move']}</td>
                                 <td>${local_tmhm_moves[index_egg_move]['frequency']}</td>
                                 <td>${local_tmhm_moves[index_egg_move]['AC']}</td>
                                 <td>${local_tmhm_moves[index_egg_move]['type']}</td>
-                                <td>${local_tmhm_moves[index_egg_move]['roll']}</td>
+                                <td>${final_roll}</td>
                                 <td>${local_tmhm_moves[index_egg_move]['classe']}</td>
                                 <td>${local_tmhm_moves[index_egg_move]['range']}</td>
                                 <td>${local_tmhm_moves[index_egg_move]['effect']}</td>
@@ -1401,13 +1414,15 @@ function PokemonGenerator() {
                                 while (added_moves < 3 && local_egg_moves.length > 0) {
                                     const egg_move_l = local_egg_moves.pop();
                                     if (egg_move_l) {
+                                        const final_roll = (egg_move_l['roll'].includes("/")?egg_move_l['roll'].split("/")[0]:egg_move_l['roll']);
+
                                         egg_move_array.push(`
                                 <tr>
                                 <td>${egg_move_l['move']}</td>
                                 <td>${egg_move_l['frequency']}</td>
                                 <td>${egg_move_l['AC']}</td>
                                 <td>${egg_move_l['type']}</td>
-                                <td>${egg_move_l['roll']}</td>
+                                <td>${final_roll}</td>
                                 <td>${egg_move_l['classe']}</td>
                                 <td>${egg_move_l['range']}</td>
                                 <td>${egg_move_l['effect']}</td>
@@ -1417,13 +1432,14 @@ function PokemonGenerator() {
                                 while (added_moves < 3 && local_tmhm_moves.length > 0) {
                                     const egg_move_l = local_tmhm_moves.pop();
                                     if (egg_move_l) {
+                                        const final_roll = (egg_move_l['roll'].includes("/")?egg_move_l['roll'].split("/")[0]:egg_move_l['roll']);
                                         egg_move_array.push(`
                                 <tr>
                                 <td>${egg_move_l['move']}</td>
                                 <td>${egg_move_l['frequency']}</td>
                                 <td>${egg_move_l['AC']}</td>
                                 <td>${egg_move_l['type']}</td>
-                                <td>${egg_move_l['roll']}</td>
+                                <td>${final_roll}</td>
                                 <td>${egg_move_l['classe']}</td>
                                 <td>${egg_move_l['range']}</td>
                                 <td>${egg_move_l['effect']}</td>
@@ -1460,13 +1476,14 @@ function PokemonGenerator() {
                                     if (lock_egg_move_name) {
                                         const index_egg_move = local_egg_moves.findIndex(obj=> obj["move"] === lock_egg_move_name);
                                         if (index_egg_move > -1) {
+                                            const final_roll = (local_egg_moves[index_egg_move]['roll'].includes("/")?local_egg_moves[index_egg_move]['roll'].split("/")[0]:local_egg_moves[index_egg_move]['roll']);
                                             normal_array.push(`
                                 <tr>
                                 <td>${local_egg_moves[index_egg_move]['move']}</td>
                                 <td>${local_egg_moves[index_egg_move]['frequency']}</td>
                                 <td>${local_egg_moves[index_egg_move]['AC']}</td>
                                 <td>${local_egg_moves[index_egg_move]['type']}</td>
-                                <td>${local_egg_moves[index_egg_move]['roll']}</td>
+                                <td>${final_roll}</td>
                                 <td>${local_egg_moves[index_egg_move]['classe']}</td>
                                 <td>${local_egg_moves[index_egg_move]['range']}</td>
                                 <td>${local_egg_moves[index_egg_move]['effect']}</td>
@@ -1476,13 +1493,15 @@ function PokemonGenerator() {
                                         else {
                                             const index_egg_move = local_tmhm_moves.findIndex(obj=> obj["move"] === lock_egg_move_name);
                                             if (index_egg_move > -1) {
+                                                const final_roll = (local_tmhm_moves[index_egg_move]['roll'].includes("/")?local_tmhm_moves[index_egg_move]['roll'].split("/")[0]:local_tmhm_moves[index_egg_move]['roll']);
+
                                                 normal_array.push(`
                                 <tr>
                                 <td>${local_tmhm_moves[index_egg_move]['move']}</td>
                                 <td>${local_tmhm_moves[index_egg_move]['frequency']}</td>
                                 <td>${local_tmhm_moves[index_egg_move]['AC']}</td>
                                 <td>${local_tmhm_moves[index_egg_move]['type']}</td>
-                                <td>${local_tmhm_moves[index_egg_move]['roll']}</td>
+                                <td>${final_roll}</td>
                                 <td>${local_tmhm_moves[index_egg_move]['classe']}</td>
                                 <td>${local_tmhm_moves[index_egg_move]['range']}</td>
                                 <td>${local_tmhm_moves[index_egg_move]['effect']}</td>
@@ -1498,13 +1517,15 @@ function PokemonGenerator() {
                                 while (added_moves < 9 && local_chosen_moves.length > 0) {
                                     const egg_move_l = local_chosen_moves.pop();
                                     if (egg_move_l) {
+                                        const final_roll = (egg_move_l['roll'].includes("/")?egg_move_l['roll'].split("/")[0]:egg_move_l['roll']);
+
                                         normal_array.push(`
                                 <tr>
                                 <td>${egg_move_l['move']}</td>
                                 <td>${egg_move_l['frequency']}</td>
                                 <td>${egg_move_l['AC']}</td>
                                 <td>${egg_move_l['type']}</td>
-                                <td>${egg_move_l['roll']}</td>
+                                <td>${final_roll}</td>
                                 <td>${egg_move_l['classe']}</td>
                                 <td>${egg_move_l['range']}</td>
                                 <td>${egg_move_l['effect']}</td>
@@ -1515,13 +1536,15 @@ function PokemonGenerator() {
                                 while (added_moves < 9 && local_egg_moves.length > 0) {
                                     const egg_move_l = local_egg_moves.pop();
                                     if (egg_move_l) {
+                                        const final_roll = (egg_move_l['roll'].includes("/")?egg_move_l['roll'].split("/")[0]:egg_move_l['roll']);
+
                                         normal_array.push(`
                                 <tr>
                                 <td>${egg_move_l['move']}</td>
                                 <td>${egg_move_l['frequency']}</td>
                                 <td>${egg_move_l['AC']}</td>
                                 <td>${egg_move_l['type']}</td>
-                                <td>${egg_move_l['roll']}</td>
+                                <td>${final_roll}</td>
                                 <td>${egg_move_l['classe']}</td>
                                 <td>${egg_move_l['range']}</td>
                                 <td>${egg_move_l['effect']}</td>
@@ -1532,13 +1555,15 @@ function PokemonGenerator() {
                                 while (added_moves < 9 && local_tmhm_moves.length > 0) {
                                     const egg_move_l = local_tmhm_moves.pop();
                                     if (egg_move_l) {
+                                        const final_roll = (egg_move_l['roll'].includes("/")?egg_move_l['roll'].split("/")[0]:egg_move_l['roll']);
+
                                         normal_array.push(`
                                 <tr>
                                 <td>${egg_move_l['move']}</td>
                                 <td>${egg_move_l['frequency']}</td>
                                 <td>${egg_move_l['AC']}</td>
                                 <td>${egg_move_l['type']}</td>
-                                <td>${egg_move_l['roll']}</td>
+                                <td>${final_roll}</td>
                                 <td>${egg_move_l['classe']}</td>
                                 <td>${egg_move_l['range']}</td>
                                 <td>${egg_move_l['effect']}</td>

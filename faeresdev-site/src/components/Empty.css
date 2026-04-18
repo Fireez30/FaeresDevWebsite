@@ -79,6 +79,15 @@
     letter-spacing: -0.03em;
 }
 
+.home-card-link {
+    color: inherit;
+    text-decoration: none;
+}
+
+.home-card-link:hover {
+    color: var(--brand-end);
+}
+
 .home-card p {
     margin: 0;
     color: var(--text-soft);

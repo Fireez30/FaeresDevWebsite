@@ -12,16 +12,31 @@ const HIRAGANA_SET = [
     { kana: "く", romaji: "ku" },
     { kana: "け", romaji: "ke" },
     { kana: "こ", romaji: "ko" },
+    { kana: "が", romaji: "ga" },
+    { kana: "ぎ", romaji: "gi" },
+    { kana: "ぐ", romaji: "gu" },
+    { kana: "げ", romaji: "ge" },
+    { kana: "ご", romaji: "go" },
     { kana: "さ", romaji: "sa" },
     { kana: "し", romaji: "shi" },
     { kana: "す", romaji: "su" },
     { kana: "せ", romaji: "se" },
     { kana: "そ", romaji: "so" },
+    { kana: "ざ", romaji: "za" },
+    { kana: "じ", romaji: "ji" },
+    { kana: "ず", romaji: "zu" },
+    { kana: "ぜ", romaji: "ze" },
+    { kana: "ぞ", romaji: "zo" },
     { kana: "た", romaji: "ta" },
     { kana: "ち", romaji: "chi" },
     { kana: "つ", romaji: "tsu" },
     { kana: "て", romaji: "te" },
     { kana: "と", romaji: "to" },
+    { kana: "だ", romaji: "da" },
+    { kana: "ぢ", romaji: "ji" },
+    { kana: "づ", romaji: "zu" },
+    { kana: "で", romaji: "de" },
+    { kana: "ど", romaji: "do" },
     { kana: "な", romaji: "na" },
     { kana: "に", romaji: "ni" },
     { kana: "ぬ", romaji: "nu" },
@@ -32,6 +47,16 @@ const HIRAGANA_SET = [
     { kana: "ふ", romaji: "fu" },
     { kana: "へ", romaji: "he" },
     { kana: "ほ", romaji: "ho" },
+    { kana: "ば", romaji: "ba" },
+    { kana: "び", romaji: "bi" },
+    { kana: "ぶ", romaji: "bu" },
+    { kana: "べ", romaji: "be" },
+    { kana: "ぼ", romaji: "bo" },
+    { kana: "ぱ", romaji: "pa" },
+    { kana: "ぴ", romaji: "pi" },
+    { kana: "ぷ", romaji: "pu" },
+    { kana: "ぺ", romaji: "pe" },
+    { kana: "ぽ", romaji: "po" },
     { kana: "ま", romaji: "ma" },
     { kana: "み", romaji: "mi" },
     { kana: "む", romaji: "mu" },
@@ -70,9 +95,9 @@ function buildQuestion(previousIndex = -1) {
     }
 
     const answers = [
-        HIRAGANA_SET[correctIndex].romaji,
-        HIRAGANA_SET[distractorIndexes[0]].romaji,
-        HIRAGANA_SET[distractorIndexes[1]].romaji,
+        correctIndex,
+        distractorIndexes[0],
+        distractorIndexes[1],
     ].sort(() => Math.random() - 0.5);
 
     return {
@@ -84,12 +109,12 @@ function buildQuestion(previousIndex = -1) {
 function HiraganaTrainer() {
     const [quizMode, setQuizMode] = useState("kana-to-romaji");
     const [question, setQuestion] = useState(() => buildQuestion());
-    const [selectedAnswer, setSelectedAnswer] = useState("");
+    const [selectedAnswer, setSelectedAnswer] = useState(null);
     const [score, setScore] = useState({ correct: 0, total: 0 });
 
     const currentKana = HIRAGANA_SET[question.correctIndex];
-    const correctAnswer = currentKana.romaji;
-    const hasAnswered = selectedAnswer !== "";
+    const correctAnswer = question.correctIndex;
+    const hasAnswered = selectedAnswer !== null;
     const isCorrect = selectedAnswer === correctAnswer;
     const scoreRatio = score.total > 0 ? score.correct / score.total : null;
     const scoreState = scoreRatio === null
@@ -103,21 +128,21 @@ function HiraganaTrainer() {
     const switchQuizMode = (nextMode) => {
         setQuizMode(nextMode);
         setQuestion(buildQuestion(question.correctIndex));
-        setSelectedAnswer("");
+        setSelectedAnswer(null);
     };
 
     const goToNextKana = () => {
         setQuestion(buildQuestion(question.correctIndex));
-        setSelectedAnswer("");
+        setSelectedAnswer(null);
     };
 
-    const handleAnswer = (answer) => {
+    const handleAnswer = (answerIndex) => {
         if (hasAnswered) {
             return;
         }
 
-        const answerIsCorrect = answer === correctAnswer;
-        setSelectedAnswer(answer);
+        const answerIsCorrect = answerIndex === correctAnswer;
+        setSelectedAnswer(answerIndex);
         setScore((currentScore) => ({
             correct: currentScore.correct + (answerIsCorrect ? 1 : 0),
             total: currentScore.total + 1,
@@ -163,25 +188,26 @@ function HiraganaTrainer() {
                     </div>
 
                     <div className="hiragana-answers">
-                        {question.answers.map((answer) => {
+                        {question.answers.map((answerIndex) => {
+                            const answerEntry = HIRAGANA_SET[answerIndex];
                             const displayedAnswer = quizMode === "kana-to-romaji"
-                                ? answer
-                                : HIRAGANA_SET.find((entry) => entry.romaji === answer)?.kana ?? answer;
+                                ? answerEntry.romaji
+                                : answerEntry.kana;
                             let answerClass = "hiragana-answer";
 
-                            if (hasAnswered && answer === selectedAnswer) {
+                            if (hasAnswered && answerIndex === selectedAnswer) {
                                 answerClass += isCorrect ? " is-correct" : " is-wrong";
                             }
 
-                            if (hasAnswered && !isCorrect && answer === correctAnswer) {
+                            if (hasAnswered && !isCorrect && answerIndex === correctAnswer) {
                                 answerClass += " reveal-correct";
                             }
 
                             return (
                                 <button
-                                    key={answer}
+                                    key={`${answerEntry.kana}-${answerIndex}`}
                                     className={answerClass}
-                                    onClick={() => handleAnswer(answer)}
+                                    onClick={() => handleAnswer(answerIndex)}
                                     disabled={hasAnswered}
                                     type="button"
                                 >
