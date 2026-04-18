@@ -7,6 +7,7 @@ import PokemonTeamCard from "./PokemonTeamCard.jsx";
 import Rolls from "./rolls.jsx";
 import HiraganaTrainer from "./HiraganaTrainer.jsx";
 import KatakanaTrainer from "./KatakanaTrainer.jsx";
+import KanjiTrainer from "./KanjiTrainer.jsx";
 import Empty from "./Empty.jsx";
 import PokemonEncounterGenerator from "./PokemonEncounterGenerator.jsx";
 const { Header,Footer,Content } = Layout;
@@ -29,6 +30,7 @@ const items = [
         children: [
             {key: '/hiragana-training',label: 'Hiragana Training'},
             {key: '/katakana-training',label: 'Katakana Training'},
+            {key: '/kanji-training',label: 'Kanji Training'},
         ],
     },
 ];
@@ -61,6 +63,7 @@ function App() {
                 <Route path="/pokemon-team-card" element={<PokemonTeamCard />} />
                 <Route path="/hiragana-training" element={<HiraganaTrainer />} />
                 <Route path="/katakana-training" element={<KatakanaTrainer />} />
+                <Route path="/kanji-training" element={<KanjiTrainer />} />
                 <Route path="/pokemon-encounter-generator" element={<PokemonEncounterGenerator />} />
                 <Route path="*" element={<Empty />} />
             </Routes>

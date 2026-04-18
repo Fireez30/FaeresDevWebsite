@@ -40,6 +40,11 @@ const sections = [
                 href: "/katakana-training",
                 description: "Train katakana with the same two quiz modes and score tracking to keep repetition simple and continuous.",
             },
+            {
+                title: "Kanji Training",
+                href: "/kanji-training",
+                description: "Practice kanji by matching each character with its translation, then reverse the direction when you want harder recall.",
+            },
         ],
     },
 ];
@@ -49,7 +54,7 @@ function Empty() {
         <div className="home-page">
             <section className="home-hero">
                 <p className="home-kicker">Faeres Dev Website</p>
-                <h1>Six focused tools in one place.</h1>
+                <h1>Seven focused tools in one place.</h1>
                 <p className="home-subtitle">
                     Use the navigation above to switch between Pokemon utilities and Japanese writing practice.
                 </p>
