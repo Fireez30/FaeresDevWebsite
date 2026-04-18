@@ -128,11 +128,65 @@ function rollDice(count, sides) {
     return total;
 }
 
+function rollRange(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 function resolveEncounterRule(value) {
     if (value >= 20) {
+        const outbreakRoll = rollRange(1, 100);
+
+        if (outbreakRoll <= 50) {
+            const firstRoll = rollDice(1, 12);
+            const secondRoll = rollDice(2, 8);
+            const total = firstRoll + secondRoll;
+
+            return {
+                label: `Outbreak: ${total} Pokemon`,
+                detail: `d100 (${outbreakRoll}) -> 1d12 (${firstRoll}) + 2d8 (${secondRoll}) = ${total}`,
+            };
+        }
+
+        if (outbreakRoll <= 70) {
+            const rangeRoll = rollRange(15, 25);
+            const bonusRoll = rollDice(2, 10);
+            const total = rangeRoll + bonusRoll;
+
+            return {
+                label: `Outbreak: ${total} Pokemon`,
+                detail: `d100 (${outbreakRoll}) -> 15-25 (${rangeRoll}) + 2d10 (${bonusRoll}) = ${total}`,
+            };
+        }
+
+        if (outbreakRoll <= 90) {
+            const rangeRoll = rollRange(25, 40);
+            const bonusRoll = rollDice(2, 12);
+            const total = rangeRoll + bonusRoll;
+
+            return {
+                label: `Outbreak: ${total} Pokemon`,
+                detail: `d100 (${outbreakRoll}) -> 25-40 (${rangeRoll}) + 2d12 (${bonusRoll}) = ${total}`,
+            };
+        }
+
+        if (outbreakRoll <= 95) {
+            const rangeRoll = rollRange(40, 60);
+            const bonusRoll = rollDice(2, 20);
+            const total = rangeRoll + bonusRoll;
+
+            return {
+                label: `Outbreak: ${total} Pokemon`,
+                detail: `d100 (${outbreakRoll}) -> 40-60 (${rangeRoll}) + 2d20 (${bonusRoll}) = ${total}`,
+            };
+        }
+
+        const rangeRoll = rollRange(70, 75);
+        const bonusRoll = rollDice(2, 20);
+        const total = rangeRoll + bonusRoll;
+
         return {
-            label: "Outbreak",
-            detail: "outbreak",
+            label: `Outbreak: ${total} Pokemon`,
+            detail: `d100 (${outbreakRoll}) -> 70-75 (${rangeRoll}) + 2d20 (${bonusRoll}) = ${total}`,
         };
     }
 
