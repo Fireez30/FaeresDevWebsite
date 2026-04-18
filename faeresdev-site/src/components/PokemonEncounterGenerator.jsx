@@ -131,8 +131,8 @@ function rollDice(count, sides) {
 function resolveEncounterRule(value) {
     if (value >= 20) {
         return {
-            label: "Swarm",
-            detail: "swarm",
+            label: "Outbreak",
+            detail: "outbreak",
         };
     }
 
