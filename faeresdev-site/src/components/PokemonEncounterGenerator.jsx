@@ -243,6 +243,12 @@ function PokemonEncounterGenerator() {
         rare: undefined,
         superRare: undefined,
     });
+    const [rolledPokemonBySection, setRolledPokemonBySection] = useState({
+        common: undefined,
+        uncommon: undefined,
+        rare: undefined,
+        superRare: undefined,
+    });
     const [feedback, setFeedback] = useState({ type: "", message: "" });
     const [isEditorCollapsed, setIsEditorCollapsed] = useState(false);
     const [encounterRuleValue, setEncounterRuleValue] = useState(0);
@@ -300,6 +306,10 @@ function PokemonEncounterGenerator() {
                 [sectionKey]: current.sections[sectionKey].filter((name) => name !== pokemonName),
             },
         }));
+        setRolledPokemonBySection((current) => ({
+            ...current,
+            [sectionKey]: current[sectionKey] === pokemonName ? undefined : current[sectionKey],
+        }));
     }
 
     function triggerLoad() {
@@ -321,6 +331,12 @@ function PokemonEncounterGenerator() {
                 const sanitized = sanitizeZoneData(parsed);
                 setZone(sanitized);
                 setSelectedBySection({
+                    common: undefined,
+                    uncommon: undefined,
+                    rare: undefined,
+                    superRare: undefined,
+                });
+                setRolledPokemonBySection({
                     common: undefined,
                     uncommon: undefined,
                     rare: undefined,
@@ -357,6 +373,24 @@ function PokemonEncounterGenerator() {
 
     function rollEncounterRule() {
         setEncounterResult(resolveEncounterRule(encounterRuleValue));
+    }
+
+    function rollSectionPokemon(sectionKey) {
+        const sectionPokemons = zone.sections[sectionKey];
+
+        if (sectionPokemons.length < 2) {
+            return;
+        }
+
+        const rolledPokemon = sectionPokemons[Math.floor(Math.random() * sectionPokemons.length)];
+        setRolledPokemonBySection((current) => ({
+            ...current,
+            [sectionKey]: rolledPokemon,
+        }));
+        setFeedback({
+            type: "success",
+            message: `${getPokemonLabel(rolledPokemon)} rolled from ${SECTION_CONFIG.find((section) => section.key === sectionKey)?.label}.`,
+        });
     }
 
     return (
@@ -422,9 +456,16 @@ function PokemonEncounterGenerator() {
                                 <div>
                                     <h2>{section.label}</h2>
                                 </div>
-                                <span className="encounter-section__count">
-                                    {zone.sections[section.key].length} Pokemon
-                                </span>
+                                <div className="encounter-section__header-actions">
+                                    {zone.sections[section.key].length >= 2 ? (
+                                        <Button size="middle" type="primary" onClick={() => rollSectionPokemon(section.key)}>
+                                            Roll Pokemon
+                                        </Button>
+                                    ) : null}
+                                    <span className="encounter-section__count">
+                                        {zone.sections[section.key].length} Pokemon
+                                    </span>
+                                </div>
                             </div>
 
                             <div className="encounter-section__controls">
@@ -442,13 +483,22 @@ function PokemonEncounterGenerator() {
                                 </Button>
                             </div>
 
+                            {rolledPokemonBySection[section.key] ? (
+                                <div className="encounter-section__rolled">
+                                    Rolled: <strong>{getPokemonLabel(rolledPokemonBySection[section.key])}</strong>
+                                </div>
+                            ) : null}
+
                             {zone.sections[section.key].length > 0 ? (
                                 <div className="encounter-section__grid">
                                     {zone.sections[section.key].map((pokemonName) => {
                                         const label = getPokemonLabel(pokemonName);
 
                                         return (
-                                            <div className="encounter-pokemon-card" key={`${section.key}-${pokemonName}`}>
+                                            <div
+                                                className={`encounter-pokemon-card ${rolledPokemonBySection[section.key] === pokemonName ? "encounter-pokemon-card--rolled" : ""}`}
+                                                key={`${section.key}-${pokemonName}`}
+                                            >
                                                 <PokemonImage name={pokemonName} label={label} />
                                                 <span className="encounter-pokemon-card__name">{label}</span>
                                                 <button

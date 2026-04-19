@@ -194,6 +194,14 @@
     align-items: start;
 }
 
+.encounter-section__header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
 .encounter-section__count {
     display: inline-flex;
     align-items: center;
@@ -212,6 +220,16 @@
     grid-template-columns: minmax(0, 1fr) auto;
     gap: 12px;
     margin-top: 18px;
+}
+
+.encounter-section__rolled {
+    margin-top: 16px;
+    padding: 12px 14px;
+    border-radius: 18px;
+    background: var(--muted-accent-bg);
+    border: 1px solid var(--muted-accent-border);
+    color: var(--muted-accent-text);
+    font-weight: 600;
 }
 
 .encounter-section__grid {
@@ -243,6 +261,11 @@
     background: var(--panel-bg);
     border: 1px solid var(--panel-border);
     overflow: hidden;
+}
+
+.encounter-pokemon-card--rolled {
+    border-color: var(--brand-end);
+    box-shadow: 0 16px 34px var(--surface-shadow);
 }
 
 .encounter-pokemon-card__remove {
