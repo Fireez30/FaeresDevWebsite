@@ -112,12 +112,17 @@
 }
 
 .rolls-page .ant-input,
-.rolls-page .ant-input-number,
-.rolls-page .ant-input-number-input-wrap,
-.rolls-page .ant-input-number-input {
+.rolls-page .ant-input-number {
     background: var(--input-bg) !important;
     border: 1px solid var(--input-border) !important;
     border-radius: 14px !important;
+    box-shadow: none !important;
+}
+
+.rolls-page .ant-input-number-input-wrap,
+.rolls-page .ant-input-number-input {
+    background: transparent !important;
+    border: none !important;
     box-shadow: none !important;
 }
 
