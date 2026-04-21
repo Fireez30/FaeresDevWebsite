@@ -73,6 +73,37 @@ const KATAKANA_SET = [
     { kana: "ワ", romaji: "wa" },
     { kana: "ヲ", romaji: "wo" },
     { kana: "ン", romaji: "n" },
+    { kana: "カップ", romaji: "kappu" },
+    { kana: "カット", romaji: "katto" },
+    { kana: "カード", romaji: "kādo" },
+    { kana: "キット", romaji: "kitto" },
+    { kana: "キップ", romaji: "kippu" },
+    { kana: "キー", romaji: "kī" },
+    { kana: "クッキー", romaji: "kukkī" },
+    { kana: "ゲーム", romaji: "gēmu" },
+    { kana: "ケーキ", romaji: "kēki" },
+    { kana: "コップ", romaji: "koppu" },
+    { kana: "コート", romaji: "kōto" },
+    { kana: "コーヒー", romaji: "kōhī" },
+    { kana: "サービス", romaji: "sābisu" },
+    { kana: "サッカー", romaji: "sakkā" },
+    { kana: "シート", romaji: "shīto" },
+    { kana: "シール", romaji: "shīru" },
+    { kana: "スープ", romaji: "sūpu" },
+    { kana: "スーパー", romaji: "sūpā" },
+    { kana: "セーター", romaji: "sētā" },
+    { kana: "ソース", romaji: "sōsu" },
+    { kana: "チーズ", romaji: "chīzu" },
+    { kana: "チケット", romaji: "chiketto" },
+    { kana: "ドッグ", romaji: "doggu" },
+    { kana: "バッグ", romaji: "baggu" },
+    { kana: "バッター", romaji: "battā" },
+    { kana: "ベッド", romaji: "beddo" },
+    { kana: "ホットケーキ", romaji: "hottokēki" },
+    { kana: "マッチ", romaji: "macchi" },
+    { kana: "マップ", romaji: "mappu" },
+    { kana: "メール", romaji: "mēru" },
+    { kana: "ロック", romaji: "rokku" },
 ];
 
 function getRandomIndex(excludedIndex = -1) {
@@ -83,14 +114,32 @@ function getRandomIndex(excludedIndex = -1) {
     return nextIndex;
 }
 
-function buildQuestion(previousIndex = -1) {
+function formatKatakanaRomaji(romaji) {
+    return romaji.toUpperCase();
+}
+
+function getDisplayedAnswer(index, quizMode) {
+    return quizMode === "kana-to-romaji"
+        ? formatKatakanaRomaji(KATAKANA_SET[index].romaji)
+        : KATAKANA_SET[index].kana;
+}
+
+function buildQuestion(quizMode, previousIndex = -1) {
     const correctIndex = getRandomIndex(previousIndex);
     const distractorIndexes = [];
+    const usedAnswers = new Set([getDisplayedAnswer(correctIndex, quizMode)]);
 
     while (distractorIndexes.length < 2) {
         const candidateIndex = getRandomIndex(previousIndex);
-        if (candidateIndex !== correctIndex && !distractorIndexes.includes(candidateIndex)) {
+        const candidateAnswer = getDisplayedAnswer(candidateIndex, quizMode);
+
+        if (
+            candidateIndex !== correctIndex
+            && !distractorIndexes.includes(candidateIndex)
+            && !usedAnswers.has(candidateAnswer)
+        ) {
             distractorIndexes.push(candidateIndex);
+            usedAnswers.add(candidateAnswer);
         }
     }
 
@@ -106,13 +155,9 @@ function buildQuestion(previousIndex = -1) {
     };
 }
 
-function formatKatakanaRomaji(romaji) {
-    return romaji.toUpperCase();
-}
-
 function KatakanaTrainer() {
     const [quizMode, setQuizMode] = useState("kana-to-romaji");
-    const [question, setQuestion] = useState(() => buildQuestion());
+    const [question, setQuestion] = useState(() => buildQuestion("kana-to-romaji"));
     const [selectedAnswer, setSelectedAnswer] = useState(null);
     const [score, setScore] = useState({ correct: 0, total: 0 });
 
@@ -131,12 +176,12 @@ function KatakanaTrainer() {
 
     const switchQuizMode = (nextMode) => {
         setQuizMode(nextMode);
-        setQuestion(buildQuestion(question.correctIndex));
+        setQuestion(buildQuestion(nextMode, question.correctIndex));
         setSelectedAnswer(null);
     };
 
     const goToNextKana = () => {
-        setQuestion(buildQuestion(question.correctIndex));
+        setQuestion(buildQuestion(quizMode, question.correctIndex));
         setSelectedAnswer(null);
     };
 
@@ -160,7 +205,7 @@ function KatakanaTrainer() {
                     <p className="katakana-kicker">Japanese Practice</p>
                     <h1>Katakana Trainer</h1>
                     <p className="katakana-subtitle">
-                        Switch between reading katakana and matching romaji, then keep going with random prompts.
+                        Switch between reading katakana and matching romaji, with pause and basic long-vowel cases mixed into the same quiz flow.
                     </p>
                     <div className="katakana-mode-switch">
                         <button

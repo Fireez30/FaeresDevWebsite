@@ -45,6 +45,11 @@ const sections = [
                 href: "/kanji-training",
                 description: "Practice kanji by matching each character with its translation, then reverse the direction when you want harder recall.",
             },
+            {
+                title: "Color Sentence Trainer",
+                href: "/japanese-sentence-color-trainer",
+                description: "Color each Japanese character or group by script type, including kana pauses, long vowels, and optional romaji elements.",
+            },
         ],
     },
 ];
@@ -54,7 +59,7 @@ function Empty() {
         <div className="home-page">
             <section className="home-hero">
                 <p className="home-kicker">Faeres Dev Website</p>
-                <h1>Seven focused tools in one place.</h1>
+                <h1>Eight focused tools in one place.</h1>
                 <p className="home-subtitle">
                     Use the navigation above to switch between Pokemon utilities and Japanese writing practice.
                 </p>

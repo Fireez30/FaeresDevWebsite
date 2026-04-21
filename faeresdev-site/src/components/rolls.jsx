@@ -525,7 +525,7 @@ function Rolls() {
                         <label className="roll-field">
                             <span>Card Dexnav</span>
                             <InputNumber
-                    min={1}
+                    min={0}
                     max={90}
                     defaultValue={1}
                     value={card_dexnav}

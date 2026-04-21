@@ -73,6 +73,41 @@ const HIRAGANA_SET = [
     { kana: "わ", romaji: "wa" },
     { kana: "を", romaji: "wo" },
     { kana: "ん", romaji: "n" },
+    { kana: "あっち", romaji: "acchi" },
+    { kana: "いっかい", romaji: "ikkai" },
+    { kana: "いっしょ", romaji: "issho" },
+    { kana: "いっぱい", romaji: "ippai" },
+    { kana: "かった", romaji: "katta" },
+    { kana: "がっき", romaji: "gakki" },
+    { kana: "がっこう", romaji: "gakkō" },
+    { kana: "きって", romaji: "kitte" },
+    { kana: "きっぷ", romaji: "kippu" },
+    { kana: "けっか", romaji: "kekka" },
+    { kana: "けっこう", romaji: "kekkō" },
+    { kana: "けっこん", romaji: "kekkon" },
+    { kana: "さっか", romaji: "sakka" },
+    { kana: "ざっし", romaji: "zasshi" },
+    { kana: "せっけん", romaji: "sekken" },
+    { kana: "にっき", romaji: "nikki" },
+    { kana: "はっきり", romaji: "hakkiri" },
+    { kana: "はっぱ", romaji: "happa" },
+    { kana: "まって", romaji: "matte" },
+    { kana: "もっと", romaji: "motto" },
+    { kana: "やった", romaji: "yatta" },
+    { kana: "やっと", romaji: "yatto" },
+    { kana: "えいが", romaji: "ēga" },
+    { kana: "おかあさん", romaji: "okāsan" },
+    { kana: "おばあさん", romaji: "obāsan" },
+    { kana: "くうき", romaji: "kūki" },
+    { kana: "けいき", romaji: "kēki" },
+    { kana: "こうこう", romaji: "kōkō" },
+    { kana: "こうつう", romaji: "kōtsū" },
+    { kana: "せんせい", romaji: "sensē" },
+    { kana: "そうこ", romaji: "sōko" },
+    { kana: "とうふ", romaji: "tōfu" },
+    { kana: "どうぶつ", romaji: "dōbutsu" },
+    { kana: "ぼうし", romaji: "bōshi" },
+    { kana: "ろうか", romaji: "rōka" },
 ];
 
 function getRandomIndex(excludedIndex = -1) {
@@ -83,14 +118,28 @@ function getRandomIndex(excludedIndex = -1) {
     return nextIndex;
 }
 
-function buildQuestion(previousIndex = -1) {
+function getDisplayedAnswer(index, quizMode) {
+    return quizMode === "kana-to-romaji"
+        ? HIRAGANA_SET[index].romaji
+        : HIRAGANA_SET[index].kana;
+}
+
+function buildQuestion(quizMode, previousIndex = -1) {
     const correctIndex = getRandomIndex(previousIndex);
     const distractorIndexes = [];
+    const usedAnswers = new Set([getDisplayedAnswer(correctIndex, quizMode)]);
 
     while (distractorIndexes.length < 2) {
         const candidateIndex = getRandomIndex(previousIndex);
-        if (candidateIndex !== correctIndex && !distractorIndexes.includes(candidateIndex)) {
+        const candidateAnswer = getDisplayedAnswer(candidateIndex, quizMode);
+
+        if (
+            candidateIndex !== correctIndex
+            && !distractorIndexes.includes(candidateIndex)
+            && !usedAnswers.has(candidateAnswer)
+        ) {
             distractorIndexes.push(candidateIndex);
+            usedAnswers.add(candidateAnswer);
         }
     }
 
@@ -108,7 +157,7 @@ function buildQuestion(previousIndex = -1) {
 
 function HiraganaTrainer() {
     const [quizMode, setQuizMode] = useState("kana-to-romaji");
-    const [question, setQuestion] = useState(() => buildQuestion());
+    const [question, setQuestion] = useState(() => buildQuestion("kana-to-romaji"));
     const [selectedAnswer, setSelectedAnswer] = useState(null);
     const [score, setScore] = useState({ correct: 0, total: 0 });
 
@@ -127,12 +176,12 @@ function HiraganaTrainer() {
 
     const switchQuizMode = (nextMode) => {
         setQuizMode(nextMode);
-        setQuestion(buildQuestion(question.correctIndex));
+        setQuestion(buildQuestion(nextMode, question.correctIndex));
         setSelectedAnswer(null);
     };
 
     const goToNextKana = () => {
-        setQuestion(buildQuestion(question.correctIndex));
+        setQuestion(buildQuestion(quizMode, question.correctIndex));
         setSelectedAnswer(null);
     };
 
@@ -156,7 +205,7 @@ function HiraganaTrainer() {
                     <p className="hiragana-kicker">Japanese Practice</p>
                     <h1>Hiragana Trainer</h1>
                     <p className="hiragana-subtitle">
-                        Switch between reading hiragana and matching romaji, then keep going with random prompts.
+                        Switch between reading hiragana and matching romaji, with basic pause and long-vowel cases mixed into the same quiz flow.
                     </p>
                     <div className="hiragana-mode-switch">
                         <button
