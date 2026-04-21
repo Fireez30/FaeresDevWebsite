@@ -1,64 +1,64 @@
-import "./Empty.css";
+import "./Home.css";
 import { Link } from "react-router-dom";
 
 const sections = [
     {
-        title: "Pokemon Role Playing Games",
+        title: "Pokemon Role Playing Game",
         items: [
             {
                 title: "Pokemon Generator",
                 href: "/pokemon-generator",
-                description: "Build a Pokemon sheet with level, rarity, abilities, stats, moves, and export-oriented data in one place.",
+                description: "A Pokemon sheet generator, adapted to the current role play game. Data is incomplete, being curated now.",
             },
             {
-                title: "Pokemon Rolls",
+                title: "Pokemon Dice Rolls",
                 href: "/pokemon-rolls",
-                description: "Handle encounter, capture, shiny, and card rolls with dedicated utilities and quick result feedback.",
+                description: "Handle expression-like, encounters, capture, shiny, and card rolls for the RPG.",
             },
             {
                 title: "Pokemon Team Card",
                 href: "/pokemon-team-card",
-                description: "Pick up to six Pokemon in order, upload a custom image, and export a 480p team card with the full squad layout.",
+                description: "A pokemon team card generator, to manage teams or npcs. Only used for visualization, not holding any data.",
             },
             {
                 title: "Pokemon Encounter Generator",
                 href: "/pokemon-encounter-generator",
-                description: "Create encounter zones with common, uncommon, rare, and super rare sections, then load or save them as JSON files.",
+                description: "Create encounter zones with common, uncommon, rare, and super rare sections, then load or save them as JSON files. Give the game master the possibility to roll for encounter pokemon species, and count.",
             },
         ],
     },
     {
-        title: "Japanese Learning",
+        title: "Japanese Learning tools",
         items: [
             {
-                title: "Hiragana Training",
+                title: "Hiragana Training cards",
                 href: "/hiragana-training",
-                description: "Practice hiragana in both directions: read kana into romaji or match romaji back to the correct hiragana.",
+                description: "Practice hiragana using quizz cards. Includes breaks and elongation rules too.",
             },
             {
-                title: "Katakana Training",
+                title: "Katakana Training cards",
                 href: "/katakana-training",
-                description: "Train katakana with the same two quiz modes and score tracking to keep repetition simple and continuous.",
+                description: "Practice katakana using quizz cards. Includes breaks and elongation rules too.",
             },
             {
-                title: "Kanji Training",
+                title: "Kanji Training cards",
                 href: "/kanji-training",
-                description: "Practice kanji by matching each character with its translation, then reverse the direction when you want harder recall.",
+                description: "Practice kanji using quizz cards.",
             },
             {
-                title: "Color Sentence Trainer",
+                title: "Japanese sentences tokens training",
                 href: "/japanese-sentence-color-trainer",
-                description: "Color each Japanese character or group by script type, including kana pauses, long vowels, and optional romaji elements.",
+                description: "Pratice character groups recognition in a sentence, as quizz cards. Kanji, Hiragana , Katakana , breaks and elongations of vowels.",
             },
         ],
     },
 ];
 
-function Empty() {
+function Home() {
     return (
         <div className="home-page">
             <section className="home-hero">
-                <h1>Faeres dev website.</h1>
+                <h1>Faeres Dev </h1>
                 <br/>
                 <table>
                     <tr>
@@ -107,4 +107,4 @@ function Empty() {
     );
 }
 
-export default Empty;
+export default Home;

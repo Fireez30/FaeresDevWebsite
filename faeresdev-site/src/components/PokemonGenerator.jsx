@@ -952,6 +952,8 @@ function PokemonGenerator() {
                         <br></br>
                         <br></br>
                         <div>
+                            <table style={{alignContent:"center",width:"100%"}}>
+                                <tr>
                             <Button disabled={!ready_to_generate} style={{marginLeft:'5px',width:'15%',height:'50px'}} onClick={() => {
                                 console.log(egg_moves);
                                 console.log(locked_egg_moves);
@@ -1210,7 +1212,7 @@ function PokemonGenerator() {
                                 var blob = new Blob([final], { type: 'text/plain' });
                                 download(blob, pokemon_obj["name"]+".md", "text/plain");
                             }}> Generate Markdown </Button>
-                            <Button disabled={!ready_to_generate} style={{marginTop:'5px',marginLeft:'5px',display:'grid',width:'15%',height:'50px'}} onClick={() => {
+                            <Button disabled={!ready_to_generate} style={{marginLeft:'5px',alignContent:"center",width:'15%',height:'50px'}} onClick={() => {
                                 const container = document.createElement("div");
 
                                 container.innerHTML += `<img src="${"http://faeresdev.site"+local_png_img}" width="200">`;
@@ -1627,7 +1629,10 @@ function PokemonGenerator() {
                                 container.remove();
 
                                 console.log("Formatted content copied! Paste into Google Docs.");
-                            }}> Copy google doc version to clipboard </Button></div>
+                            }}> Copy google doc version to clipboard </Button>
+                                </tr></table>
+                                </div>
+
                         <br></br>
                         <br></br>
                         <br></br>

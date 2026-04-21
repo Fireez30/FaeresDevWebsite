@@ -397,7 +397,6 @@ function PokemonEncounterGenerator() {
         <div className="encounter-generator-page">
             <section className="encounter-generator-hero">
                 <div>
-                    <p className="encounter-generator-kicker">Pokemon Tool</p>
                     <h1>Pokemon Encounter Generator</h1>
                     <p className="encounter-generator-subtitle">
                         Build an encounter zone, sort Pokemon by rarity, reload a previous JSON file, and export the finished zone.
@@ -525,7 +524,6 @@ function PokemonEncounterGenerator() {
             <section className="encounter-rules-panel">
                 <div className="encounter-rules-panel__header">
                     <div>
-                        <p className="encounter-generator-kicker">Pokemon Tool</p>
                         <h2>Encounter rules</h2>
                     </div>
                 </div>

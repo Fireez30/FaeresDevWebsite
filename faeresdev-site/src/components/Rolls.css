@@ -103,6 +103,7 @@
 .roll-input,
 .roll-number {
     width: 100% !important;
+    color: var(--text-main);
 }
 
 .rolls-page .ant-input,
@@ -122,6 +123,7 @@
 .rolls-page .ant-input-number-input-wrap,
 .rolls-page .ant-input-number-input {
     background: transparent !important;
+    color:unset !important;
     border: none !important;
     box-shadow: none !important;
 }

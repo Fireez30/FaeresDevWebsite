@@ -94,11 +94,13 @@ function KanjiTrainer() {
         <div className="kanji-page">
             <section className="kanji-shell">
                 <div className="kanji-copy">
-                    <p className="kanji-kicker">Japanese Practice</p>
                     <h1>Kanji Trainer</h1>
                     <p className="kanji-subtitle">
-                        Train basic kanji in both directions: identify the translation from the character or match the kanji from its meaning.
-                    </p>
+                        { quizMode === "kanji-to-translation"?
+                            "A quizz with score where an Kanji is shown, and user clicks on the romaji+translation corresponding. May include breaks and elongations expressions"
+                            :
+                            "A quizz with score where an romaji is shown, and user clicks on the kanji+translation corresponding. May include breaks and elongations expressions"
+                        }                    </p>
                     <div className="kanji-mode-switch">
                         <button
                             className={`kanji-mode-button ${quizMode === "kanji-to-translation" ? "is-active" : ""}`}

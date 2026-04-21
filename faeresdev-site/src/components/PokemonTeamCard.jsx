@@ -695,10 +695,9 @@ function PokemonTeamCard() {
             <section className="pokemon-team-card-panel">
                 <div className="pokemon-team-card-header">
                     <div>
-                        <p className="pokemon-team-card-kicker">Pokemon Role Playing Games</p>
                         <h1>Pokemon Team Card</h1>
                         <p>
-                            Choose up to six Pokemon in order, upload one image, and export a 16:9 team card.
+                            Generate a card with pokemons in a team, with a trainer image and a theme type.
                         </p>
                     </div>
                 </div>

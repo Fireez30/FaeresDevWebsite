@@ -202,10 +202,13 @@ function KatakanaTrainer() {
         <div className="katakana-page">
             <section className="katakana-shell">
                 <div className="katakana-copy">
-                    <p className="katakana-kicker">Japanese Practice</p>
                     <h1>Katakana Trainer</h1>
                     <p className="katakana-subtitle">
-                        Switch between reading katakana and matching romaji, with pause and basic long-vowel cases mixed into the same quiz flow.
+                        { quizMode === "kana-to-romaji"?
+                            "A quizz with score where an katakana is shown, and user clicks on the romaji corresponding. May include breaks and elongations expressions"
+                            :
+                            "A quizz with score where an romaji is shown, and user clicks on the katakana corresponding. May include breaks and elongations expressions"
+                        }
                     </p>
                     <div className="katakana-mode-switch">
                         <button

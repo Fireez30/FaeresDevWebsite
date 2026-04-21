@@ -3,8 +3,8 @@ export const SCRIPT_TYPE_LABELS = {
     katakana: "Katakana",
     kanji: "Kanji",
     romaji: "Romaji",
-    pause: "Pause",
-    long: "Allongement",
+    break: "Break",
+    long: "Long",
 };
 
 export const SCRIPT_TYPE_ORDER = [
@@ -12,7 +12,7 @@ export const SCRIPT_TYPE_ORDER = [
     "katakana",
     "kanji",
     "romaji",
-    "pause",
+    "break",
     "long",
 ];
 

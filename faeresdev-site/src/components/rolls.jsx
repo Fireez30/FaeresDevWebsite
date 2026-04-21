@@ -161,9 +161,8 @@ function Rolls() {
     return (
         <div className="rolls-page">
             <div className="rolls-hero">
-                <p className="rolls-kicker">Utility Board</p>
                 <h1>Dice Rolls</h1>
-                <p className="rolls-subtitle">Faster encounter, capture, shiny, and card checks in one view.</p>
+                <p className="rolls-subtitle">Dice rolls for encounter, capture, shiny rolls, card and expression rolls.</p>
             </div>
 
             <div className="rolls-grid">
@@ -211,7 +210,7 @@ function Rolls() {
                 <section className="roll-card">
                     <div className="roll-card-header">
                         <h3>Encounter Rolls</h3>
-                        <span>Generate bracket and encounter count together.</span>
+                        <span>Generate bracket and encounter count.</span>
                     </div>
                     <Button className="roll-action" onClick={() => {
                     const rolled_encounter_bracket_temp = getRandomArbitrary(0,100)+1;
@@ -241,7 +240,7 @@ function Rolls() {
                 <section className="roll-card">
                     <div className="roll-card-header">
                         <h3>Capture Rolls</h3>
-                        <span>Accuracy and capture rate in one throw.</span>
+                        <span>Accuracy and capture rate.</span>
                     </div>
                     <Button className="roll-action" onClick={() => {
                     const roll_capture_accuracy_temp = getRandomArbitrary(0,20)+1;
@@ -271,7 +270,7 @@ function Rolls() {
                 <section className="roll-card roll-card-wide">
                     <div className="roll-card-header">
                         <h3>Shiny Rolls</h3>
-                        <span>Set your target number, reroll window, and batch size.</span>
+                        <span>Set your target number, reroll window, and batch size. (Your shiny number and Dexnav are stored between sessions)</span>
                     </div>
                     <div className="roll-form-grid">
                         <label className="roll-field">
@@ -379,7 +378,7 @@ function Rolls() {
                 <section className="roll-card roll-card-wide">
                     <div className="roll-card-header">
                         <h3>Card Rolls</h3>
-                        <span>Normal, shiny, and platine card outcomes with Dexnav rerolls.</span>
+                        <span>Normal, shiny, and platine card outcomes with Dexnav rerolls. (Your card rolls and dexnav are stored between sessions)</span>
                     </div>
                     <div className="roll-form-grid roll-form-grid-cards">
                         <label className="roll-field">

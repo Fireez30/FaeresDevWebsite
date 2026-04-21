@@ -202,10 +202,13 @@ function HiraganaTrainer() {
         <div className="hiragana-page">
             <section className="hiragana-shell">
                 <div className="hiragana-copy">
-                    <p className="hiragana-kicker">Japanese Practice</p>
                     <h1>Hiragana Trainer</h1>
                     <p className="hiragana-subtitle">
-                        Switch between reading hiragana and matching romaji, with basic pause and long-vowel cases mixed into the same quiz flow.
+                        { quizMode === "kana-to-romaji"?
+                            "A quizz with score where an hiragana is shown, and user clicks on the romaji corresponding. May include breaks and elongations expressions"
+                            :
+                            "A quizz with score where an romaji is shown, and user clicks on the hiragana corresponding. May include breaks and elongations expressions"
+                        }
                     </p>
                     <div className="hiragana-mode-switch">
                         <button

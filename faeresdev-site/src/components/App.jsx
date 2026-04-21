@@ -9,7 +9,7 @@ import HiraganaTrainer from "./HiraganaTrainer.jsx";
 import KatakanaTrainer from "./KatakanaTrainer.jsx";
 import KanjiTrainer from "./KanjiTrainer.jsx";
 import JapaneseSentenceColorTrainer from "./JapaneseSentenceColorTrainer.jsx";
-import Empty from "./Empty.jsx";
+import Home from "./Home.jsx";
 import PokemonEncounterGenerator from "./PokemonEncounterGenerator.jsx";
 const { Header,Footer,Content } = Layout;
 
@@ -17,17 +17,17 @@ const items = [
     {key: '/',label: 'Home'},
     {
         key: 'pokemon-rpg',
-        label: 'Pokemon RPG',
+        label: 'Pokemon RPG tools',
         children: [
             {key: '/pokemon-generator',label: 'Pokemon Generator'},
-            {key: '/pokemon-rolls',label: 'Pokemon Rolls'},
+            {key: '/pokemon-rolls',label: 'Pokemon Dice Rolls'},
             {key: '/pokemon-team-card',label: 'Pokemon Team Card'},
             {key: '/pokemon-encounter-generator',label: 'Pokemon Encounter Generator'},
         ],
     },
     {
         key: 'japanese',
-        label: 'Japanese',
+        label: 'Japanese tools',
         children: [
             {key: '/hiragana-training',label: 'Hiragana Training cards'},
             {key: '/katakana-training',label: 'Katakana Training  cards'},
@@ -58,7 +58,7 @@ function App() {
         </Header>
         <Content className="MainFrame">
             <Routes>
-                <Route path="/" element={<Empty />} />
+                <Route path="/" element={<Home />} />
                 <Route path="/pokemon-generator" element={<PokemonGenerator />} />
                 <Route path="/pokemon-rolls" element={<Rolls />} />
                 <Route path="/pokemon-team-card" element={<PokemonTeamCard />} />
@@ -67,7 +67,7 @@ function App() {
                 <Route path="/kanji-training" element={<KanjiTrainer />} />
                 <Route path="/japanese-sentence-color-trainer" element={<JapaneseSentenceColorTrainer />} />
                 <Route path="/pokemon-encounter-generator" element={<PokemonEncounterGenerator />} />
-                <Route path="*" element={<Empty />} />
+                <Route path="*" element={<Home />} />
             </Routes>
         </Content>
 

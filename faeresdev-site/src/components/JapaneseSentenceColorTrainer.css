@@ -233,7 +233,7 @@
     background: rgba(138, 92, 246, 0.14);
 }
 
-.script-token.is-pause {
+.script-token.is-break {
     border-color: rgba(245, 158, 11, 0.38);
     background: rgba(245, 158, 11, 0.14);
 }

@@ -13,7 +13,7 @@ const TYPE_STYLES = {
     katakana: { swatch: "#2ca86a", className: "is-katakana" },
     kanji: { swatch: "#dc4c3f", className: "is-kanji" },
     romaji: { swatch: "#8a5cf6", className: "is-romaji" },
-    pause: { swatch: "#f59e0b", className: "is-pause" },
+    break: { swatch: "#f59e0b", className: "is-break" },
     long: { swatch: "#14b8a6", className: "is-long" },
 };
 
@@ -23,7 +23,7 @@ const ROMAJI_REGEX = /[A-Za-z0-9]/;
 const HIRAGANA_REGEX = /[\u3040-\u309F]/;
 const KATAKANA_REGEX = /[\u30A0-\u30FF\uFF66-\uFF9D]/;
 const KANJI_REGEX = /[\u3400-\u4DBF\u4E00-\u9FFF]/;
-const PLAYABLE_TYPES = new Set(["hiragana", "katakana", "kanji", "romaji", "pause", "long"]);
+const PLAYABLE_TYPES = new Set(["hiragana", "katakana", "kanji", "romaji", "break", "long"]);
 
 function isTerminalPunctuation(character, index, text) {
     return index === text.length - 1 && TERMINAL_PUNCTUATION.has(character);
@@ -35,7 +35,7 @@ function classifyCharacter(character) {
     }
 
     if (PAUSE_CHARACTERS.has(character)) {
-        return "pause";
+        return "break";
     }
 
     if (ROMAJI_REGEX.test(character)) {
@@ -55,7 +55,7 @@ function classifyCharacter(character) {
     }
 
     if (character === "。") {
-        return "pause";
+        return "break";
     }
 
     return "unknown";
@@ -325,11 +325,10 @@ function JapaneseSentenceColorTrainer() {
         <div className="script-color-page">
             <section className="script-color-shell">
                 <div className="script-color-copy">
-                    <p className="script-color-kicker">Japanese Practice</p>
-                    <h1>Color Sentence Trainer</h1>
+                    <h1>Japanese sentences tokens training</h1>
                     <p className="script-color-subtitle">
-                        Les phrases sont chargees en ligne quand possible. Si la source distante n'est
-                        pas disponible, le module bascule automatiquement sur une banque locale.
+                        Load japanese sentences from Tatoeba open API, for user to mark each character with its type. If Tatoeba fails, fallbacks to preloaded sentences.
+                        Sentences may contain : Kanji, Kanas , Break , Elongation and Romaji.
                     </p>
                     <div className="script-color-legend">
                         {SCRIPT_TYPE_ORDER.map((type) => (
@@ -433,10 +432,10 @@ function JapaneseSentenceColorTrainer() {
                             onClick={handleValidate}
                             type="button"
                         >
-                            Valider
+                            Validate
                         </button>
                         <button className="script-color-secondary" disabled={isLoadingSentence} onClick={handleNextSentence} type="button">
-                            Nouvelle phrase
+                            New sentence
                         </button>
                     </div>
 
@@ -444,16 +443,16 @@ function JapaneseSentenceColorTrainer() {
                         {hasValidated ? (
                             correctCount === totalPlayable ? (
                                 <p className="script-color-feedback-text is-success">
-                                    Tout est correct. Tu peux passer a une nouvelle phrase.
+                                    Everything is correct!
                                 </p>
                             ) : (
                                 <p className="script-color-feedback-text is-error">
-                                    Les elements faux affichent leur vraie categorie sous ta reponse.
+                                    Some elements are incorrect. Check the correction.
                                 </p>
                             )
                         ) : (
                             <p className="script-color-feedback-text">
-                                Choisis une categorie, clique sur chaque element, puis valide.
+                                Choose a category, and click on elements to assign them. When everything is done, click validate.
                             </p>
                         )}
                         {hasValidated && (
