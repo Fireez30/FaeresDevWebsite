@@ -58,11 +58,28 @@ function Empty() {
     return (
         <div className="home-page">
             <section className="home-hero">
-                <p className="home-kicker">Faeres Dev Website</p>
-                <h1>Eight focused tools in one place.</h1>
-                <p className="home-subtitle">
-                    Use the navigation above to switch between Pokemon utilities and Japanese writing practice.
-                </p>
+                <h1>Faeres dev website.</h1>
+                <br/>
+                <table>
+                    <tr>
+                        <th><img className="home-self-img" src="/fireez3.png"/></th>
+                        <th><p className="home-subtitle">
+                            I'm a 29 years old developer from France. I've worked for virtual reality patient rehabilitation.
+                            <br/>
+                            I've moved in a team of research an as engineer on a 3D + t data online visualization and curation tool.
+                            <br/>
+                            Finally, I've joined a biology research team to develop image and data analysis tool, while still working on the 3D +t platform.
+                            <br/><br/>
+                            I coded this website to :
+                            <br/><br/>
+                            - Share tools for the Pokemon RPG I'm in
+                            <br/>
+                            - Share tools I use to learn Japanese
+                            <br/>
+                            - (Coming) Host images, descriptions and videos of my studies and personal project
+                        </p></th>
+                    </tr>
+                </table>
             </section>
 
             <section className="home-sections">

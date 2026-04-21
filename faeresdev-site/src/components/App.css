@@ -251,7 +251,13 @@ body {
   border-top: 1px solid var(--footer-border);
   letter-spacing: 0.03em;
 }
-
+.main-logo {
+  display: block;
+  width: 80px;
+  height: auto;
+  border-radius: 18px;
+  box-shadow: 0 20px 46px var(--surface-shadow);
+}
 @media (max-width: 900px) {
   .site-header {
     flex-direction: column;

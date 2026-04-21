@@ -27,12 +27,12 @@ const items = [
     },
     {
         key: 'japanese',
-        label: 'Japonais',
+        label: 'Japanese',
         children: [
-            {key: '/hiragana-training',label: 'Hiragana Training'},
-            {key: '/katakana-training',label: 'Katakana Training'},
-            {key: '/kanji-training',label: 'Kanji Training'},
-            {key: '/japanese-sentence-color-trainer',label: 'Color Sentence Trainer'},
+            {key: '/hiragana-training',label: 'Hiragana Training cards'},
+            {key: '/katakana-training',label: 'Katakana Training  cards'},
+            {key: '/kanji-training',label: 'Kanji Training cards'},
+            {key: '/japanese-sentence-color-trainer',label: 'Japanese sentences tokens training'},
         ],
     },
 ];
@@ -45,8 +45,7 @@ function App() {
     <Layout className="site-shell">
         <Header className="site-header">
             <Link className="site-brand" to="/">
-                <span className="site-brand-mark">FD</span>
-                <span className="site-brand-text">Faeres Dev</span>
+                <img className="main-logo" src="/logo_faeresdev_inverted_cropped.png"/>
             </Link>
             <Menu
                 className="site-nav"
