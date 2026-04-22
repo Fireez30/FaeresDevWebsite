@@ -33,12 +33,12 @@ const sections = [
             {
                 title: "Hiragana Training cards",
                 href: "/hiragana-training",
-                description: "Practice hiragana using quizz cards. Includes breaks and elongation rules too.",
+                description: "Practice hiragana using quizz cards. Includes kana combinations, breaks and elongation rules too.",
             },
             {
                 title: "Katakana Training cards",
                 href: "/katakana-training",
-                description: "Practice katakana using quizz cards. Includes breaks and elongation rules too.",
+                description: "Practice katakana using quizz cards. Includes kana combinations, breaks and elongation rules too.",
             },
             {
                 title: "Kanji Training cards",
@@ -48,7 +48,7 @@ const sections = [
             {
                 title: "Japanese sentences tokens training",
                 href: "/japanese-sentence-color-trainer",
-                description: "Pratice character groups recognition in a sentence, as quizz cards. Kanji, Hiragana , Katakana , breaks and elongations of vowels.",
+                description: "Pratice character groups recognition in a sentence, as quizz cards. Kanji, Hiragana, Katakana, kana combinations, breaks and elongations of vowels.",
             },
         ],
     },

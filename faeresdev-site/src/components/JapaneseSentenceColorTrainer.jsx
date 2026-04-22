@@ -6,11 +6,13 @@ import {
     SCRIPT_TYPE_ORDER,
     TATOEBA_API_URL,
 } from "../data/japaneseScriptColorGameData.js";
+import { HIRAGANA_COMBINATIONS, KATAKANA_COMBINATIONS } from "../data/kanaCombinations.js";
 import { romanizeWithKuroshiro } from "../utils/romaji.js";
 
 const TYPE_STYLES = {
     hiragana: { swatch: "#2f6df6", className: "is-hiragana" },
     katakana: { swatch: "#2ca86a", className: "is-katakana" },
+    combination: { swatch: "#ec4899", className: "is-combination" },
     kanji: { swatch: "#dc4c3f", className: "is-kanji" },
     romaji: { swatch: "#8a5cf6", className: "is-romaji" },
     break: { swatch: "#f59e0b", className: "is-break" },
@@ -23,10 +25,22 @@ const ROMAJI_REGEX = /[A-Za-z0-9]/;
 const HIRAGANA_REGEX = /[\u3040-\u309F]/;
 const KATAKANA_REGEX = /[\u30A0-\u30FF\uFF66-\uFF9D]/;
 const KANJI_REGEX = /[\u3400-\u4DBF\u4E00-\u9FFF]/;
-const PLAYABLE_TYPES = new Set(["hiragana", "katakana", "kanji", "romaji", "break", "long"]);
+const PLAYABLE_TYPES = new Set(["hiragana", "katakana", "combination", "kanji", "romaji", "break", "long"]);
+const COMBINATION_TOKENS = new Set([
+    ...HIRAGANA_COMBINATIONS.map((entry) => entry.kana),
+    ...KATAKANA_COMBINATIONS.map((entry) => entry.kana),
+]);
 
 function isTerminalPunctuation(character, index, text) {
     return index === text.length - 1 && TERMINAL_PUNCTUATION.has(character);
+}
+
+function classifyToken(tokenText) {
+    if (COMBINATION_TOKENS.has(tokenText)) {
+        return "combination";
+    }
+
+    return classifyCharacter(tokenText);
 }
 
 function classifyCharacter(character) {
@@ -63,18 +77,27 @@ function classifyCharacter(character) {
 
 function tokenizeSentence(text) {
     const normalizedText = text.normalize("NFC");
+    const characters = Array.from(normalizedText);
     const tokens = [];
 
-    Array.from(normalizedText).forEach((character, index) => {
-        const type = classifyCharacter(character);
-        const locked = isTerminalPunctuation(character, index, normalizedText);
+    for (let index = 0; index < characters.length; index += 1) {
+        const character = characters[index];
+        const nextCharacter = characters[index + 1];
+        const combinedToken = nextCharacter ? `${character}${nextCharacter}` : character;
+        const tokenText = COMBINATION_TOKENS.has(combinedToken) ? combinedToken : character;
+        const type = classifyToken(tokenText);
+        const locked = tokenText.length === 1 && isTerminalPunctuation(character, index, normalizedText);
 
         if (!PLAYABLE_TYPES.has(type) && !locked) {
-            return;
+            continue;
         }
 
-        tokens.push({ text: character, type, locked });
-    });
+        tokens.push({ text: tokenText, type, locked });
+
+        if (tokenText.length > 1) {
+            index += 1;
+        }
+    }
 
     return tokens;
 }
@@ -328,7 +351,7 @@ function JapaneseSentenceColorTrainer() {
                     <h1>Japanese sentences tokens training</h1>
                     <p className="script-color-subtitle">
                         Load japanese sentences from Tatoeba open API, for user to mark each character with its type. If Tatoeba fails, fallbacks to preloaded sentences.
-                        Sentences may contain : Kanji, Kanas , Break , Elongation and Romaji.
+                        Sentences may contain : Kanji, Kanas, Kana combinations, Break, Elongation and Romaji.
                     </p>
                     <div className="script-color-legend">
                         {SCRIPT_TYPE_ORDER.map((type) => (

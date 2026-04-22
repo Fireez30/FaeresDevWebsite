@@ -223,6 +223,11 @@
     background: rgba(44, 168, 106, 0.14);
 }
 
+.script-token.is-combination {
+    border-color: rgba(236, 72, 153, 0.38);
+    background: rgba(236, 72, 153, 0.14);
+}
+
 .script-token.is-kanji {
     border-color: rgba(220, 76, 63, 0.38);
     background: rgba(220, 76, 63, 0.14);

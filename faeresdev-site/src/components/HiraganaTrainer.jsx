@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "./HiraganaTrainer.css";
+import { HIRAGANA_COMBINATIONS } from "../data/kanaCombinations.js";
 
 const HIRAGANA_SET = [
     { kana: "あ", romaji: "a" },
@@ -73,6 +74,7 @@ const HIRAGANA_SET = [
     { kana: "わ", romaji: "wa" },
     { kana: "を", romaji: "wo" },
     { kana: "ん", romaji: "n" },
+    ...HIRAGANA_COMBINATIONS,
     { kana: "あっち", romaji: "acchi" },
     { kana: "いっかい", romaji: "ikkai" },
     { kana: "いっしょ", romaji: "issho" },
@@ -205,9 +207,9 @@ function HiraganaTrainer() {
                     <h1>Hiragana Trainer</h1>
                     <p className="hiragana-subtitle">
                         { quizMode === "kana-to-romaji"?
-                            "A quizz with score where an hiragana is shown, and user clicks on the romaji corresponding. May include breaks and elongations expressions"
+                            "A quizz with score where an hiragana is shown, and user clicks on the romaji corresponding. May include combinations, breaks and elongations expressions"
                             :
-                            "A quizz with score where an romaji is shown, and user clicks on the hiragana corresponding. May include breaks and elongations expressions"
+                            "A quizz with score where an romaji is shown, and user clicks on the hiragana corresponding. May include combinations, breaks and elongations expressions"
                         }
                     </p>
                     <div className="hiragana-mode-switch">

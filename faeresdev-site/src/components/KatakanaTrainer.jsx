@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "./KatakanaTrainer.css";
+import { KATAKANA_COMBINATIONS } from "../data/kanaCombinations.js";
 
 const KATAKANA_SET = [
     { kana: "ア", romaji: "a" },
@@ -73,6 +74,7 @@ const KATAKANA_SET = [
     { kana: "ワ", romaji: "wa" },
     { kana: "ヲ", romaji: "wo" },
     { kana: "ン", romaji: "n" },
+    ...KATAKANA_COMBINATIONS,
     { kana: "カップ", romaji: "kappu" },
     { kana: "カット", romaji: "katto" },
     { kana: "カード", romaji: "kādo" },
@@ -205,9 +207,9 @@ function KatakanaTrainer() {
                     <h1>Katakana Trainer</h1>
                     <p className="katakana-subtitle">
                         { quizMode === "kana-to-romaji"?
-                            "A quizz with score where an katakana is shown, and user clicks on the romaji corresponding. May include breaks and elongations expressions"
+                            "A quizz with score where an katakana is shown, and user clicks on the romaji corresponding. May include combinations, breaks and elongations expressions"
                             :
-                            "A quizz with score where an romaji is shown, and user clicks on the katakana corresponding. May include breaks and elongations expressions"
+                            "A quizz with score where an romaji is shown, and user clicks on the katakana corresponding. May include combinations, breaks and elongations expressions"
                         }
                     </p>
                     <div className="katakana-mode-switch">
