@@ -7,7 +7,6 @@ import {
     TATOEBA_API_URL,
 } from "../data/japaneseScriptColorGameData.js";
 import { HIRAGANA_COMBINATIONS, KATAKANA_COMBINATIONS } from "../data/kanaCombinations.js";
-import { romanizeWithKuroshiro } from "../utils/romaji.js";
 
 const TYPE_STYLES = {
     hiragana: { swatch: "#2f6df6", className: "is-hiragana" },
@@ -216,8 +215,6 @@ function JapaneseSentenceColorTrainer() {
     const [hasValidated, setHasValidated] = useState(false);
     const [isLoadingSentence, setIsLoadingSentence] = useState(false);
     const [remoteStatus, setRemoteStatus] = useState("offline");
-    const [sentenceRomaji, setSentenceRomaji] = useState("");
-    const [isLoadingRomaji, setIsLoadingRomaji] = useState(true);
 
     const currentAssignments = assignments.length === sentence.tokens.length
         ? assignments
@@ -234,37 +231,6 @@ function JapaneseSentenceColorTrainer() {
     const correctCount = playableIndexes.reduce((count, index) => (
         currentAssignments[index] === sentence.tokens[index].type ? count + 1 : count
     ), 0);
-
-    useEffect(() => {
-        let isMounted = true;
-
-        const loadSentenceRomaji = async () => {
-            setIsLoadingRomaji(true);
-
-            try {
-                const nextRomaji = await romanizeWithKuroshiro(sentence.text);
-                if (!isMounted) {
-                    return;
-                }
-
-                setSentenceRomaji(nextRomaji);
-            } catch {
-                if (isMounted) {
-                    setSentenceRomaji("");
-                }
-            } finally {
-                if (isMounted) {
-                    setIsLoadingRomaji(false);
-                }
-            }
-        };
-
-        loadSentenceRomaji();
-
-        return () => {
-            isMounted = false;
-        };
-    }, [sentence.text]);
 
     useEffect(() => {
         let isMounted = true;
@@ -481,11 +447,6 @@ function JapaneseSentenceColorTrainer() {
                         {hasValidated && (
                             <p className="script-color-translation">
                                 Traduction: <strong>{sentence.translation}</strong>
-                            </p>
-                        )}
-                        {hasValidated && (
-                            <p className="script-color-romaji">
-                                Romaji: <strong>{isLoadingRomaji ? "Chargement..." : sentenceRomaji}</strong>
                             </p>
                         )}
                     </div>

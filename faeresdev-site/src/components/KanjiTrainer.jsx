@@ -29,11 +29,15 @@ function buildQuestion(previousIndex = -1) {
     };
 }
 
+function renderReadings(entry) {
+    return `Kun: ${entry.kun} | On: ${entry.on}`;
+}
+
 function renderTranslationAnswer(entry) {
     return (
         <span className="kanji-answer-stack">
             <span className="kanji-answer-main">{entry.translation}</span>
-            <span className="kanji-answer-reading">{entry.romaji}</span>
+            <span className="kanji-answer-reading">{renderReadings(entry)}</span>
         </span>
     );
 }
@@ -42,7 +46,7 @@ function renderKanjiAnswer(entry) {
     return (
         <span className="kanji-answer-stack">
             <span className="kanji-answer-main kanji-answer-main-symbol">{entry.kanji}</span>
-            <span className="kanji-answer-reading">{entry.romaji}</span>
+            <span className="kanji-answer-reading">{renderReadings(entry)}</span>
         </span>
     );
 }
@@ -97,9 +101,9 @@ function KanjiTrainer() {
                     <h1>Kanji Trainer</h1>
                     <p className="kanji-subtitle">
                         { quizMode === "kanji-to-translation"?
-                            "A quizz with score where an Kanji is shown, and user clicks on the romaji+translation corresponding. May include breaks and elongations expressions"
+                            "A quiz where one kanji is shown and you choose the matching English meaning with its Kun and On readings in kana."
                             :
-                            "A quizz with score where an romaji is shown, and user clicks on the kanji+translation corresponding. May include breaks and elongations expressions"
+                            "A quiz where one English meaning is shown and you choose the matching kanji with its Kun and On readings in kana."
                         }                    </p>
                     <div className="kanji-mode-switch">
                         <button
@@ -173,15 +177,15 @@ function KanjiTrainer() {
                         {hasAnswered ? (
                             isCorrect ? (
                                 <p className="kanji-feedback-text feedback-correct">
-                                    Correct. <strong>{currentKanji.kanji}</strong> se lit <strong>{currentKanji.romaji}</strong>.
+                                    Correct. <strong>{currentKanji.kanji}</strong> reads <strong>{renderReadings(currentKanji)}</strong>.
                                 </p>
                             ) : (
                                 <p className="kanji-feedback-text feedback-wrong">
                                     Wrong. Correct answer:{" "}
                                     <strong>
                                         {quizMode === "kanji-to-translation"
-                                            ? `${currentKanji.translation} (${currentKanji.romaji})`
-                                            : `${currentKanji.kanji} (${currentKanji.romaji})`}
+                                            ? `${currentKanji.translation} (${renderReadings(currentKanji)})`
+                                            : `${currentKanji.kanji} (${renderReadings(currentKanji)})`}
                                     </strong>
                                 </p>
                             )
