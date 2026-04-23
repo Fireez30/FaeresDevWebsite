@@ -292,7 +292,7 @@ function PokemonGenerator() {
 
     const remaining_rolls = useSelector((state) => state.pokemon.remaining_rolls);
     const img_pokemon_src = "https://img.pokemondb.net/artwork/"+choosen_pokemon+".jpg"
-    const local_png_img = "/images/"+choosen_pokemon.toLowerCase().replace(" ","_")+".png"
+    const local_png_img = "/images/"+choosen_pokemon.toLowerCase().replace(" (","_(").replace(") ",")_").replace(" ","_")+".png"
     useEffect(() => {
         setMoves(movesData);
         setPokemons(pokemonsData);
