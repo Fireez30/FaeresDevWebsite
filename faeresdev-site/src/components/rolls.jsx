@@ -296,9 +296,9 @@ function Rolls() {
                         <label className="roll-field">
                             <span>Dexnav</span>
                             <InputNumber
-                    min={1}
+                    min={0}
                     max={90}
-                    defaultValue={1}
+                    defaultValue={0}
                     value={dexnav}
                     onChange={value => {
                         if (value){
@@ -526,7 +526,7 @@ function Rolls() {
                             <InputNumber
                     min={0}
                     max={90}
-                    defaultValue={1}
+                    defaultValue={0}
                     value={card_dexnav}
                     onChange={value => {
                         if (value){
