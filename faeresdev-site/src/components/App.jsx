@@ -8,6 +8,7 @@ import Rolls from "./rolls.jsx";
 import HiraganaTrainer from "./HiraganaTrainer.jsx";
 import KatakanaTrainer from "./KatakanaTrainer.jsx";
 import KanjiTrainer from "./KanjiTrainer.jsx";
+import KanjiWritingTrainer from "./KanjiWritingTrainer.jsx";
 import JapaneseSentenceColorTrainer from "./JapaneseSentenceColorTrainer.jsx";
 import Home from "./Home.jsx";
 import PokemonEncounterGenerator from "./PokemonEncounterGenerator.jsx";
@@ -32,6 +33,7 @@ const items = [
             {key: '/hiragana-training',label: 'Hiragana Training cards'},
             {key: '/katakana-training',label: 'Katakana Training  cards'},
             {key: '/kanji-training',label: 'Kanji Training cards'},
+            {key: '/kanji-writing-trainer',label: 'Kanji Writing Trainer'},
             {key: '/japanese-sentence-color-trainer',label: 'Japanese sentences tokens training'},
         ],
     },
@@ -65,6 +67,7 @@ function App() {
                 <Route path="/hiragana-training" element={<HiraganaTrainer />} />
                 <Route path="/katakana-training" element={<KatakanaTrainer />} />
                 <Route path="/kanji-training" element={<KanjiTrainer />} />
+                <Route path="/kanji-writing-trainer" element={<KanjiWritingTrainer />} />
                 <Route path="/japanese-sentence-color-trainer" element={<JapaneseSentenceColorTrainer />} />
                 <Route path="/pokemon-encounter-generator" element={<PokemonEncounterGenerator />} />
                 <Route path="*" element={<Home />} />
