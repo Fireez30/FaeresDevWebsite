@@ -19,7 +19,6 @@ export const KANJI_SET = [
     { kanji: "雨", translation: "rain", kun: "あめ", on: "う" },
     { kanji: "雪", translation: "snow", kun: "ゆき", on: "せつ" },
     { kanji: "刀", translation: "sword", kun: "かたな", on: "とう" },
-    { kanji: "心", translation: "heart", kun: "こころ", on: "しん" },
 ];
 
 export const KANJI_SET_NOTE = "Update entries here with kanji, English translation, and kana readings to keep them permanently available in the Kanji training.";

@@ -204,6 +204,47 @@
     line-height: 1.35;
 }
 
+.kanji-answer-main-kana {
+    font-size: 1.6rem;
+    line-height: 1;
+}
+
+.kanji-step-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.kanji-step-dots {
+    display: flex;
+    gap: 6px;
+}
+
+.kanji-step-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--panel-border);
+    transition: background 0.18s ease;
+}
+
+.kanji-step-dot.is-active {
+    background: linear-gradient(135deg, var(--brand-start), var(--brand-end));
+}
+
+.kanji-step-dot.is-done {
+    background: var(--success-text);
+}
+
+.kanji-step-text {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-soft);
+    letter-spacing: 0.03em;
+}
+
 .kanji-answer:hover:not(:disabled),
 .kanji-next-button:hover {
     transform: translateY(-1px);

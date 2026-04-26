@@ -2,97 +2,124 @@ import React, { useState } from "react";
 import "./KanjiTrainer.css";
 import { KANJI_SET, KANJI_SET_NOTE } from "../data/kanjiTrainingData.js";
 
+const STEPS_FOR_MODE = {
+    "kanji-to-translation": ["translation", "kun", "on"],
+    "translation-to-kanji": ["kanji", "kun", "on"],
+};
+
+const STEP_LABEL = {
+    translation: "What does this kanji mean?",
+    kun: "What is the Kun reading?",
+    on: "What is the On reading?",
+    kanji: "Which kanji matches this translation?",
+};
+
+const STEP_NAME = {
+    translation: "Translation",
+    kun: "Kun Reading",
+    on: "On Reading",
+    kanji: "Kanji",
+};
+
 function getRandomIndex(excludedIndex = -1) {
-    let nextIndex = Math.floor(Math.random() * KANJI_SET.length);
-    while (KANJI_SET.length > 1 && nextIndex === excludedIndex) {
-        nextIndex = Math.floor(Math.random() * KANJI_SET.length);
+    let idx = Math.floor(Math.random() * KANJI_SET.length);
+    while (KANJI_SET.length > 1 && idx === excludedIndex) {
+        idx = Math.floor(Math.random() * KANJI_SET.length);
     }
-    return nextIndex;
+    return idx;
 }
 
-function buildQuestion(previousIndex = -1) {
-    const correctIndex = getRandomIndex(previousIndex);
-    const distractorIndexes = [];
+function buildDistractors(correctIdx, step) {
+    const correctValue = KANJI_SET[correctIdx][step];
+    const pool = [correctIdx];
+    const usedValues = new Set([correctValue]);
 
-    while (distractorIndexes.length < 2) {
-        const candidateIndex = getRandomIndex(previousIndex);
-        if (candidateIndex !== correctIndex && !distractorIndexes.includes(candidateIndex)) {
-            distractorIndexes.push(candidateIndex);
+    for (let attempts = 0; attempts < 200 && pool.length < 3; attempts++) {
+        const candidate = Math.floor(Math.random() * KANJI_SET.length);
+        const candidateValue = KANJI_SET[candidate][step];
+        if (!pool.includes(candidate) && !usedValues.has(candidateValue)) {
+            pool.push(candidate);
+            usedValues.add(candidateValue);
         }
     }
 
-    const answers = [correctIndex, distractorIndexes[0], distractorIndexes[1]].sort(() => Math.random() - 0.5);
+    // Fallback: allow value collisions if the dataset doesn't have enough unique values
+    for (let i = 0; pool.length < 3 && i < KANJI_SET.length; i++) {
+        if (!pool.includes(i)) pool.push(i);
+    }
 
-    return {
-        correctIndex,
-        answers,
-    };
+    return pool.sort(() => Math.random() - 0.5);
 }
 
-function renderReadings(entry) {
-    return `Kun: ${entry.kun} | On: ${entry.on}`;
-}
-
-function renderTranslationAnswer(entry) {
-    return (
-        <span className="kanji-answer-stack">
-            <span className="kanji-answer-main">{entry.translation}</span>
-            <span className="kanji-answer-reading">{renderReadings(entry)}</span>
-        </span>
-    );
-}
-
-function renderKanjiAnswer(entry) {
-    return (
-        <span className="kanji-answer-stack">
-            <span className="kanji-answer-main kanji-answer-main-symbol">{entry.kanji}</span>
-            <span className="kanji-answer-reading">{renderReadings(entry)}</span>
-        </span>
-    );
+function renderAnswerContent(entry, step) {
+    const value = entry[step];
+    if (step === "kanji") {
+        return <span className="kanji-answer-main kanji-answer-main-symbol">{value}</span>;
+    }
+    if (step === "kun" || step === "on") {
+        return <span className="kanji-answer-main kanji-answer-main-kana">{value}</span>;
+    }
+    return <span className="kanji-answer-main">{value}</span>;
 }
 
 function KanjiTrainer() {
     const [quizMode, setQuizMode] = useState("kanji-to-translation");
-    const [question, setQuestion] = useState(() => buildQuestion());
+    const [stepIndex, setStepIndex] = useState(0);
+    const [{ kanjiIdx, answers }, setQuestionState] = useState(() => {
+        const ki = getRandomIndex();
+        return { kanjiIdx: ki, answers: buildDistractors(ki, STEPS_FOR_MODE["kanji-to-translation"][0]) };
+    });
     const [selectedAnswer, setSelectedAnswer] = useState(null);
     const [score, setScore] = useState({ correct: 0, total: 0 });
 
-    const currentKanji = KANJI_SET[question.correctIndex];
-    const correctAnswer = question.correctIndex;
+    const steps = STEPS_FOR_MODE[quizMode];
+    const currentStep = steps[stepIndex];
+    const currentKanji = KANJI_SET[kanjiIdx];
     const hasAnswered = selectedAnswer !== null;
-    const isCorrect = selectedAnswer === correctAnswer;
+    const isCorrect = selectedAnswer === kanjiIdx;
+    const isLastStep = stepIndex === steps.length - 1;
+
     const scoreRatio = score.total > 0 ? score.correct / score.total : null;
     const scoreState = scoreRatio === null
         ? "is-neutral"
-        : scoreRatio > 0.75
-            ? "is-strong"
-            : scoreRatio >= 0.4
-                ? "is-neutral"
-                : "is-weak";
-
-    const switchQuizMode = (nextMode) => {
-        setQuizMode(nextMode);
-        setQuestion(buildQuestion(question.correctIndex));
-        setSelectedAnswer(null);
-    };
-
-    const goToNextKanji = () => {
-        setQuestion(buildQuestion(question.correctIndex));
-        setSelectedAnswer(null);
-    };
+        : scoreRatio > 0.75 ? "is-strong"
+        : scoreRatio >= 0.4 ? "is-neutral"
+        : "is-weak";
 
     const handleAnswer = (answerIndex) => {
-        if (hasAnswered) {
-            return;
-        }
-
-        const answerIsCorrect = answerIndex === correctAnswer;
+        if (hasAnswered) return;
+        const correct = answerIndex === kanjiIdx;
         setSelectedAnswer(answerIndex);
-        setScore((currentScore) => ({
-            correct: currentScore.correct + (answerIsCorrect ? 1 : 0),
-            total: currentScore.total + 1,
-        }));
+        setScore(s => ({ correct: s.correct + (correct ? 1 : 0), total: s.total + 1 }));
     };
+
+    const goNext = () => {
+        if (isLastStep) {
+            const newKi = getRandomIndex(kanjiIdx);
+            setQuestionState({ kanjiIdx: newKi, answers: buildDistractors(newKi, steps[0]) });
+            setStepIndex(0);
+        } else {
+            const nextStepIdx = stepIndex + 1;
+            setQuestionState(prev => ({
+                ...prev,
+                answers: buildDistractors(prev.kanjiIdx, steps[nextStepIdx]),
+            }));
+            setStepIndex(nextStepIdx);
+        }
+        setSelectedAnswer(null);
+    };
+
+    const switchQuizMode = (nextMode) => {
+        const nextSteps = STEPS_FOR_MODE[nextMode];
+        const ki = getRandomIndex(kanjiIdx);
+        setQuizMode(nextMode);
+        setQuestionState({ kanjiIdx: ki, answers: buildDistractors(ki, nextSteps[0]) });
+        setStepIndex(0);
+        setSelectedAnswer(null);
+    };
+
+    const promptContent = quizMode === "kanji-to-translation" ? currentKanji.kanji : currentKanji.translation;
+    const isTranslationPrompt = quizMode === "translation-to-kanji";
 
     return (
         <div className="kanji-page">
@@ -100,11 +127,10 @@ function KanjiTrainer() {
                 <div className="kanji-copy">
                     <h1>Kanji Trainer</h1>
                     <p className="kanji-subtitle">
-                        { quizMode === "kanji-to-translation"?
-                            "A quiz where one kanji is shown and you choose the matching English meaning with its Kun and On readings in kana."
-                            :
-                            "A quiz where one English meaning is shown and you choose the matching kanji with its Kun and On readings in kana."
-                        }                    </p>
+                        {quizMode === "kanji-to-translation"
+                            ? "A kanji is shown — choose the correct translation, then the Kun reading, then the On reading."
+                            : "An English meaning is shown — choose the correct kanji, then the Kun reading, then the On reading."}
+                    </p>
                     <div className="kanji-mode-switch">
                         <button
                             className={`kanji-mode-button ${quizMode === "kanji-to-translation" ? "is-active" : ""}`}
@@ -130,44 +156,49 @@ function KanjiTrainer() {
                     <div className={`kanji-score kanji-score-main ${scoreState}`}>
                         Score: <strong>{score.correct} / {score.total}</strong>
                     </div>
-                    <div className="kanji-prompt">
-                        <span className="kanji-label">
-                            {quizMode === "kanji-to-translation"
-                                ? "What does this kanji mean?"
-                                : "Which kanji matches this translation?"}
+
+                    <div className="kanji-step-indicator">
+                        <div className="kanji-step-dots">
+                            {steps.map((step, i) => (
+                                <span
+                                    key={step}
+                                    className={`kanji-step-dot ${i === stepIndex ? "is-active" : ""} ${i < stepIndex ? "is-done" : ""}`}
+                                />
+                            ))}
+                        </div>
+                        <span className="kanji-step-text">
+                            Step {stepIndex + 1}/{steps.length} — {STEP_NAME[currentStep]}
                         </span>
-                        <div className={`kanji-symbol ${quizMode === "translation-to-kanji" ? "is-translation-prompt" : ""}`}>
-                            {quizMode === "kanji-to-translation"
-                                ? currentKanji.kanji
-                                : currentKanji.translation}
+                    </div>
+
+                    <div className="kanji-prompt">
+                        <span className="kanji-label">{STEP_LABEL[currentStep]}</span>
+                        <div className={`kanji-symbol ${isTranslationPrompt ? "is-translation-prompt" : ""}`}>
+                            {promptContent}
                         </div>
                     </div>
 
                     <div className="kanji-answers">
-                        {question.answers.map((answerIndex) => {
+                        {answers.map((answerIndex) => {
                             const answerEntry = KANJI_SET[answerIndex];
-                            const displayedAnswer = quizMode === "kanji-to-translation"
-                                ? renderTranslationAnswer(answerEntry)
-                                : renderKanjiAnswer(answerEntry);
                             let answerClass = "kanji-answer";
 
                             if (hasAnswered && answerIndex === selectedAnswer) {
                                 answerClass += isCorrect ? " is-correct" : " is-wrong";
                             }
-
-                            if (hasAnswered && !isCorrect && answerIndex === correctAnswer) {
+                            if (hasAnswered && !isCorrect && answerIndex === kanjiIdx) {
                                 answerClass += " reveal-correct";
                             }
 
                             return (
                                 <button
-                                    key={`${answerEntry.kanji}-${answerIndex}`}
+                                    key={`${answerEntry.kanji}-${answerIndex}-${currentStep}`}
                                     className={answerClass}
                                     onClick={() => handleAnswer(answerIndex)}
                                     disabled={hasAnswered}
                                     type="button"
                                 >
-                                    {displayedAnswer}
+                                    {renderAnswerContent(answerEntry, currentStep)}
                                 </button>
                             );
                         })}
@@ -176,17 +207,10 @@ function KanjiTrainer() {
                     <div className="kanji-feedback">
                         {hasAnswered ? (
                             isCorrect ? (
-                                <p className="kanji-feedback-text feedback-correct">
-                                    Correct. <strong>{currentKanji.kanji}</strong> reads <strong>{renderReadings(currentKanji)}</strong>.
-                                </p>
+                                <p className="kanji-feedback-text feedback-correct">Correct!</p>
                             ) : (
                                 <p className="kanji-feedback-text feedback-wrong">
-                                    Wrong. Correct answer:{" "}
-                                    <strong>
-                                        {quizMode === "kanji-to-translation"
-                                            ? `${currentKanji.translation} (${renderReadings(currentKanji)})`
-                                            : `${currentKanji.kanji} (${renderReadings(currentKanji)})`}
-                                    </strong>
+                                    Wrong. Correct answer: <strong>{currentKanji[currentStep]}</strong>
                                 </p>
                             )
                         ) : (
@@ -194,8 +218,8 @@ function KanjiTrainer() {
                         )}
                     </div>
 
-                    <button className="kanji-next-button" onClick={goToNextKanji} type="button">
-                        Next Kanji
+                    <button className="kanji-next-button" onClick={goNext} type="button">
+                        {isLastStep ? "Next Kanji" : "Next Step"}
                     </button>
                 </div>
             </section>
