@@ -50,6 +50,11 @@ const sections = [
                 href: "/japanese-sentence-color-trainer",
                 description: "Pratice character groups recognition in a sentence, as quizz cards. Kanji, Hiragana, Katakana, kana combinations, breaks and elongations of vowels.",
             },
+            {
+                title: "Vocabulary Training",
+                href: "/vocabulary-training",
+                description: "Practice Japanese vocabulary using quiz cards. See a Japanese word or phrase and pick the correct translation, or the other way around.",
+            },
         ],
     },
 ];
