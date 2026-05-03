@@ -1,33 +1,87 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import "./VocabularyTrainer.css";
 import { VOCAB_SET, VOCAB_SET_NOTE } from "../data/vocabularyTrainingData.js";
+import { listDecks, getDeck } from "../api/decksApi.js";
 
-function getRandomIndex(excludedIndex = -1) {
-    let idx = Math.floor(Math.random() * VOCAB_SET.length);
-    while (VOCAB_SET.length > 1 && idx === excludedIndex) {
-        idx = Math.floor(Math.random() * VOCAB_SET.length);
+function getRandomIndex(dataset, excludedIndex = -1) {
+    let idx = Math.floor(Math.random() * dataset.length);
+    while (dataset.length > 1 && idx === excludedIndex) {
+        idx = Math.floor(Math.random() * dataset.length);
     }
     return idx;
 }
 
-function buildQuestion(excludeIdx = -1) {
-    const correctIdx = getRandomIndex(excludeIdx);
+function buildQuestion(dataset, excludeIdx = -1) {
+    const correctIdx = getRandomIndex(dataset, excludeIdx);
     const pool = [correctIdx];
     while (pool.length < 3) {
-        const candidate = Math.floor(Math.random() * VOCAB_SET.length);
+        const candidate = Math.floor(Math.random() * dataset.length);
         if (!pool.includes(candidate)) pool.push(candidate);
     }
     return { correctIdx, answers: pool.sort(() => Math.random() - 0.5) };
 }
 
+function DeckSelector({ availableDecks, activeDeckId, onSelect }) {
+    if (availableDecks === null) return null;
+    return (
+        <div className="vocab-deck-selector">
+            <label className="vocab-deck-label">Deck</label>
+            <select
+                className="vocab-deck-select"
+                value={activeDeckId ?? ""}
+                onChange={e => onSelect(e.target.value || null)}
+            >
+                <option value="">Default (built-in)</option>
+                {availableDecks.map(d => (
+                    <option key={d.id} value={d.id}>{d.name} ({d.entryCount} entries)</option>
+                ))}
+            </select>
+        </div>
+    );
+}
+
 function VocabularyTrainer() {
+    const [availableDecks, setAvailableDecks] = useState(null);
+    const [activeDeckId, setActiveDeckId] = useState(null);
+    const [dataset, setDataset] = useState(VOCAB_SET);
+
     const [quizMode, setQuizMode] = useState("vocab-to-translation");
-    const [question, setQuestion] = useState(() => buildQuestion());
+    const [question, setQuestion] = useState(() => buildQuestion(VOCAB_SET));
     const [selectedAnswer, setSelectedAnswer] = useState(null);
     const [score, setScore] = useState({ correct: 0, total: 0 });
 
+    useEffect(() => {
+        listDecks()
+            .then(decks => setAvailableDecks(decks.filter(d => d.type === "vocabulary")))
+            .catch(() => setAvailableDecks(null));
+    }, []);
+
+    const resetQuiz = useCallback((newDataset) => {
+        setQuestion(buildQuestion(newDataset));
+        setSelectedAnswer(null);
+        setScore({ correct: 0, total: 0 });
+    }, []);
+
+    const handleDeckSelect = async (deckId) => {
+        setActiveDeckId(deckId);
+        if (!deckId) {
+            setDataset(VOCAB_SET);
+            resetQuiz(VOCAB_SET);
+        } else {
+            try {
+                const deck = await getDeck(deckId);
+                const newDataset = deck.entries.length >= 3 ? deck.entries : VOCAB_SET;
+                setDataset(newDataset);
+                resetQuiz(newDataset);
+            } catch {
+                setDataset(VOCAB_SET);
+                resetQuiz(VOCAB_SET);
+            }
+        }
+    };
+
     const { correctIdx, answers } = question;
-    const currentEntry = VOCAB_SET[correctIdx];
+    const currentEntry = dataset[correctIdx];
     const hasAnswered = selectedAnswer !== null;
     const isCorrect = selectedAnswer === correctIdx;
 
@@ -46,18 +100,19 @@ function VocabularyTrainer() {
     };
 
     const goNext = () => {
-        setQuestion(buildQuestion(correctIdx));
+        setQuestion(buildQuestion(dataset, correctIdx));
         setSelectedAnswer(null);
     };
 
     const switchQuizMode = (nextMode) => {
         setQuizMode(nextMode);
-        setQuestion(buildQuestion(correctIdx));
+        setQuestion(buildQuestion(dataset, correctIdx));
         setSelectedAnswer(null);
     };
 
     const isVocabToTranslation = quizMode === "vocab-to-translation";
     const promptText = isVocabToTranslation ? currentEntry.japanese : currentEntry.translation;
+    const usingBuiltIn = !activeDeckId;
 
     return (
         <div className="vocab-page">
@@ -69,6 +124,11 @@ function VocabularyTrainer() {
                             ? "A Japanese word or phrase is shown — choose the correct English translation."
                             : "An English translation is shown — choose the correct Japanese word or phrase."}
                     </p>
+                    <DeckSelector
+                        availableDecks={availableDecks}
+                        activeDeckId={activeDeckId}
+                        onSelect={handleDeckSelect}
+                    />
                     <div className="vocab-mode-switch">
                         <button
                             className={`vocab-mode-button ${quizMode === "vocab-to-translation" ? "is-active" : ""}`}
@@ -85,9 +145,11 @@ function VocabularyTrainer() {
                             Translation to Japanese
                         </button>
                     </div>
-                    <p className="vocab-maintenance-note">
-                        {VOCAB_SET_NOTE} <strong>src/data/vocabularyTrainingData.js</strong>
-                    </p>
+                    {usingBuiltIn && (
+                        <p className="vocab-maintenance-note">
+                            {VOCAB_SET_NOTE} <strong>src/data/vocabularyTrainingData.js</strong>
+                        </p>
+                    )}
                 </div>
 
                 <div className="vocab-card">
@@ -108,7 +170,7 @@ function VocabularyTrainer() {
 
                     <div className="vocab-answers">
                         {answers.map((answerIndex) => {
-                            const entry = VOCAB_SET[answerIndex];
+                            const entry = dataset[answerIndex];
                             const answerText = isVocabToTranslation ? entry.translation : entry.japanese;
                             let cls = "vocab-answer";
 

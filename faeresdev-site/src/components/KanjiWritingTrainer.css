@@ -317,3 +317,36 @@
         grid-template-columns: 1fr;
     }
 }
+
+.kwt-deck-selector {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 14px 0;
+}
+
+.kwt-deck-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-soft);
+    white-space: nowrap;
+}
+
+.kwt-deck-select {
+    flex: 1;
+    padding: 7px 10px;
+    border: 1px solid var(--surface-border);
+    border-radius: 10px;
+    background: var(--surface-top);
+    color: var(--text-main);
+    font-size: 0.88rem;
+    outline: none;
+    cursor: pointer;
+    min-width: 0;
+}
+
+.kwt-deck-select:focus {
+    border-color: var(--brand-start);
+}

@@ -11,6 +11,7 @@ import KanjiTrainer from "./KanjiTrainer.jsx";
 import KanjiWritingTrainer from "./KanjiWritingTrainer.jsx";
 import JapaneseSentenceColorTrainer from "./JapaneseSentenceColorTrainer.jsx";
 import VocabularyTrainer from "./VocabularyTrainer.jsx";
+import DeckManager from "./DeckManager.jsx";
 import Home from "./Home.jsx";
 import PokemonEncounterGenerator from "./PokemonEncounterGenerator.jsx";
 const { Header,Footer,Content } = Layout;
@@ -37,6 +38,7 @@ const items = [
             {key: '/kanji-writing-trainer',label: 'Kanji Writing Trainer'},
             {key: '/japanese-sentence-color-trainer',label: 'Japanese sentences tokens training'},
             {key: '/vocabulary-training',label: 'Vocabulary Training'},
+            {key: '/deck-manager',label: 'Deck Manager'},
         ],
     },
 ];
@@ -73,6 +75,7 @@ function App() {
                 <Route path="/japanese-sentence-color-trainer" element={<JapaneseSentenceColorTrainer />} />
                 <Route path="/pokemon-encounter-generator" element={<PokemonEncounterGenerator />} />
                 <Route path="/vocabulary-training" element={<VocabularyTrainer />} />
+                <Route path="/deck-manager" element={<DeckManager />} />
                 <Route path="*" element={<Home />} />
             </Routes>
         </Content>

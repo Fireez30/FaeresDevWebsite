@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import "./KanjiTrainer.css";
 import { KANJI_SET, KANJI_SET_NOTE } from "../data/kanjiTrainingData.js";
+import { listDecks, getDeck } from "../api/decksApi.js";
 
 const STEPS_FOR_MODE = {
     "kanji-to-translation": ["translation", "kun", "on"],
@@ -21,30 +22,29 @@ const STEP_NAME = {
     kanji: "Kanji",
 };
 
-function getRandomIndex(excludedIndex = -1) {
-    let idx = Math.floor(Math.random() * KANJI_SET.length);
-    while (KANJI_SET.length > 1 && idx === excludedIndex) {
-        idx = Math.floor(Math.random() * KANJI_SET.length);
+function getRandomIndex(dataset, excludedIndex = -1) {
+    let idx = Math.floor(Math.random() * dataset.length);
+    while (dataset.length > 1 && idx === excludedIndex) {
+        idx = Math.floor(Math.random() * dataset.length);
     }
     return idx;
 }
 
-function buildDistractors(correctIdx, step) {
-    const correctValue = KANJI_SET[correctIdx][step];
+function buildDistractors(dataset, correctIdx, step) {
+    const correctValue = dataset[correctIdx][step];
     const pool = [correctIdx];
     const usedValues = new Set([correctValue]);
 
     for (let attempts = 0; attempts < 200 && pool.length < 3; attempts++) {
-        const candidate = Math.floor(Math.random() * KANJI_SET.length);
-        const candidateValue = KANJI_SET[candidate][step];
+        const candidate = Math.floor(Math.random() * dataset.length);
+        const candidateValue = dataset[candidate][step];
         if (!pool.includes(candidate) && !usedValues.has(candidateValue)) {
             pool.push(candidate);
             usedValues.add(candidateValue);
         }
     }
 
-    // Fallback: allow value collisions if the dataset doesn't have enough unique values
-    for (let i = 0; pool.length < 3 && i < KANJI_SET.length; i++) {
+    for (let i = 0; pool.length < 3 && i < dataset.length; i++) {
         if (!pool.includes(i)) pool.push(i);
     }
 
@@ -62,19 +62,75 @@ function renderAnswerContent(entry, step) {
     return <span className="kanji-answer-main">{value}</span>;
 }
 
+function DeckSelector({ availableDecks, activeDeckId, onSelect }) {
+    if (availableDecks === null) return null;
+    return (
+        <div className="kanji-deck-selector">
+            <label className="kanji-deck-label">Deck</label>
+            <select
+                className="kanji-deck-select"
+                value={activeDeckId ?? ""}
+                onChange={e => onSelect(e.target.value || null)}
+            >
+                <option value="">Default (built-in)</option>
+                {availableDecks.map(d => (
+                    <option key={d.id} value={d.id}>{d.name} ({d.entryCount} entries)</option>
+                ))}
+            </select>
+        </div>
+    );
+}
+
 function KanjiTrainer() {
+    const [availableDecks, setAvailableDecks] = useState(null);
+    const [activeDeckId, setActiveDeckId] = useState(null);
+    const [dataset, setDataset] = useState(KANJI_SET);
+
     const [quizMode, setQuizMode] = useState("kanji-to-translation");
     const [stepIndex, setStepIndex] = useState(0);
     const [{ kanjiIdx, answers }, setQuestionState] = useState(() => {
-        const ki = getRandomIndex();
-        return { kanjiIdx: ki, answers: buildDistractors(ki, STEPS_FOR_MODE["kanji-to-translation"][0]) };
+        const ki = getRandomIndex(KANJI_SET);
+        return { kanjiIdx: ki, answers: buildDistractors(KANJI_SET, ki, STEPS_FOR_MODE["kanji-to-translation"][0]) };
     });
     const [selectedAnswer, setSelectedAnswer] = useState(null);
     const [score, setScore] = useState({ correct: 0, total: 0 });
 
+    useEffect(() => {
+        listDecks()
+            .then(decks => setAvailableDecks(decks.filter(d => d.type === "kanji")))
+            .catch(() => setAvailableDecks(null));
+    }, []);
+
+    const resetQuiz = useCallback((newDataset, mode) => {
+        const steps = STEPS_FOR_MODE[mode];
+        const ki = getRandomIndex(newDataset);
+        setQuestionState({ kanjiIdx: ki, answers: buildDistractors(newDataset, ki, steps[0]) });
+        setStepIndex(0);
+        setSelectedAnswer(null);
+        setScore({ correct: 0, total: 0 });
+    }, []);
+
+    const handleDeckSelect = async (deckId) => {
+        setActiveDeckId(deckId);
+        if (!deckId) {
+            setDataset(KANJI_SET);
+            resetQuiz(KANJI_SET, quizMode);
+        } else {
+            try {
+                const deck = await getDeck(deckId);
+                const newDataset = deck.entries.length >= 3 ? deck.entries : KANJI_SET;
+                setDataset(newDataset);
+                resetQuiz(newDataset, quizMode);
+            } catch {
+                setDataset(KANJI_SET);
+                resetQuiz(KANJI_SET, quizMode);
+            }
+        }
+    };
+
     const steps = STEPS_FOR_MODE[quizMode];
     const currentStep = steps[stepIndex];
-    const currentKanji = KANJI_SET[kanjiIdx];
+    const currentKanji = dataset[kanjiIdx];
     const hasAnswered = selectedAnswer !== null;
     const isCorrect = selectedAnswer === kanjiIdx;
     const isLastStep = stepIndex === steps.length - 1;
@@ -95,14 +151,14 @@ function KanjiTrainer() {
 
     const goNext = () => {
         if (isLastStep) {
-            const newKi = getRandomIndex(kanjiIdx);
-            setQuestionState({ kanjiIdx: newKi, answers: buildDistractors(newKi, steps[0]) });
+            const newKi = getRandomIndex(dataset, kanjiIdx);
+            setQuestionState({ kanjiIdx: newKi, answers: buildDistractors(dataset, newKi, steps[0]) });
             setStepIndex(0);
         } else {
             const nextStepIdx = stepIndex + 1;
             setQuestionState(prev => ({
                 ...prev,
-                answers: buildDistractors(prev.kanjiIdx, steps[nextStepIdx]),
+                answers: buildDistractors(dataset, prev.kanjiIdx, steps[nextStepIdx]),
             }));
             setStepIndex(nextStepIdx);
         }
@@ -111,15 +167,17 @@ function KanjiTrainer() {
 
     const switchQuizMode = (nextMode) => {
         const nextSteps = STEPS_FOR_MODE[nextMode];
-        const ki = getRandomIndex(kanjiIdx);
+        const ki = getRandomIndex(dataset, kanjiIdx);
         setQuizMode(nextMode);
-        setQuestionState({ kanjiIdx: ki, answers: buildDistractors(ki, nextSteps[0]) });
+        setQuestionState({ kanjiIdx: ki, answers: buildDistractors(dataset, ki, nextSteps[0]) });
         setStepIndex(0);
         setSelectedAnswer(null);
     };
 
     const promptContent = quizMode === "kanji-to-translation" ? currentKanji.kanji : currentKanji.translation;
     const isTranslationPrompt = quizMode === "translation-to-kanji";
+
+    const usingBuiltIn = !activeDeckId;
 
     return (
         <div className="kanji-page">
@@ -131,6 +189,11 @@ function KanjiTrainer() {
                             ? "A kanji is shown — choose the correct translation, then the Kun reading, then the On reading."
                             : "An English meaning is shown — choose the correct kanji, then the Kun reading, then the On reading."}
                     </p>
+                    <DeckSelector
+                        availableDecks={availableDecks}
+                        activeDeckId={activeDeckId}
+                        onSelect={handleDeckSelect}
+                    />
                     <div className="kanji-mode-switch">
                         <button
                             className={`kanji-mode-button ${quizMode === "kanji-to-translation" ? "is-active" : ""}`}
@@ -147,9 +210,11 @@ function KanjiTrainer() {
                             Translation to Kanji
                         </button>
                     </div>
-                    <p className="kanji-maintenance-note">
-                        {KANJI_SET_NOTE} File: <strong>src/data/kanjiTrainingData.js</strong>
-                    </p>
+                    {usingBuiltIn && (
+                        <p className="kanji-maintenance-note">
+                            {KANJI_SET_NOTE} File: <strong>src/data/kanjiTrainingData.js</strong>
+                        </p>
+                    )}
                 </div>
 
                 <div className="kanji-card">
@@ -180,7 +245,7 @@ function KanjiTrainer() {
 
                     <div className="kanji-answers">
                         {answers.map((answerIndex) => {
-                            const answerEntry = KANJI_SET[answerIndex];
+                            const answerEntry = dataset[answerIndex];
                             let answerClass = "kanji-answer";
 
                             if (hasAnswered && answerIndex === selectedAnswer) {

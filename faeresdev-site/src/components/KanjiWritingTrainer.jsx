@@ -1,6 +1,7 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import "./KanjiWritingTrainer.css";
 import { KANJI_SET } from "../data/kanjiTrainingData.js";
+import { listDecks, getDeck } from "../api/decksApi.js";
 
 const CANVAS_SIZE = 220;
 
@@ -18,19 +19,19 @@ function getStrokeOrderUrl(kanjiStr) {
     return `https://cdn.jsdelivr.net/gh/KanjiVG/kanjivg/kanji/${hex}.svg`;
 }
 
-function getRandomIndex(excluded = -1) {
-    let idx = Math.floor(Math.random() * KANJI_SET.length);
-    while (KANJI_SET.length > 1 && idx === excluded) {
-        idx = Math.floor(Math.random() * KANJI_SET.length);
+function getRandomIndex(dataset, excluded = -1) {
+    let idx = Math.floor(Math.random() * dataset.length);
+    while (dataset.length > 1 && idx === excluded) {
+        idx = Math.floor(Math.random() * dataset.length);
     }
     return idx;
 }
 
-function buildQuestion(previousIndex = -1) {
-    const correctIndex = getRandomIndex(previousIndex);
+function buildQuestion(dataset, previousIndex = -1) {
+    const correctIndex = getRandomIndex(dataset, previousIndex);
     const distractors = [];
     while (distractors.length < 2) {
-        const idx = getRandomIndex(previousIndex);
+        const idx = getRandomIndex(dataset, previousIndex);
         if (idx !== correctIndex && !distractors.includes(idx)) {
             distractors.push(idx);
         }
@@ -39,8 +40,31 @@ function buildQuestion(previousIndex = -1) {
     return { correctIndex, kunOptions };
 }
 
+function DeckSelector({ availableDecks, activeDeckId, onSelect }) {
+    if (availableDecks === null) return null;
+    return (
+        <div className="kwt-deck-selector">
+            <label className="kwt-deck-label">Deck</label>
+            <select
+                className="kwt-deck-select"
+                value={activeDeckId ?? ""}
+                onChange={e => onSelect(e.target.value || null)}
+            >
+                <option value="">Default (built-in)</option>
+                {availableDecks.map(d => (
+                    <option key={d.id} value={d.id}>{d.name} ({d.entryCount} entries)</option>
+                ))}
+            </select>
+        </div>
+    );
+}
+
 function KanjiWritingTrainer() {
-    const [question, setQuestion] = useState(() => buildQuestion());
+    const [availableDecks, setAvailableDecks] = useState(null);
+    const [activeDeckId, setActiveDeckId] = useState(null);
+    const [dataset, setDataset] = useState(KANJI_SET);
+
+    const [question, setQuestion] = useState(() => buildQuestion(KANJI_SET));
     const [selectedKun, setSelectedKun] = useState(null);
     const [isValidated, setIsValidated] = useState(false);
     const [score, setScore] = useState({ correct: 0, total: 0 });
@@ -52,7 +76,39 @@ function KanjiWritingTrainer() {
     const currentStrokeRef = useRef(null);
     const isDrawingRef = useRef(false);
 
-    const currentKanji = KANJI_SET[question.correctIndex];
+    useEffect(() => {
+        listDecks()
+            .then(decks => setAvailableDecks(decks.filter(d => d.type === "kanji")))
+            .catch(() => setAvailableDecks(null));
+    }, []);
+
+    const resetQuiz = useCallback((newDataset) => {
+        setQuestion(buildQuestion(newDataset));
+        setSelectedKun(null);
+        setIsValidated(false);
+        setSvgError(false);
+        setScore({ correct: 0, total: 0 });
+    }, []);
+
+    const handleDeckSelect = async (deckId) => {
+        setActiveDeckId(deckId);
+        if (!deckId) {
+            setDataset(KANJI_SET);
+            resetQuiz(KANJI_SET);
+        } else {
+            try {
+                const deck = await getDeck(deckId);
+                const newDataset = deck.entries.length >= 3 ? deck.entries : KANJI_SET;
+                setDataset(newDataset);
+                resetQuiz(newDataset);
+            } catch {
+                setDataset(KANJI_SET);
+                resetQuiz(KANJI_SET);
+            }
+        }
+    };
+
+    const currentKanji = dataset[question.correctIndex];
     const hasDrawn = strokeCount > 0;
     const canValidate = selectedKun !== null && hasDrawn;
     const isKunCorrect = isValidated && selectedKun === question.correctIndex;
@@ -99,7 +155,6 @@ function KanjiWritingTrainer() {
         currentStrokeRef.current = null;
         isDrawingRef.current = false;
         setStrokeCount(0);
-        // Defer until after the DOM update so canvasRef is available
         requestAnimationFrame(redrawCanvas);
     }, [question]);
 
@@ -171,7 +226,7 @@ function KanjiWritingTrainer() {
     };
 
     const goToNext = () => {
-        setQuestion(buildQuestion(question.correctIndex));
+        setQuestion(buildQuestion(dataset, question.correctIndex));
         setSelectedKun(null);
         setIsValidated(false);
         setSvgError(false);
@@ -195,6 +250,11 @@ function KanjiWritingTrainer() {
                         canvas, then select its kun reading. Click Validate to reveal the
                         correct stroke order.
                     </p>
+                    <DeckSelector
+                        availableDecks={availableDecks}
+                        activeDeckId={activeDeckId}
+                        onSelect={handleDeckSelect}
+                    />
                     <div className={`kanji-score kanji-score-main ${scoreState}`}>
                         Score: <strong>{score.correct} / {score.total}</strong>
                     </div>
@@ -254,7 +314,7 @@ function KanjiWritingTrainer() {
                         <span className="kwt-section-label">Select the kun reading:</span>
                         <div className="kwt-kun-options">
                             {question.kunOptions.map((idx) => {
-                                const entry = KANJI_SET[idx];
+                                const entry = dataset[idx];
                                 let cls = "kwt-kun-btn";
                                 if (selectedKun === idx) cls += " is-selected";
                                 if (isValidated) {
