@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Button, Checkbox, Input, Select, Spin } from "antd";
-import pokemonsData from "../data/pokemon.json";
+import { fetchPokemon } from "../api/pokemonApi.js";
 import "./PokemonTeamCard.css";
 
 const TEAM_SIZE = 6;
@@ -15,22 +15,6 @@ const rarityOptions = [
     { value: "platine", label: "Platine" },
 ];
 
-const uniquePokemons = Array.from(
-    new Map(pokemonsData.map((pokemon) => [pokemon.name, pokemon])).values(),
-);
-
-const pokemonOptions = [...uniquePokemons]
-    .sort((a, b) => a.name.localeCompare(b.name))
-    .map((pokemon) => ({
-        value: pokemon.name,
-        label: pokemon.name
-            .split(" ")
-            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-            .join(" "),
-    }));
-
-const pokemonByName = new Map(uniquePokemons.map((pokemon) => [pokemon.name, pokemon]));
-const pokemonLabelByName = new Map(pokemonOptions.map((option) => [option.value, option.label]));
 const pokemonTypeOptions = [
     "Bug",
     "Dark",
@@ -353,6 +337,36 @@ function drawWrappedText(context, text, x, y, maxWidth, lineHeight, maxLines) {
 }
 
 function PokemonTeamCard() {
+    const [pokemonList, setPokemonList] = useState([]);
+    const [dataLoading, setDataLoading] = useState(true);
+
+    useEffect(() => {
+        fetchPokemon()
+            .then((data) => { setPokemonList(data); setDataLoading(false); })
+            .catch(() => setDataLoading(false));
+    }, []);
+
+    const uniquePokemons = useMemo(() =>
+        Array.from(new Map(pokemonList.map((p) => [p.name, p])).values()),
+        [pokemonList]);
+
+    const pokemonOptions = useMemo(() =>
+        [...uniquePokemons]
+            .sort((a, b) => a.name.localeCompare(b.name))
+            .map((p) => ({
+                value: p.name,
+                label: p.name.split(" ").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" "),
+            })),
+        [uniquePokemons]);
+
+    const pokemonByName = useMemo(() =>
+        new Map(uniquePokemons.map((p) => [p.name, p])),
+        [uniquePokemons]);
+
+    const pokemonLabelByName = useMemo(() =>
+        new Map(pokemonOptions.map((o) => [o.value, o.label])),
+        [pokemonOptions]);
+
     const [team, setTeam] = useState(Array(TEAM_SIZE).fill(""));
     const [teamLevels, setTeamLevels] = useState(Array(TEAM_SIZE).fill(""));
     const [teamRarities, setTeamRarities] = useState(Array(TEAM_SIZE).fill("normal"));
@@ -407,7 +421,7 @@ function PokemonTeamCard() {
         return () => {
             isActive = false;
         };
-    }, [team]);
+    }, [team, pokemonByName, pokemonLabelByName]);
 
     useEffect(() => {
         let isActive = true;
@@ -688,6 +702,10 @@ function PokemonTeamCard() {
         link.href = cardPreviewUrl;
         link.download = buildDownloadFileName(teamName.trim() || DEFAULT_TEAM_NAME);
         link.click();
+    }
+
+    if (dataLoading) {
+        return <div className="pokemon-team-card-page"><p style={{ padding: "2rem" }}>Loading Pokémon data…</p></div>;
     }
 
     return (

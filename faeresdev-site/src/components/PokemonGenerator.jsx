@@ -1,13 +1,11 @@
 import { useSelector,useDispatch } from "react-redux";
 import Form from 'react-bootstrap/Form';
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import './PokemonGenerator.css';
-import movesData from "../data/moves.json";
-import pokemonsData from "../data/pokemon.json";
-import abilitiesData from "../data/abilities.json";
+import { fetchPokemon, fetchMoves, fetchAbilities } from "../api/pokemonApi.js";
 import Button from 'react-bootstrap/Button';
 import Table from 'react-bootstrap/Table';
-import {AutoComplete, InputNumber, Dropdown, Select} from 'antd';
+import {AutoComplete, Input, InputNumber, Dropdown, Select} from 'antd';
 import {
     addMovePokemonTMHMMoves,removeMovePokemonTMHMMoves,addMovePokemonChosenMoves, addMovePokemonEggMoves, addMovePokemonLockedEggMoves, addMovePokemonLockedMoves,
     choose_pokemon, decrement_remaining_rolls, removeMovePokemonChosenMoves, removeMovePokemonEggMoves,
@@ -17,8 +15,10 @@ import {
     setCard,
     setGender, setHighAbility,
     setLevel, setLoweredStat, setPointsByStat, setPokemonChosenMoves,
-    setRarity
+    setRarity, resetCard, loadCard
 } from "../features/pokemon/pokemonSlice.jsx";
+import { listCards, getCard, createCard, updateCard, deleteCard } from "../api/pokemonCardsApi.js";
+import { listTeams, getTeam, updateTeam } from "../api/teamsApi.js";
 import {DropdownButton} from "react-bootstrap";
 
 function download(data, filename, type) {
@@ -293,13 +293,155 @@ function PokemonGenerator() {
     const remaining_rolls = useSelector((state) => state.pokemon.remaining_rolls);
     const img_pokemon_src = "https://img.pokemondb.net/artwork/"+choosen_pokemon+".jpg"
     const local_png_img = "/images/"+choosen_pokemon.toLowerCase().replace(" (","_(").replace(") ",")_").replace(" ","_")+".png"
+    const [nickname, setNickname] = useState('');
+    const [notes, setNotes] = useState('');
+    const [serverCards, setServerCards] = useState([]);
+    const [cardServerId, setCardServerId] = useState(null);
+    const [autoSaveStatus, setAutoSaveStatus] = useState('idle');
+    const [serverDown, setServerDown] = useState(false);
+    const [selectedServerCardId, setSelectedServerCardId] = useState(undefined);
+    const cardServerIdRef = useRef(null);
+    const suppressNextAutoSaveRef = useRef(false);
+
+    const [availableTeams, setAvailableTeams] = useState([]);
+    const [addTeamId, setAddTeamId] = useState(undefined);
+    const [addTeamSlots, setAddTeamSlots] = useState(null);
+    const [addSlotIndex, setAddSlotIndex] = useState(undefined);
+    const [addingToTeam, setAddingToTeam] = useState(false);
+
     useEffect(() => {
-        setMoves(movesData);
-        setPokemons(pokemonsData);
-        setAbilities(abilitiesData);
+        fetchPokemon().then(setPokemons).catch(() => {});
+        fetchMoves().then(setMoves).catch(() => {});
+        fetchAbilities().then(setAbilities).catch(() => {});
+    }, []);
+
+    useEffect(() => {
+        listCards()
+            .then(cards => { setServerCards(cards); setServerDown(false); })
+            .catch(() => setServerDown(true));
+    }, []);
+
+    useEffect(() => {
+        listTeams().then(setAvailableTeams).catch(() => {});
     }, []);
 
     const ready_to_generate = (level > 0 && rarity !== "" && card !== "" && gender !== "" && final_buffed_stat !== "" && final_lowered_stat !== "" && available_points <= 0)
+
+    useEffect(() => {
+        if (!nickname.trim() || !ready_to_generate) return;
+        if (suppressNextAutoSaveRef.current) {
+            suppressNextAutoSaveRef.current = false;
+            return;
+        }
+        const snapshot = {
+            chosen_pokemon: choosen_pokemon, pokemon_level: level, pokemon_rarity: rarity,
+            pokemon_card: card, pokemon_gender: gender, pokemon_final_buffed_stat: final_buffed_stat,
+            pokemon_final_lowered_stat: final_lowered_stat, pokemon_base_ability: base_ability,
+            pokemon_advanced_ability: advanced_ability, pokemon_high_ability: high_ability,
+            pokemon_points_by_stats: points_by_stats, pokemon_chosen_moves: chosen_moves,
+            pokemon_chosen_egg_moves: egg_moves, pokemon_chosen_tmhm_moves: tmhm_moves,
+            pokemon_locked_egg_moves: locked_egg_moves, remaining_rolls,
+        };
+        const timer = setTimeout(async () => {
+            setAutoSaveStatus('saving');
+            try {
+                const currentId = cardServerIdRef.current;
+                if (!currentId) {
+                    const created = await createCard(nickname, choosen_pokemon, snapshot, notes);
+                    cardServerIdRef.current = created.id;
+                    setCardServerId(created.id);
+                    setServerCards(prev => [...prev, { id: created.id, nickname: created.nickname, pokemonName: created.pokemonName, createdAt: created.createdAt }]);
+                } else {
+                    await updateCard(currentId, { nickname, pokemonName: choosen_pokemon, state: snapshot, notes });
+                    setServerCards(prev => prev.map(c => c.id === currentId ? { ...c, nickname, pokemonName: choosen_pokemon } : c));
+                }
+                setAutoSaveStatus('saved');
+            } catch {
+                setAutoSaveStatus('error');
+            }
+        }, 1500);
+        return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [nickname, notes, ready_to_generate, choosen_pokemon, level, rarity, card, gender, final_buffed_stat, final_lowered_stat, base_ability, advanced_ability, high_ability, points_by_stats, chosen_moves, egg_moves, tmhm_moves, locked_egg_moves]);
+
+    async function handleLoadServerCard() {
+        if (!selectedServerCardId) return;
+        try {
+            const serverCard = await getCard(selectedServerCardId);
+            suppressNextAutoSaveRef.current = true;
+            dispatch(loadCard(serverCard.state));
+            setNickname(serverCard.nickname);
+            setNotes(serverCard.notes || '');
+            setCardServerId(serverCard.id);
+            cardServerIdRef.current = serverCard.id;
+            setAutoSaveStatus('saved');
+            setSelectedServerCardId(undefined);
+        } catch {
+            alert('Failed to load card from server.');
+        }
+    }
+
+    async function handleDeleteServerCard() {
+        if (!cardServerId) return;
+        if (!window.confirm('Delete this card from the server? This cannot be undone.')) return;
+        try {
+            await deleteCard(cardServerId);
+            setServerCards(prev => prev.filter(c => c.id !== cardServerId));
+            setCardServerId(null);
+            cardServerIdRef.current = null;
+            setAutoSaveStatus('idle');
+        } catch {
+            alert('Failed to delete card from server.');
+        }
+    }
+
+    function handleNewCard() {
+        dispatch(resetCard());
+        setNickname('');
+        setNotes('');
+        setCardServerId(null);
+        cardServerIdRef.current = null;
+        setAutoSaveStatus('idle');
+        setSelectedServerCardId(undefined);
+    }
+
+    async function handleSelectAddTeam(teamId) {
+        setAddTeamId(teamId);
+        setAddSlotIndex(undefined);
+        setAddTeamSlots(null);
+        if (!teamId) return;
+        try {
+            const t = await getTeam(teamId);
+            setAddTeamSlots(t.slots || Array(6).fill(null));
+        } catch {}
+    }
+
+    async function handleAddToTeam() {
+        if (!cardServerId || addTeamId === undefined || addSlotIndex === undefined) return;
+        setAddingToTeam(true);
+        try {
+            const t = await getTeam(addTeamId);
+            const slots = [...(t.slots || Array(6).fill(null))];
+            slots[addSlotIndex] = {
+                cardId: cardServerId,
+                pokemonName: choosen_pokemon,
+                nickname: nickname || choosen_pokemon,
+                level: String(level || ""),
+                rarity: (rarity || "Normal").toLowerCase(),
+                isMega: false,
+            };
+            await updateTeam(addTeamId, { slots });
+            setAddTeamSlots(slots);
+            setAvailableTeams(prev => prev.map(tm => tm.id === addTeamId ? { ...tm, slotCount: slots.filter(Boolean).length } : tm));
+        } catch {
+            alert("Impossible d'ajouter le Pokémon à l'équipe.");
+        } finally {
+            setAddingToTeam(false);
+        }
+    }
+
+    const autoSaveLabel = autoSaveStatus === 'saving' ? 'Saving…' : autoSaveStatus === 'saved' ? 'Saved' : autoSaveStatus === 'error' ? 'Save failed' : null;
+
     return (
         <div className="pokemon-generator-page">
             {
@@ -441,6 +583,71 @@ function PokemonGenerator() {
             <div className="pokemon-generator-main">
                 <h1 className="pokemon-generator-title">Pokemon Generator</h1>
 
+                <div className="pokemon-generator-server-section">
+                    <div className="pokemon-generator-nickname-row">
+                        <span>Nickname :</span>
+                        <Input
+                            value={nickname}
+                            onChange={e => setNickname(e.target.value)}
+                            placeholder="Surnom (requis pour sauvegarder)"
+                            style={{width: '42%'}}
+                        />
+                        {nickname.trim() && autoSaveLabel ? (
+                            <span className={`pokemon-generator-autosave pokemon-generator-autosave--${autoSaveStatus}`}>
+                                {autoSaveLabel}
+                            </span>
+                        ) : null}
+                    </div>
+                    {!serverDown ? (
+                        <div className="pokemon-generator-server-row">
+                            <Select
+                                placeholder="Charger depuis le serveur…"
+                                value={selectedServerCardId}
+                                onChange={setSelectedServerCardId}
+                                options={serverCards.map(c => ({ value: c.id, label: `${c.nickname} (${c.pokemonName})` }))}
+                                style={{width: '42%'}}
+                            />
+                            <button type="button" onClick={handleLoadServerCard} disabled={!selectedServerCardId}>Charger</button>
+                            <button type="button" onClick={handleNewCard}>Nouvelle fiche</button>
+                            {cardServerId ? (
+                                <button type="button" className="pokemon-generator-delete-btn" onClick={handleDeleteServerCard}>Supprimer</button>
+                            ) : null}
+                        </div>
+                    ) : (
+                        <p className="pokemon-generator-server-warning">Serveur indisponible — les fiches ne seront pas sauvegardées automatiquement.</p>
+                    )}
+                    {cardServerId && availableTeams.length > 0 ? (
+                        <div className="pokemon-generator-add-team">
+                            <span>Ajouter à une équipe :</span>
+                            <Select
+                                placeholder="Équipe…"
+                                value={addTeamId}
+                                onChange={handleSelectAddTeam}
+                                options={availableTeams.map(t => ({ value: t.id, label: t.name }))}
+                                style={{minWidth: '160px'}}
+                                allowClear
+                            />
+                            <Select
+                                placeholder="Slot…"
+                                value={addSlotIndex}
+                                onChange={setAddSlotIndex}
+                                disabled={!addTeamSlots}
+                                style={{minWidth: '160px'}}
+                                options={(addTeamSlots || Array(6).fill(null)).map((s, i) => ({
+                                    value: i,
+                                    label: `Slot ${i + 1}${s ? ` — ${s.nickname || s.pokemonName}` : ' (vide)'}`,
+                                }))}
+                            />
+                            <button
+                                type="button"
+                                onClick={handleAddToTeam}
+                                disabled={addingToTeam || addSlotIndex === undefined || !addTeamId}
+                            >
+                                {addingToTeam ? 'Ajout…' : 'Ajouter'}
+                            </button>
+                        </div>
+                    ) : null}
+                </div>
 
                 Pokemon : <Select
                 showSearch
@@ -950,6 +1157,15 @@ function PokemonGenerator() {
                     </Select>
                         <br></br>
                         <br></br>
+                        <h2>Notes :</h2>
+                        <Input.TextArea
+                            value={notes}
+                            onChange={e => setNotes(e.target.value)}
+                            placeholder="Notes libres sur ce Pokémon…"
+                            autoSize={{ minRows: 3, maxRows: 8 }}
+                            style={{ borderRadius: 14, background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--text-main)', width: '70%' }}
+                        />
+                        <br></br>
                         <br></br>
                         <div>
                             <table style={{alignContent:"center",width:"100%"}}>
@@ -1206,6 +1422,11 @@ function PokemonGenerator() {
                                         final += `${egg_move["move"]},`
                                     })
                                     final = final.substring(0,final.length-1);
+                                }
+
+                                if (notes.trim()) {
+                                    final += `\n\n`
+                                    final += notes.trim();
                                 }
 
                                 console.log(final)
@@ -1611,6 +1832,9 @@ function PokemonGenerator() {
                                         : tmhm_moves.map(e=>e.move).join(", ")
                                 }</p>`;
 
+                                if (notes.trim()) {
+                                    container.innerHTML += `<p>${notes.trim().replace(/\n/g, "<br>")}</p>`;
+                                }
 
                                 /* COPY AS RICH TEXT */
 

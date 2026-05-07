@@ -1,0 +1,353 @@
+.ptm-page {
+    display: grid;
+    gap: 24px;
+    color: var(--text-main);
+}
+
+.ptm-panel {
+    background: linear-gradient(180deg, var(--surface-top) 0%, var(--surface-bottom) 100%);
+    border: 1px solid var(--surface-border);
+    border-radius: 28px;
+    box-shadow: 0 20px 46px var(--surface-shadow);
+    padding: 28px;
+}
+
+.ptm-header-panel h1 {
+    margin: 0;
+    color: var(--title-color);
+    font-size: clamp(2rem, 4vw, 3rem);
+    letter-spacing: -0.04em;
+    line-height: 0.95;
+}
+
+.ptm-subtitle {
+    margin: 10px 0 0;
+    color: var(--text-soft);
+    line-height: 1.6;
+}
+
+.ptm-header-top {
+    margin-bottom: 20px;
+}
+
+.ptm-controls-row {
+    display: grid;
+    gap: 14px;
+}
+
+.ptm-name-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.ptm-name-row .ant-input {
+    flex: 1;
+    border-radius: 14px !important;
+    background: var(--input-bg) !important;
+    border: 1px solid var(--input-border) !important;
+    color: var(--text-main) !important;
+}
+
+.ptm-type-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.92rem;
+    color: var(--text-soft);
+}
+
+.ptm-type-row .ant-select {
+    width: 180px;
+}
+
+.ptm-server-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.ptm-server-row .ant-select {
+    flex: 1;
+    min-width: 180px;
+}
+
+.ptm-server-warning {
+    margin: 0;
+    font-size: 0.82rem;
+    color: var(--text-soft);
+    font-style: italic;
+}
+
+.ptm-autosave {
+    font-size: 0.78rem;
+    font-weight: 700;
+    white-space: nowrap;
+    padding: 4px 10px;
+    border-radius: 999px;
+}
+
+.ptm-autosave--saving {
+    background: var(--muted-accent-bg);
+    color: var(--muted-accent-text);
+    border: 1px solid var(--muted-accent-border);
+}
+
+.ptm-autosave--saved {
+    background: rgba(34, 197, 94, 0.12);
+    color: #16a34a;
+    border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.ptm-autosave--error {
+    background: rgba(239, 68, 68, 0.12);
+    color: #dc2626;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* ── Body layout ── */
+.ptm-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 340px;
+    gap: 24px;
+    align-items: start;
+}
+
+/* ── Slots panel ── */
+.ptm-slots-panel h2 {
+    margin: 0 0 6px;
+    color: var(--heading-color);
+    letter-spacing: -0.03em;
+}
+
+.ptm-slots-hint {
+    margin: 0 0 20px;
+    color: var(--text-soft);
+    font-size: 0.88rem;
+}
+
+.ptm-slots-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.ptm-slot {
+    padding: 18px;
+    border-radius: 22px;
+    background: var(--panel-bg);
+    border: 1px dashed var(--panel-border);
+    display: grid;
+    gap: 12px;
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.ptm-slot--filled {
+    border-style: solid;
+    border-color: var(--muted-accent-border);
+    background: var(--muted-accent-bg);
+}
+
+.ptm-slot-number {
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    color: var(--muted-accent-text);
+    text-transform: uppercase;
+}
+
+.ptm-slot-pokemon-name {
+    font-weight: 700;
+    color: var(--heading-color);
+    font-size: 0.95rem;
+    text-transform: capitalize;
+}
+
+.ptm-slot-field {
+    display: grid;
+    gap: 6px;
+    font-size: 0.82rem;
+    color: var(--text-soft);
+    font-weight: 600;
+}
+
+.ptm-slot-field .ant-select,
+.ptm-slot-field .ant-input {
+    border-radius: 12px !important;
+    background: var(--input-bg) !important;
+    border: 1px solid var(--input-border) !important;
+    color: var(--text-main) !important;
+}
+
+.ptm-slot-fields-row {
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+}
+
+.ptm-slot-field--small {
+    flex: 1;
+    min-width: 80px;
+}
+
+.ptm-slot-meta {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.ptm-slot-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: var(--muted-accent-bg);
+    border: 1px solid var(--muted-accent-border);
+    color: var(--muted-accent-text);
+    font-size: 0.76rem;
+    font-weight: 700;
+}
+
+.ptm-slot-tag--rarity {
+    background: rgba(245, 158, 11, 0.12);
+    border-color: rgba(245, 158, 11, 0.35);
+    color: #b45309;
+}
+
+.ptm-slot-mega {
+    color: var(--text-soft) !important;
+    font-size: 0.82rem !important;
+}
+
+/* ── Card panel ── */
+.ptm-card-panel {
+    position: sticky;
+    top: 24px;
+}
+
+.ptm-card-panel h2 {
+    margin: 0 0 16px;
+    color: var(--heading-color);
+    letter-spacing: -0.03em;
+}
+
+.ptm-upload-label {
+    display: grid;
+    gap: 6px;
+    font-size: 0.82rem;
+    color: var(--text-soft);
+    font-weight: 600;
+    margin-bottom: 14px;
+}
+
+.ptm-upload-label input[type="file"] {
+    font-size: 0.82rem;
+    color: var(--text-soft);
+}
+
+.ptm-card-status {
+    min-height: 20px;
+    margin-bottom: 12px;
+}
+
+.ptm-card-status p {
+    margin: 0 0 4px;
+    font-size: 0.82rem;
+    color: var(--text-soft);
+}
+
+.ptm-card-error {
+    color: #dc2626 !important;
+}
+
+.ptm-card-hint {
+    font-style: italic;
+}
+
+.ptm-card-empty {
+    padding: 24px;
+    border-radius: 18px;
+    background: var(--panel-bg);
+    border: 1px dashed var(--panel-border);
+    text-align: center;
+    color: var(--text-soft);
+    font-size: 0.88rem;
+    margin-bottom: 16px;
+}
+
+.ptm-card-preview-frame {
+    position: relative;
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 16px;
+}
+
+.ptm-card-preview-frame img {
+    width: 100%;
+    display: block;
+    border-radius: 14px;
+}
+
+.ptm-card-loading {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.35);
+    border-radius: 14px;
+}
+
+/* Buttons */
+.ptm-page .ant-btn {
+    border-radius: 14px !important;
+    font-weight: 700 !important;
+}
+
+.ptm-page .ant-btn-primary {
+    background: linear-gradient(135deg, var(--brand-start) 0%, var(--brand-end) 100%) !important;
+    border: none !important;
+    color: var(--brand-text) !important;
+    box-shadow: 0 8px 18px var(--button-shadow);
+}
+
+.ptm-page .ant-btn-default:not(.ant-btn-dangerous) {
+    background: var(--panel-bg) !important;
+    border: 1px solid var(--panel-border) !important;
+    color: var(--text-main) !important;
+}
+
+/* Select / Input theming */
+.ptm-panel .ant-select-selector {
+    background: var(--input-bg) !important;
+    border: 1px solid var(--input-border) !important;
+    color: var(--text-main) !important;
+    border-radius: 12px !important;
+}
+
+.ptm-panel .ant-select-selection-item,
+.ptm-panel .ant-select-selection-placeholder {
+    color: var(--text-main) !important;
+}
+
+/* Responsive */
+@media (max-width: 1100px) {
+    .ptm-body {
+        grid-template-columns: 1fr;
+    }
+    .ptm-card-panel {
+        position: static;
+    }
+}
+
+@media (max-width: 720px) {
+    .ptm-panel {
+        padding: 18px;
+        border-radius: 22px;
+    }
+    .ptm-slots-grid {
+        grid-template-columns: 1fr;
+    }
+}

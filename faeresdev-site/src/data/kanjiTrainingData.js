@@ -22,4 +22,3 @@ export const KANJI_SET = [
 ];
 
 export const KANJI_SET_NOTE = "Update entries here with kanji, English translation, and kana readings to keep them permanently available in the Kanji training.";
-ss

@@ -10,9 +10,14 @@ function emptyVocabEntry() {
     return { japanese: "", translation: "" };
 }
 
+function emptyKatakanaEntry() {
+    return { katakana: "", translation: "" };
+}
+
 function DeckList({ decks, selectedId, onSelect, onNewDeck, serverDown }) {
     const kanjiDecks = decks.filter(d => d.type === "kanji");
     const vocabDecks = decks.filter(d => d.type === "vocabulary");
+    const katakanaDecks = decks.filter(d => d.type === "katakana");
 
     return (
         <div className="dm-sidebar">
@@ -56,6 +61,23 @@ function DeckList({ decks, selectedId, onSelect, onNewDeck, serverDown }) {
                 <div className="dm-group">
                     <span className="dm-group-label">Vocabulary</span>
                     {vocabDecks.map(d => (
+                        <button
+                            key={d.id}
+                            className={`dm-deck-item ${selectedId === d.id ? "is-selected" : ""}`}
+                            onClick={() => onSelect(d.id)}
+                            type="button"
+                        >
+                            <span className="dm-deck-name">{d.name}</span>
+                            <span className="dm-deck-count">{d.entryCount} entries</span>
+                        </button>
+                    ))}
+                </div>
+            )}
+
+            {katakanaDecks.length > 0 && (
+                <div className="dm-group">
+                    <span className="dm-group-label">Katakana</span>
+                    {katakanaDecks.map(d => (
                         <button
                             key={d.id}
                             className={`dm-deck-item ${selectedId === d.id ? "is-selected" : ""}`}
@@ -134,6 +156,30 @@ function VocabEntryRow({ entry, index, onChange, onRemove }) {
     );
 }
 
+function KatakanaEntryRow({ entry, index, onChange, onRemove }) {
+    return (
+        <div className="dm-entry-row">
+            <input
+                className="dm-entry-input dm-entry-japanese"
+                value={entry.katakana}
+                onChange={e => onChange(index, "katakana", e.target.value)}
+                placeholder="カタカナ"
+                aria-label="Katakana"
+            />
+            <input
+                className="dm-entry-input dm-entry-translation"
+                value={entry.translation}
+                onChange={e => onChange(index, "translation", e.target.value)}
+                placeholder="Translation"
+                aria-label="Translation"
+            />
+            <button className="dm-entry-remove" onClick={() => onRemove(index)} type="button" aria-label="Remove entry">
+                ×
+            </button>
+        </div>
+    );
+}
+
 function DeckEditor({ deck, onSaved, onDeleted }) {
     const [name, setName] = useState(deck.name);
     const [editingName, setEditingName] = useState(false);
@@ -168,7 +214,10 @@ function DeckEditor({ deck, onSaved, onDeleted }) {
     };
 
     const handleAddEntry = () => {
-        setEntries(prev => [...prev, deck.type === "kanji" ? emptyKanjiEntry() : emptyVocabEntry()]);
+        const empty = deck.type === "kanji" ? emptyKanjiEntry()
+            : deck.type === "katakana" ? emptyKatakanaEntry()
+            : emptyVocabEntry();
+        setEntries(prev => [...prev, empty]);
     };
 
     const handleRemoveEntry = (index) => {
@@ -200,6 +249,7 @@ function DeckEditor({ deck, onSaved, onDeleted }) {
     };
 
     const isKanji = deck.type === "kanji";
+    const isKatakana = deck.type === "katakana";
 
     return (
         <div className="dm-editor">
@@ -236,7 +286,14 @@ function DeckEditor({ deck, onSaved, onDeleted }) {
                         <span className="dm-col-spacer" />
                     </div>
                 )}
-                {!isKanji && (
+                {isKatakana && (
+                    <div className="dm-entry-header">
+                        <span className="dm-col-label dm-col-japanese">Katakana</span>
+                        <span className="dm-col-label dm-col-translation">Translation</span>
+                        <span className="dm-col-spacer" />
+                    </div>
+                )}
+                {!isKanji && !isKatakana && (
                     <div className="dm-entry-header">
                         <span className="dm-col-label dm-col-japanese">Japanese</span>
                         <span className="dm-col-label dm-col-translation">Translation</span>
@@ -248,6 +305,8 @@ function DeckEditor({ deck, onSaved, onDeleted }) {
                     {entries.map((entry, i) =>
                         isKanji ? (
                             <KanjiEntryRow key={i} entry={entry} index={i} onChange={handleEntryChange} onRemove={handleRemoveEntry} />
+                        ) : isKatakana ? (
+                            <KatakanaEntryRow key={i} entry={entry} index={i} onChange={handleEntryChange} onRemove={handleRemoveEntry} />
                         ) : (
                             <VocabEntryRow key={i} entry={entry} index={i} onChange={handleEntryChange} onRemove={handleRemoveEntry} />
                         )
@@ -320,6 +379,13 @@ function CreateDeckModal({ onConfirm, onCancel }) {
                         >
                             Vocabulary
                         </button>
+                        <button
+                            type="button"
+                            className={`dm-type-option ${type === "katakana" ? "is-selected" : ""}`}
+                            onClick={() => setType("katakana")}
+                        >
+                            Katakana
+                        </button>
                     </div>
                     <div className="dm-modal-actions">
                         <button type="button" className="dm-btn" onClick={onCancel}>Cancel</button>
@@ -384,7 +450,7 @@ function DeckManager() {
             <div className="dm-copy">
                 <h1>Deck Manager</h1>
                 <p className="dm-subtitle">
-                    Create custom decks of kanji or vocabulary entries. Once saved, you can select a deck in any training module.
+                    Create custom decks of kanji, vocabulary, or katakana entries. Once saved, you can select a deck in any training module.
                 </p>
             </div>
 

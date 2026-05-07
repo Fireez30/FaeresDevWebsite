@@ -7,6 +7,11 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': 'http://localhost:3001',
+      '/jisho-api': {
+        target: 'https://jisho.org',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/jisho-api/, ''),
+      },
     },
   },
 })

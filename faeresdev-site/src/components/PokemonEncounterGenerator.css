@@ -148,6 +148,61 @@
     display: none;
 }
 
+.encounter-generator-name-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.encounter-generator-name-row .ant-input {
+    flex: 1;
+}
+
+.encounter-autosave {
+    font-size: 0.78rem;
+    font-weight: 700;
+    white-space: nowrap;
+    padding: 4px 10px;
+    border-radius: 999px;
+}
+
+.encounter-autosave--saving {
+    background: var(--muted-accent-bg);
+    color: var(--muted-accent-text);
+    border: 1px solid var(--muted-accent-border);
+}
+
+.encounter-autosave--saved {
+    background: rgba(34, 197, 94, 0.12);
+    color: #16a34a;
+    border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.encounter-autosave--error {
+    background: rgba(239, 68, 68, 0.12);
+    color: #dc2626;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.encounter-server-zones {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.encounter-server-zones .ant-select {
+    flex: 1;
+    min-width: 160px;
+}
+
+.encounter-server-warning {
+    margin: 0;
+    font-size: 0.82rem;
+    color: var(--text-soft);
+    font-style: italic;
+}
+
 .encounter-generator-actions .ant-input,
 .encounter-generator-actions .ant-btn,
 .encounter-section__controls .ant-select,

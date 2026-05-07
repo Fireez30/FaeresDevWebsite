@@ -144,12 +144,53 @@ export const pokemonSlice = createSlice({
         removeMovePokemonLockedEggMoves(state, action) {
             let move_index = action.payload.pokemon_locked_egg_moves;
             state.pokemon_locked_egg_moves.splice(move_index, 1);
-
-        }
+        },
+        resetCard(state) {
+            state.remaining_rolls = 3;
+            state.chosen_pokemon = "";
+            state.pokemon_level = 0;
+            state.pokemon_rarity = "Normal";
+            state.pokemon_card = "None";
+            state.pokemon_gender = "";
+            state.pokemon_nature = "";
+            state.pokemon_final_buffed_stat = "";
+            state.pokemon_final_lowered_stat = "";
+            state.pokemon_base_ability = "";
+            state.pokemon_advanced_ability = "";
+            state.pokemon_high_ability = "";
+            state.pokemon_points_by_stats = {"HP":0,"ATK":0,"DEF":0,"SPATK":0,"SPDEF":0,"SPD":0};
+            state.pokemon_bonus_points_by_stats = {"HP":0,"ATK":0,"DEF":0,"SPATK":0,"SPDEF":0,"SPD":0};
+            state.pokemon_bonus_points_to_nature_stat = 0;
+            state.pokemon_chosen_moves = [];
+            state.pokemon_locked_moves = [];
+            state.pokemon_chosen_egg_moves = [];
+            state.pokemon_chosen_tmhm_moves = [];
+            state.pokemon_locked_egg_moves = [];
+        },
+        loadCard(state, action) {
+            const s = action.payload;
+            state.chosen_pokemon = s.chosen_pokemon ?? "";
+            state.pokemon_level = s.pokemon_level ?? 0;
+            state.pokemon_rarity = s.pokemon_rarity ?? "Normal";
+            state.pokemon_card = s.pokemon_card ?? "None";
+            state.pokemon_gender = s.pokemon_gender ?? "";
+            state.pokemon_nature = s.pokemon_nature ?? "";
+            state.pokemon_final_buffed_stat = s.pokemon_final_buffed_stat ?? "";
+            state.pokemon_final_lowered_stat = s.pokemon_final_lowered_stat ?? "";
+            state.pokemon_base_ability = s.pokemon_base_ability ?? "";
+            state.pokemon_advanced_ability = s.pokemon_advanced_ability ?? "";
+            state.pokemon_high_ability = s.pokemon_high_ability ?? "";
+            state.pokemon_points_by_stats = s.pokemon_points_by_stats ?? {"HP":0,"ATK":0,"DEF":0,"SPATK":0,"SPDEF":0,"SPD":0};
+            state.pokemon_chosen_moves = s.pokemon_chosen_moves ?? [];
+            state.pokemon_chosen_egg_moves = s.pokemon_chosen_egg_moves ?? [];
+            state.pokemon_chosen_tmhm_moves = s.pokemon_chosen_tmhm_moves ?? [];
+            state.pokemon_locked_egg_moves = s.pokemon_locked_egg_moves ?? [];
+            state.remaining_rolls = s.remaining_rolls ?? 3;
+        },
     }
 })
 
 // Action creators are generated for each case reducer function
-export const {addMovePokemonTMHMMoves,removeMovePokemonTMHMMoves,addMovePokemonLockedEggMoves,removeMovePokemonLockedEggMoves,addMovePokemonLockedMoves,removeMovePokemonLockedMoves,addMovePokemonEggMoves,removeMovePokemonEggMoves, decrement_remaining_rolls,choose_pokemon ,setLevel,setRarity,setCard, setGender,setNature,setBuffedStat,setLoweredStat,setBaseAbility,setAdvancedAbility,setHighAbility,setPointsByStat,setBonusPointsByStat,setBonusPointsToNatureStat,setPokemonChosenMoves,addMovePokemonChosenMoves,removeMovePokemonChosenMoves} = pokemonSlice.actions
+export const {addMovePokemonTMHMMoves,removeMovePokemonTMHMMoves,addMovePokemonLockedEggMoves,removeMovePokemonLockedEggMoves,addMovePokemonLockedMoves,removeMovePokemonLockedMoves,addMovePokemonEggMoves,removeMovePokemonEggMoves, decrement_remaining_rolls,choose_pokemon ,setLevel,setRarity,setCard, setGender,setNature,setBuffedStat,setLoweredStat,setBaseAbility,setAdvancedAbility,setHighAbility,setPointsByStat,setBonusPointsByStat,setBonusPointsToNatureStat,setPokemonChosenMoves,addMovePokemonChosenMoves,removeMovePokemonChosenMoves,resetCard,loadCard} = pokemonSlice.actions
 
 export default pokemonSlice.reducer

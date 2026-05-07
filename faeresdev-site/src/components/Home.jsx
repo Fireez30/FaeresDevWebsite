@@ -55,6 +55,11 @@ const sections = [
                 href: "/vocabulary-training",
                 description: "Practice Japanese vocabulary using quiz cards. See a Japanese word or phrase and pick the correct translation, or the other way around.",
             },
+            {
+                title: "Katakana Word Trainer",
+                href: "/katakana-word-training",
+                description: "Practice loanwords in katakana. See a katakana word and type the translation, or see a word and type it in katakana. Uses custom decks from the server.",
+            },
         ],
     },
 ];

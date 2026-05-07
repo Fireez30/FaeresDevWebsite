@@ -11,9 +11,11 @@ import KanjiTrainer from "./KanjiTrainer.jsx";
 import KanjiWritingTrainer from "./KanjiWritingTrainer.jsx";
 import JapaneseSentenceColorTrainer from "./JapaneseSentenceColorTrainer.jsx";
 import VocabularyTrainer from "./VocabularyTrainer.jsx";
+import KatakanaWordTrainer from "./KatakanaWordTrainer.jsx";
 import DeckManager from "./DeckManager.jsx";
 import Home from "./Home.jsx";
 import PokemonEncounterGenerator from "./PokemonEncounterGenerator.jsx";
+import PokemonTeamManager from "./PokemonTeamManager.jsx";
 const { Header,Footer,Content } = Layout;
 
 const items = [
@@ -22,22 +24,21 @@ const items = [
         key: 'pokemon-rpg',
         label: 'Pokemon RPG tools',
         children: [
-            {key: '/pokemon-generator',label: 'Pokemon Generator'},
+            {key:'generators',label:'Pokemon Generators',children : [{key: '/pokemon-generator',label: 'Pokemon Generator'},{key: '/pokemon-encounter-generator',label: 'Pokemon Encounter Generator'}]},
             {key: '/pokemon-rolls',label: 'Pokemon Dice Rolls'},
             {key: '/pokemon-team-card',label: 'Pokemon Team Card'},
-            {key: '/pokemon-encounter-generator',label: 'Pokemon Encounter Generator'},
+            {key: '/pokemon-team-manager',label: 'Pokemon Team Manager'},
+
         ],
     },
     {
         key: 'japanese',
         label: 'Japanese tools',
         children: [
-            {key: '/hiragana-training',label: 'Hiragana Training cards'},
-            {key: '/katakana-training',label: 'Katakana Training  cards'},
-            {key: '/kanji-training',label: 'Kanji Training cards'},
-            {key: '/kanji-writing-trainer',label: 'Kanji Writing Trainer'},
+            {key:'hiragana',label:'Hiragana training',children : [{key: '/hiragana-training',label: 'Hiragana Training cards'}]},
+            {key:'katakana',label:'Katakana training',children : [{key: '/katakana-training',label: 'Katakana Training  cards'}, {key: '/katakana-word-training',label: 'Katakana Word Trainer'}]},
+            {key:'vocabulary',label:'Vocabulary training',children : [{key: '/kanji-training',label: 'Kanji Training cards'},{key: '/kanji-writing-trainer',label: 'Kanji Writing Trainer'},{key: '/vocabulary-training',label: 'Vocabulary Training'},]},
             {key: '/japanese-sentence-color-trainer',label: 'Japanese sentences tokens training'},
-            {key: '/vocabulary-training',label: 'Vocabulary Training'},
             {key: '/deck-manager',label: 'Deck Manager'},
         ],
     },
@@ -68,6 +69,7 @@ function App() {
                 <Route path="/pokemon-generator" element={<PokemonGenerator />} />
                 <Route path="/pokemon-rolls" element={<Rolls />} />
                 <Route path="/pokemon-team-card" element={<PokemonTeamCard />} />
+                <Route path="/pokemon-team-manager" element={<PokemonTeamManager />} />
                 <Route path="/hiragana-training" element={<HiraganaTrainer />} />
                 <Route path="/katakana-training" element={<KatakanaTrainer />} />
                 <Route path="/kanji-training" element={<KanjiTrainer />} />
@@ -75,6 +77,7 @@ function App() {
                 <Route path="/japanese-sentence-color-trainer" element={<JapaneseSentenceColorTrainer />} />
                 <Route path="/pokemon-encounter-generator" element={<PokemonEncounterGenerator />} />
                 <Route path="/vocabulary-training" element={<VocabularyTrainer />} />
+                <Route path="/katakana-word-training" element={<KatakanaWordTrainer />} />
                 <Route path="/deck-manager" element={<DeckManager />} />
                 <Route path="*" element={<Home />} />
             </Routes>

@@ -1,9 +1,7 @@
 import { useSelector,useDispatch } from "react-redux";
 import Form from 'react-bootstrap/Form';
 import React, {useEffect, useState} from "react";
-import movesData from "../data/moves.json";
-import pokemonsData from "../data/pokemon.json";
-import abilitiesData from "../data/abilities.json";
+import { fetchPokemon, fetchMoves, fetchAbilities } from "../api/pokemonApi.js";
 import Button from 'react-bootstrap/Button';
 import Table from 'react-bootstrap/Table';
 import {AutoComplete, InputNumber, Dropdown, Select} from 'antd';
@@ -293,9 +291,9 @@ function PokemonGenerator() {
     const img_pokemon_src = "https://img.pokemondb.net/artwork/"+choosen_pokemon+".jpg"
     const local_png_img = "/images/"+choosen_pokemon.toLowerCase().replace(" ","_")+".png"
     useEffect(() => {
-        setMoves(movesData);
-        setPokemons(pokemonsData);
-        setAbilities(abilitiesData);
+        fetchPokemon().then(setPokemons).catch(() => {});
+        fetchMoves().then(setMoves).catch(() => {});
+        fetchAbilities().then(setAbilities).catch(() => {});
     }, []);
 
     const ready_to_generate = (level > 0 && rarity !== "" && card !== "" && gender !== "" && final_buffed_stat !== "" && final_lowered_stat !== "" && available_points <= 0)

@@ -156,6 +156,12 @@ body {
   letter-spacing: 0.03em;
 }
 
+.site-nav .ant-menu-title-content {
+  color: var(--nav-text) !important;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
 .site-nav .ant-menu-submenu-title,
 .site-nav .ant-menu-overflow-item-rest {
   color: var(--nav-text) !important;
@@ -235,6 +241,46 @@ body {
 
 .ant-menu-submenu-popup .ant-menu-item::after {
   display: none !important;
+}
+
+/* Titres des sous-menus imbriqués dans un popup */
+.ant-menu-submenu-popup .ant-menu-submenu-title {
+  color: var(--text-main) !important;
+  border-radius: 12px !important;
+  margin: 4px 0 !important;
+  height: auto !important;
+  min-height: 40px !important;
+  line-height: 1.35 !important;
+  display: flex !important;
+  align-items: center !important;
+  padding-inline: 16px !important;
+  font-weight: 600 !important;
+}
+
+.ant-menu-submenu-popup .ant-menu-submenu-title:hover,
+.ant-menu-submenu-popup .ant-menu-submenu-open > .ant-menu-submenu-title,
+.ant-menu-submenu-popup .ant-menu-submenu-selected > .ant-menu-submenu-title {
+  background: var(--nav-selected-bg) !important;
+  color: var(--title-color) !important;
+}
+
+.ant-menu-submenu-popup .ant-menu-submenu-title::after {
+  display: none !important;
+}
+
+/* Flèche des sous-menus imbriqués */
+.ant-menu-submenu-popup .ant-menu-submenu-arrow {
+  color: var(--text-soft) !important;
+}
+
+.ant-menu-submenu-popup .ant-menu-submenu-title:hover .ant-menu-submenu-arrow,
+.ant-menu-submenu-popup .ant-menu-submenu-open > .ant-menu-submenu-title .ant-menu-submenu-arrow {
+  color: var(--title-color) !important;
+}
+
+/* Héritage de couleur pour le texte */
+.ant-menu-submenu-popup .ant-menu-title-content {
+  color: inherit !important;
 }
 
 .MainFrame {

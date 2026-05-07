@@ -1,6 +1,7 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Alert, Button, Input, InputNumber, Select } from "antd";
-import pokemonsData from "../data/pokemon.json";
+import { fetchPokemon } from "../api/pokemonApi.js";
+import { listZones, getZone, createZone, updateZone, deleteZone } from "../api/zonesApi.js";
 import "./PokemonEncounterGenerator.css";
 
 const SECTION_CONFIG = [
@@ -12,27 +13,14 @@ const SECTION_CONFIG = [
 
 const IMAGE_EXTENSIONS = ["png", "jpeg", "jpg", "webp"];
 
-const uniquePokemons = Array.from(
-    new Map(pokemonsData.map((pokemon) => [pokemon.name, pokemon])).values(),
-).sort((a, b) => a.name.localeCompare(b.name));
-
-const pokemonByName = new Map(uniquePokemons.map((pokemon) => [pokemon.name, pokemon]));
-
-const pokemonOptions = uniquePokemons.map((pokemon) => ({
-    value: pokemon.name,
-    label: pokemon.name
-        .split(" ")
-        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(" "),
-}));
 
 function normalizeBaseName(value) {
     return value
         .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[̀-ͯ]/g, "")
         .toLowerCase()
         .replace(/&/g, "and")
-        .replace(/['’.]/g, "")
+        .replace(/[''.]/g, "")
         .replace(/[()]/g, "")
         .replace(/[^a-z0-9]+/g, "_")
         .replace(/^_+|_+$/g, "");
@@ -91,7 +79,7 @@ function createEmptyZone() {
     };
 }
 
-function sanitizeZoneData(value) {
+function sanitizeZoneData(value, pokemonByName) {
     const next = createEmptyZone();
     const zoneName = typeof value?.zoneName === "string" ? value.zoneName : "";
     next.zoneName = zoneName;
@@ -236,6 +224,31 @@ function resolveEncounterRule(value) {
 }
 
 function PokemonEncounterGenerator() {
+    const [pokemonList, setPokemonList] = useState([]);
+    const [dataLoading, setDataLoading] = useState(true);
+
+    useEffect(() => {
+        fetchPokemon()
+            .then((data) => { setPokemonList(data); setDataLoading(false); })
+            .catch(() => setDataLoading(false));
+    }, []);
+
+    const uniquePokemons = useMemo(() =>
+        Array.from(new Map(pokemonList.map((p) => [p.name, p])).values())
+            .sort((a, b) => a.name.localeCompare(b.name)),
+        [pokemonList]);
+
+    const pokemonByName = useMemo(() =>
+        new Map(uniquePokemons.map((p) => [p.name, p])),
+        [uniquePokemons]);
+
+    const pokemonOptions = useMemo(() =>
+        uniquePokemons.map((p) => ({
+            value: p.name,
+            label: p.name.split(" ").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" "),
+        })),
+        [uniquePokemons]);
+
     const [zone, setZone] = useState(createEmptyZone);
     const [selectedBySection, setSelectedBySection] = useState({
         common: undefined,
@@ -254,6 +267,51 @@ function PokemonEncounterGenerator() {
     const [encounterRuleValue, setEncounterRuleValue] = useState(0);
     const [encounterResult, setEncounterResult] = useState(resolveEncounterRule(0));
     const fileInputRef = useRef(null);
+
+    const [serverZones, setServerZones] = useState([]);
+    const [zoneServerId, setZoneServerId] = useState(null);
+    const [autoSaveStatus, setAutoSaveStatus] = useState("idle");
+    const [serverDown, setServerDown] = useState(false);
+    const [selectedServerZoneId, setSelectedServerZoneId] = useState(undefined);
+    const zoneServerIdRef = useRef(null);
+
+    // Load zone list from server on mount
+    useEffect(() => {
+        listZones()
+            .then((zones) => { setServerZones(zones); setServerDown(false); })
+            .catch(() => setServerDown(true));
+    }, []);
+
+    // Auto-save: debounced 1500ms, triggers on any zone change that has a name
+    useEffect(() => {
+        if (!zone.zoneName.trim()) return;
+
+        const timer = setTimeout(async () => {
+            setAutoSaveStatus("saving");
+            try {
+                const currentId = zoneServerIdRef.current;
+                if (!currentId) {
+                    const created = await createZone(zone.zoneName, zone.sections);
+                    zoneServerIdRef.current = created.id;
+                    setZoneServerId(created.id);
+                    setServerZones((prev) => [...prev, { id: created.id, name: created.name, createdAt: created.createdAt, updatedAt: created.updatedAt }]);
+                } else {
+                    await updateZone(currentId, { name: zone.zoneName, sections: zone.sections });
+                    setServerZones((prev) => prev.map((z) => z.id === currentId ? { ...z, name: zone.zoneName } : z));
+                }
+                setAutoSaveStatus("saved");
+            } catch {
+                setAutoSaveStatus("error");
+            }
+        }, 1500);
+
+        return () => clearTimeout(timer);
+    }, [zone]);
+
+    function clearRollState() {
+        setSelectedBySection({ common: undefined, uncommon: undefined, rare: undefined, superRare: undefined });
+        setRolledPokemonBySection({ common: undefined, uncommon: undefined, rare: undefined, superRare: undefined });
+    }
 
     function updateZoneName(event) {
         const value = event.target.value;
@@ -328,20 +386,12 @@ function PokemonEncounterGenerator() {
         reader.onload = () => {
             try {
                 const parsed = JSON.parse(reader.result);
-                const sanitized = sanitizeZoneData(parsed);
+                const sanitized = sanitizeZoneData(parsed, pokemonByName);
                 setZone(sanitized);
-                setSelectedBySection({
-                    common: undefined,
-                    uncommon: undefined,
-                    rare: undefined,
-                    superRare: undefined,
-                });
-                setRolledPokemonBySection({
-                    common: undefined,
-                    uncommon: undefined,
-                    rare: undefined,
-                    superRare: undefined,
-                });
+                setZoneServerId(null);
+                zoneServerIdRef.current = null;
+                setAutoSaveStatus("idle");
+                clearRollState();
                 setFeedback({ type: "success", message: `Zone loaded from ${file.name}.` });
             } catch {
                 setFeedback({ type: "error", message: "The selected file is not a valid Pokemon zone JSON." });
@@ -350,10 +400,51 @@ function PokemonEncounterGenerator() {
         reader.readAsText(file);
     }
 
-    function saveZone() {
+    function handleNewZone() {
+        setZone(createEmptyZone());
+        setZoneServerId(null);
+        zoneServerIdRef.current = null;
+        setAutoSaveStatus("idle");
+        setSelectedServerZoneId(undefined);
+        clearRollState();
+        setFeedback({ type: "", message: "" });
+    }
+
+    async function handleLoadServerZone() {
+        if (!selectedServerZoneId) return;
+        try {
+            const serverZone = await getZone(selectedServerZoneId);
+            const sanitized = sanitizeZoneData({ zoneName: serverZone.name, sections: serverZone.sections }, pokemonByName);
+            setZone(sanitized);
+            setZoneServerId(serverZone.id);
+            zoneServerIdRef.current = serverZone.id;
+            setAutoSaveStatus("saved");
+            clearRollState();
+            setFeedback({ type: "success", message: `Zone "${serverZone.name}" loaded from server.` });
+        } catch {
+            setFeedback({ type: "error", message: "Failed to load zone from server." });
+        }
+    }
+
+    async function handleDeleteServerZone() {
+        if (!zoneServerId) return;
+        if (!window.confirm("Delete this zone from the server? This cannot be undone.")) return;
+        try {
+            await deleteZone(zoneServerId);
+            setServerZones((prev) => prev.filter((z) => z.id !== zoneServerId));
+            setZoneServerId(null);
+            zoneServerIdRef.current = null;
+            setAutoSaveStatus("idle");
+            setFeedback({ type: "success", message: "Zone deleted from server." });
+        } catch {
+            setFeedback({ type: "error", message: "Failed to delete zone from server." });
+        }
+    }
+
+    function exportZone() {
         const hasEntries = SECTION_CONFIG.some(({ key }) => zone.sections[key].length > 0);
         if (!hasEntries) {
-            setFeedback({ type: "warning", message: "Add at least one Pokemon before saving the zone." });
+            setFeedback({ type: "warning", message: "Add at least one Pokemon before exporting the zone." });
             return;
         }
 
@@ -393,6 +484,12 @@ function PokemonEncounterGenerator() {
         });
     }
 
+    const autoSaveLabel = autoSaveStatus === "saving" ? "Saving…" : autoSaveStatus === "saved" ? "Saved" : autoSaveStatus === "error" ? "Save failed" : null;
+
+    if (dataLoading) {
+        return <div className="encounter-generator-page"><p style={{ padding: "2rem" }}>Loading Pokémon data…</p></div>;
+    }
+
     return (
         <div className="encounter-generator-page">
             <section className="encounter-generator-hero">
@@ -416,18 +513,49 @@ function PokemonEncounterGenerator() {
                             </span>
                         </button>
                     </div>
-                    <Input
-                        value={zone.zoneName}
-                        onChange={updateZoneName}
-                        placeholder="Zone name"
-                        size="large"
-                    />
+                    <div className="encounter-generator-name-row">
+                        <Input
+                            value={zone.zoneName}
+                            onChange={updateZoneName}
+                            placeholder="Zone name"
+                            size="large"
+                        />
+                        {zone.zoneName.trim() && autoSaveLabel ? (
+                            <span className={`encounter-autosave encounter-autosave--${autoSaveStatus}`}>
+                                {autoSaveLabel}
+                            </span>
+                        ) : null}
+                    </div>
+                    {!serverDown ? (
+                        <div className="encounter-server-zones">
+                            <Select
+                                placeholder="Load from server…"
+                                value={selectedServerZoneId}
+                                onChange={setSelectedServerZoneId}
+                                options={serverZones.map((z) => ({ value: z.id, label: z.name }))}
+                                size="large"
+                            />
+                            <Button size="large" onClick={handleLoadServerZone} disabled={!selectedServerZoneId}>
+                                Load
+                            </Button>
+                            <Button size="large" onClick={handleNewZone}>
+                                New Zone
+                            </Button>
+                            {zoneServerId ? (
+                                <Button size="large" danger onClick={handleDeleteServerZone}>
+                                    Delete
+                                </Button>
+                            ) : null}
+                        </div>
+                    ) : (
+                        <p className="encounter-server-warning">Server unavailable — zones won't be auto-saved.</p>
+                    )}
                     <div className="encounter-generator-toolbar">
                         <Button size="large" onClick={triggerLoad}>
-                            Load Zone
+                            Import JSON
                         </Button>
-                        <Button size="large" type="primary" onClick={saveZone}>
-                            Save Zone
+                        <Button size="large" type="primary" onClick={exportZone}>
+                            Export JSON
                         </Button>
                     </div>
                     <input
