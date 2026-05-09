@@ -46,11 +46,6 @@ const sections = [
                 description: "Practice kanji using quizz cards.",
             },
             {
-                title: "Japanese sentences tokens training",
-                href: "/japanese-sentence-color-trainer",
-                description: "Pratice character groups recognition in a sentence, as quizz cards. Kanji, Hiragana, Katakana, kana combinations, breaks and elongations of vowels.",
-            },
-            {
                 title: "Vocabulary Training",
                 href: "/vocabulary-training",
                 description: "Practice Japanese vocabulary using quiz cards. See a Japanese word or phrase and pick the correct translation, or the other way around.",
@@ -59,6 +54,11 @@ const sections = [
                 title: "Katakana Word Trainer",
                 href: "/katakana-word-training",
                 description: "Practice loanwords in katakana. See a katakana word and type the translation, or see a word and type it in katakana. Uses custom decks from the server.",
+            },
+            {
+                title: "Hiragana Word Trainer",
+                href: "/hiragana-word-training",
+                description: "Practice loanwords in hiragana. See a hiragana word and type the romaji, or see a romaji word and type it in katakana. Uses custom decks from the server.",
             },
         ],
     },

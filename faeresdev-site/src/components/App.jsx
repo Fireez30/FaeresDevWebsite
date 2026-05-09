@@ -16,6 +16,7 @@ import DeckManager from "./DeckManager.jsx";
 import Home from "./Home.jsx";
 import PokemonEncounterGenerator from "./PokemonEncounterGenerator.jsx";
 import PokemonTeamManager from "./PokemonTeamManager.jsx";
+import HiraganaWordTrainer from "./HiraganaWordTrainer.jsx";
 const { Header,Footer,Content } = Layout;
 
 const items = [
@@ -35,10 +36,10 @@ const items = [
         key: 'japanese',
         label: 'Japanese tools',
         children: [
-            {key:'hiragana',label:'Hiragana training',children : [{key: '/hiragana-training',label: 'Hiragana Training cards'}]},
+            {key:'hiragana',label:'Hiragana training',children : [{key: '/hiragana-training',label: 'Hiragana Training cards'},{key: '/hiragana-word-training',label: 'Hiragana Word Trainer'}]},
             {key:'katakana',label:'Katakana training',children : [{key: '/katakana-training',label: 'Katakana Training  cards'}, {key: '/katakana-word-training',label: 'Katakana Word Trainer'}]},
-            {key:'vocabulary',label:'Vocabulary training',children : [{key: '/kanji-training',label: 'Kanji Training cards'},{key: '/kanji-writing-trainer',label: 'Kanji Writing Trainer'},{key: '/vocabulary-training',label: 'Vocabulary Training'},]},
-            {key: '/japanese-sentence-color-trainer',label: 'Japanese sentences tokens training'},
+            {key:'vocabulary',label:'Vocabulary training',children : [{key: '/kanji-training',label: 'Kanji Training cards'},{key: '/vocabulary-training',label: 'Vocabulary Training'},]},
+            {key:'deprecated',label:'Deprecated',children : [{key: '/japanese-sentence-color-trainer',label: 'Japanese sentences tokens training'},{key: '/kanji-writing-trainer',label: 'Kanji Writing Trainer'},]},
             {key: '/deck-manager',label: 'Deck Manager'},
         ],
     },
@@ -78,6 +79,7 @@ function App() {
                 <Route path="/pokemon-encounter-generator" element={<PokemonEncounterGenerator />} />
                 <Route path="/vocabulary-training" element={<VocabularyTrainer />} />
                 <Route path="/katakana-word-training" element={<KatakanaWordTrainer />} />
+                <Route path="/hiragana-word-training" element={<HiraganaWordTrainer />} />
                 <Route path="/deck-manager" element={<DeckManager />} />
                 <Route path="*" element={<Home />} />
             </Routes>

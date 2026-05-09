@@ -1,117 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import "./HiraganaTrainer.css";
-import { HIRAGANA_COMBINATIONS } from "../data/kanaCombinations.js";
-
-const HIRAGANA_SET = [
-    { kana: "あ", romaji: "a" },
-    { kana: "い", romaji: "i" },
-    { kana: "う", romaji: "u" },
-    { kana: "え", romaji: "e" },
-    { kana: "お", romaji: "o" },
-    { kana: "か", romaji: "ka" },
-    { kana: "き", romaji: "ki" },
-    { kana: "く", romaji: "ku" },
-    { kana: "け", romaji: "ke" },
-    { kana: "こ", romaji: "ko" },
-    { kana: "が", romaji: "ga" },
-    { kana: "ぎ", romaji: "gi" },
-    { kana: "ぐ", romaji: "gu" },
-    { kana: "げ", romaji: "ge" },
-    { kana: "ご", romaji: "go" },
-    { kana: "さ", romaji: "sa" },
-    { kana: "し", romaji: "shi" },
-    { kana: "す", romaji: "su" },
-    { kana: "せ", romaji: "se" },
-    { kana: "そ", romaji: "so" },
-    { kana: "ざ", romaji: "za" },
-    { kana: "じ", romaji: "ji" },
-    { kana: "ず", romaji: "zu" },
-    { kana: "ぜ", romaji: "ze" },
-    { kana: "ぞ", romaji: "zo" },
-    { kana: "た", romaji: "ta" },
-    { kana: "ち", romaji: "chi" },
-    { kana: "つ", romaji: "tsu" },
-    { kana: "て", romaji: "te" },
-    { kana: "と", romaji: "to" },
-    { kana: "だ", romaji: "da" },
-    { kana: "ぢ", romaji: "ji" },
-    { kana: "づ", romaji: "zu" },
-    { kana: "で", romaji: "de" },
-    { kana: "ど", romaji: "do" },
-    { kana: "な", romaji: "na" },
-    { kana: "に", romaji: "ni" },
-    { kana: "ぬ", romaji: "nu" },
-    { kana: "ね", romaji: "ne" },
-    { kana: "の", romaji: "no" },
-    { kana: "は", romaji: "ha" },
-    { kana: "ひ", romaji: "hi" },
-    { kana: "ふ", romaji: "fu" },
-    { kana: "へ", romaji: "he" },
-    { kana: "ほ", romaji: "ho" },
-    { kana: "ば", romaji: "ba" },
-    { kana: "び", romaji: "bi" },
-    { kana: "ぶ", romaji: "bu" },
-    { kana: "べ", romaji: "be" },
-    { kana: "ぼ", romaji: "bo" },
-    { kana: "ぱ", romaji: "pa" },
-    { kana: "ぴ", romaji: "pi" },
-    { kana: "ぷ", romaji: "pu" },
-    { kana: "ぺ", romaji: "pe" },
-    { kana: "ぽ", romaji: "po" },
-    { kana: "ま", romaji: "ma" },
-    { kana: "み", romaji: "mi" },
-    { kana: "む", romaji: "mu" },
-    { kana: "め", romaji: "me" },
-    { kana: "も", romaji: "mo" },
-    { kana: "や", romaji: "ya" },
-    { kana: "ゆ", romaji: "yu" },
-    { kana: "よ", romaji: "yo" },
-    { kana: "ら", romaji: "ra" },
-    { kana: "り", romaji: "ri" },
-    { kana: "る", romaji: "ru" },
-    { kana: "れ", romaji: "re" },
-    { kana: "ろ", romaji: "ro" },
-    { kana: "わ", romaji: "wa" },
-    { kana: "を", romaji: "wo" },
-    { kana: "ん", romaji: "n" },
-    ...HIRAGANA_COMBINATIONS,
-    { kana: "あっち", romaji: "acchi" },
-    { kana: "いっかい", romaji: "ikkai" },
-    { kana: "いっしょ", romaji: "issho" },
-    { kana: "いっぱい", romaji: "ippai" },
-    { kana: "かった", romaji: "katta" },
-    { kana: "がっき", romaji: "gakki" },
-    { kana: "がっこう", romaji: "gakkō" },
-    { kana: "きって", romaji: "kitte" },
-    { kana: "きっぷ", romaji: "kippu" },
-    { kana: "けっか", romaji: "kekka" },
-    { kana: "けっこう", romaji: "kekkō" },
-    { kana: "けっこん", romaji: "kekkon" },
-    { kana: "さっか", romaji: "sakka" },
-    { kana: "ざっし", romaji: "zasshi" },
-    { kana: "せっけん", romaji: "sekken" },
-    { kana: "にっき", romaji: "nikki" },
-    { kana: "はっきり", romaji: "hakkiri" },
-    { kana: "はっぱ", romaji: "happa" },
-    { kana: "まって", romaji: "matte" },
-    { kana: "もっと", romaji: "motto" },
-    { kana: "やった", romaji: "yatta" },
-    { kana: "やっと", romaji: "yatto" },
-    { kana: "えいが", romaji: "ēga" },
-    { kana: "おかあさん", romaji: "okāsan" },
-    { kana: "おばあさん", romaji: "obāsan" },
-    { kana: "くうき", romaji: "kūki" },
-    { kana: "けいき", romaji: "kēki" },
-    { kana: "こうこう", romaji: "kōkō" },
-    { kana: "こうつう", romaji: "kōtsū" },
-    { kana: "せんせい", romaji: "sensē" },
-    { kana: "そうこ", romaji: "sōko" },
-    { kana: "とうふ", romaji: "tōfu" },
-    { kana: "どうぶつ", romaji: "dōbutsu" },
-    { kana: "ぼうし", romaji: "bōshi" },
-    { kana: "ろうか", romaji: "rōka" },
-];
-
+import HIRAGANA_SET from '../data/hiragana.json';
 function getRandomIndex(excludedIndex = -1) {
     let nextIndex = Math.floor(Math.random() * HIRAGANA_SET.length);
     while (HIRAGANA_SET.length > 1 && nextIndex === excludedIndex) {
@@ -120,53 +9,22 @@ function getRandomIndex(excludedIndex = -1) {
     return nextIndex;
 }
 
-function getDisplayedAnswer(index, quizMode) {
-    return quizMode === "kana-to-romaji"
-        ? HIRAGANA_SET[index].romaji
-        : HIRAGANA_SET[index].kana;
-}
-
-function buildQuestion(quizMode, previousIndex = -1) {
-    const correctIndex = getRandomIndex(previousIndex);
-    const distractorIndexes = [];
-    const usedAnswers = new Set([getDisplayedAnswer(correctIndex, quizMode)]);
-
-    while (distractorIndexes.length < 2) {
-        const candidateIndex = getRandomIndex(previousIndex);
-        const candidateAnswer = getDisplayedAnswer(candidateIndex, quizMode);
-
-        if (
-            candidateIndex !== correctIndex
-            && !distractorIndexes.includes(candidateIndex)
-            && !usedAnswers.has(candidateAnswer)
-        ) {
-            distractorIndexes.push(candidateIndex);
-            usedAnswers.add(candidateAnswer);
-        }
-    }
-
-    const answers = [
-        correctIndex,
-        distractorIndexes[0],
-        distractorIndexes[1],
-    ].sort(() => Math.random() - 0.5);
-
-    return {
-        correctIndex,
-        answers,
-    };
+function buildQuestion(previousIndex = -1) {
+    return { correctIndex: getRandomIndex(previousIndex) };
 }
 
 function HiraganaTrainer() {
     const [quizMode, setQuizMode] = useState("kana-to-romaji");
-    const [question, setQuestion] = useState(() => buildQuestion("kana-to-romaji"));
-    const [selectedAnswer, setSelectedAnswer] = useState(null);
+    const [question, setQuestion] = useState(() => buildQuestion());
+    const [typedAnswer, setTypedAnswer] = useState("");
+    const [hasSubmitted, setHasSubmitted] = useState(false);
     const [score, setScore] = useState({ correct: 0, total: 0 });
+    const inputRef = useRef(null);
 
     const currentKana = HIRAGANA_SET[question.correctIndex];
-    const correctAnswer = question.correctIndex;
-    const hasAnswered = selectedAnswer !== null;
-    const isCorrect = selectedAnswer === correctAnswer;
+    const correctText = quizMode === "kana-to-romaji" ? currentKana.romaji : currentKana.kana;
+    const isCorrect = hasSubmitted && typedAnswer.trim().toLowerCase() === correctText.toLowerCase();
+
     const scoreRatio = score.total > 0 ? score.correct / score.total : null;
     const scoreState = scoreRatio === null
         ? "is-neutral"
@@ -178,26 +36,24 @@ function HiraganaTrainer() {
 
     const switchQuizMode = (nextMode) => {
         setQuizMode(nextMode);
-        setQuestion(buildQuestion(nextMode, question.correctIndex));
-        setSelectedAnswer(null);
+        setQuestion(buildQuestion(question.correctIndex));
+        setTypedAnswer("");
+        setHasSubmitted(false);
+        setTimeout(() => inputRef.current?.focus(), 0);
     };
 
     const goToNextKana = () => {
-        setQuestion(buildQuestion(quizMode, question.correctIndex));
-        setSelectedAnswer(null);
+        setQuestion(buildQuestion(question.correctIndex));
+        setTypedAnswer("");
+        setHasSubmitted(false);
+        setTimeout(() => inputRef.current?.focus(), 0);
     };
 
-    const handleAnswer = (answerIndex) => {
-        if (hasAnswered) {
-            return;
-        }
-
-        const answerIsCorrect = answerIndex === correctAnswer;
-        setSelectedAnswer(answerIndex);
-        setScore((currentScore) => ({
-            correct: currentScore.correct + (answerIsCorrect ? 1 : 0),
-            total: currentScore.total + 1,
-        }));
+    const handleSubmit = () => {
+        if (hasSubmitted || !typedAnswer.trim()) return;
+        const correct = typedAnswer.trim().toLowerCase() === correctText.toLowerCase();
+        setHasSubmitted(true);
+        setScore(s => ({ correct: s.correct + (correct ? 1 : 0), total: s.total + 1 }));
     };
 
     return (
@@ -206,11 +62,9 @@ function HiraganaTrainer() {
                 <div className="hiragana-copy">
                     <h1>Hiragana Trainer</h1>
                     <p className="hiragana-subtitle">
-                        { quizMode === "kana-to-romaji"?
-                            "A quizz with score where an hiragana is shown, and user clicks on the romaji corresponding. May include combinations, breaks and elongations expressions"
-                            :
-                            "A quizz with score where an romaji is shown, and user clicks on the hiragana corresponding. May include combinations, breaks and elongations expressions"
-                        }
+                        {quizMode === "kana-to-romaji"
+                            ? "A hiragana is shown — type the corresponding romaji and press Enter."
+                            : "A romaji is shown — type the corresponding hiragana and press Enter."}
                     </p>
                     <div className="hiragana-mode-switch">
                         <button
@@ -238,50 +92,44 @@ function HiraganaTrainer() {
                         <span className="hiragana-label">
                             {quizMode === "kana-to-romaji" ? "What is this hiragana?" : "Which hiragana matches this romaji?"}
                         </span>
-                        <div className="hiragana-symbol">{quizMode === "kana-to-romaji" ? currentKana.kana : currentKana.romaji}</div>
+                        <div className="hiragana-symbol">
+                            {quizMode === "kana-to-romaji" ? currentKana.kana : currentKana.romaji}
+                        </div>
                     </div>
 
-                    <div className="hiragana-answers">
-                        {question.answers.map((answerIndex) => {
-                            const answerEntry = HIRAGANA_SET[answerIndex];
-                            const displayedAnswer = quizMode === "kana-to-romaji"
-                                ? answerEntry.romaji
-                                : answerEntry.kana;
-                            let answerClass = "hiragana-answer";
-
-                            if (hasAnswered && answerIndex === selectedAnswer) {
-                                answerClass += isCorrect ? " is-correct" : " is-wrong";
-                            }
-
-                            if (hasAnswered && !isCorrect && answerIndex === correctAnswer) {
-                                answerClass += " reveal-correct";
-                            }
-
-                            return (
-                                <button
-                                    key={`${answerEntry.kana}-${answerIndex}`}
-                                    className={answerClass}
-                                    onClick={() => handleAnswer(answerIndex)}
-                                    disabled={hasAnswered}
-                                    type="button"
-                                >
-                                    {displayedAnswer}
-                                </button>
-                            );
-                        })}
+                    <div className="hiragana-text-input-row">
+                        <input
+                            ref={inputRef}
+                            type="text"
+                            className="hiragana-text-input"
+                            value={typedAnswer}
+                            onChange={e => !hasSubmitted && setTypedAnswer(e.target.value)}
+                            onKeyDown={e => e.key === "Enter" && handleSubmit()}
+                            disabled={hasSubmitted}
+                            placeholder={quizMode === "kana-to-romaji" ? "Type romaji…" : "Type hiragana…"}
+                            autoFocus
+                        />
+                        <button
+                            className="hiragana-submit-btn"
+                            onClick={handleSubmit}
+                            disabled={hasSubmitted || !typedAnswer.trim()}
+                            type="button"
+                        >
+                            Submit
+                        </button>
                     </div>
 
                     <div className="hiragana-feedback">
-                        {hasAnswered ? (
+                        {hasSubmitted ? (
                             isCorrect ? (
-                                <p className="hiragana-feedback-text feedback-correct">Correct.</p>
+                                <p className="hiragana-feedback-text feedback-correct">Correct!</p>
                             ) : (
                                 <p className="hiragana-feedback-text feedback-wrong">
-                                    Wrong. Correct answer: <strong>{quizMode === "kana-to-romaji" ? currentKana.romaji : currentKana.kana}</strong>
+                                    Wrong. Correct answer: <strong>{correctText}</strong>
                                 </p>
                             )
                         ) : (
-                            <p className="hiragana-feedback-text">Choose one answer.</p>
+                            <p className="hiragana-feedback-text">Type your answer and press Enter.</p>
                         )}
                     </div>
 

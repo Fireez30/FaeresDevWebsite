@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import "./VocabularyTrainer.css";
 import { VOCAB_SET, VOCAB_SET_NOTE } from "../data/vocabularyTrainingData.js";
 import { listDecks, getDeck } from "../api/decksApi.js";
@@ -12,13 +12,7 @@ function getRandomIndex(dataset, excludedIndex = -1) {
 }
 
 function buildQuestion(dataset, excludeIdx = -1) {
-    const correctIdx = getRandomIndex(dataset, excludeIdx);
-    const pool = [correctIdx];
-    while (pool.length < 3) {
-        const candidate = Math.floor(Math.random() * dataset.length);
-        if (!pool.includes(candidate)) pool.push(candidate);
-    }
-    return { correctIdx, answers: pool.sort(() => Math.random() - 0.5) };
+    return { correctIdx: getRandomIndex(dataset, excludeIdx) };
 }
 
 function DeckSelector({ availableDecks, activeDeckId, onSelect }) {
@@ -47,8 +41,10 @@ function VocabularyTrainer() {
 
     const [quizMode, setQuizMode] = useState("vocab-to-translation");
     const [question, setQuestion] = useState(() => buildQuestion(VOCAB_SET));
-    const [selectedAnswer, setSelectedAnswer] = useState(null);
+    const [typedAnswer, setTypedAnswer] = useState("");
+    const [hasSubmitted, setHasSubmitted] = useState(false);
     const [score, setScore] = useState({ correct: 0, total: 0 });
+    const inputRef = useRef(null);
 
     useEffect(() => {
         listDecks()
@@ -58,7 +54,8 @@ function VocabularyTrainer() {
 
     const resetQuiz = useCallback((newDataset) => {
         setQuestion(buildQuestion(newDataset));
-        setSelectedAnswer(null);
+        setTypedAnswer("");
+        setHasSubmitted(false);
         setScore({ correct: 0, total: 0 });
     }, []);
 
@@ -70,7 +67,7 @@ function VocabularyTrainer() {
         } else {
             try {
                 const deck = await getDeck(deckId);
-                const newDataset = deck.entries.length >= 3 ? deck.entries : VOCAB_SET;
+                const newDataset = deck.entries.length >= 1 ? deck.entries : VOCAB_SET;
                 setDataset(newDataset);
                 resetQuiz(newDataset);
             } catch {
@@ -80,10 +77,11 @@ function VocabularyTrainer() {
         }
     };
 
-    const { correctIdx, answers } = question;
+    const { correctIdx } = question;
     const currentEntry = dataset[correctIdx];
-    const hasAnswered = selectedAnswer !== null;
-    const isCorrect = selectedAnswer === correctIdx;
+    const isVocabToTranslation = quizMode === "vocab-to-translation";
+    const correctText = isVocabToTranslation ? currentEntry.translation : currentEntry.japanese;
+    const isCorrect = hasSubmitted && typedAnswer.trim().toLowerCase() === correctText.toLowerCase();
 
     const scoreRatio = score.total > 0 ? score.correct / score.total : null;
     const scoreState = scoreRatio === null
@@ -92,25 +90,28 @@ function VocabularyTrainer() {
         : scoreRatio >= 0.4 ? "is-neutral"
         : "is-weak";
 
-    const handleAnswer = (answerIndex) => {
-        if (hasAnswered) return;
-        const correct = answerIndex === correctIdx;
-        setSelectedAnswer(answerIndex);
+    const handleSubmit = () => {
+        if (hasSubmitted || !typedAnswer.trim()) return;
+        const correct = typedAnswer.trim().toLowerCase() === correctText.toLowerCase();
+        setHasSubmitted(true);
         setScore(s => ({ correct: s.correct + (correct ? 1 : 0), total: s.total + 1 }));
     };
 
     const goNext = () => {
         setQuestion(buildQuestion(dataset, correctIdx));
-        setSelectedAnswer(null);
+        setTypedAnswer("");
+        setHasSubmitted(false);
+        setTimeout(() => inputRef.current?.focus(), 0);
     };
 
     const switchQuizMode = (nextMode) => {
         setQuizMode(nextMode);
         setQuestion(buildQuestion(dataset, correctIdx));
-        setSelectedAnswer(null);
+        setTypedAnswer("");
+        setHasSubmitted(false);
+        setTimeout(() => inputRef.current?.focus(), 0);
     };
 
-    const isVocabToTranslation = quizMode === "vocab-to-translation";
     const promptText = isVocabToTranslation ? currentEntry.japanese : currentEntry.translation;
     const usingBuiltIn = !activeDeckId;
 
@@ -121,8 +122,8 @@ function VocabularyTrainer() {
                     <h1>Vocabulary Trainer</h1>
                     <p className="vocab-subtitle">
                         {isVocabToTranslation
-                            ? "A Japanese word or phrase is shown — choose the correct English translation."
-                            : "An English translation is shown — choose the correct Japanese word or phrase."}
+                            ? "A Japanese word is shown — type the English translation and press Enter."
+                            : "An English translation is shown — type the Japanese word and press Enter."}
                     </p>
                     <DeckSelector
                         availableDecks={availableDecks}
@@ -168,49 +169,39 @@ function VocabularyTrainer() {
                         </div>
                     </div>
 
-                    <div className="vocab-answers">
-                        {answers.map((answerIndex) => {
-                            const entry = dataset[answerIndex];
-                            const answerText = isVocabToTranslation ? entry.translation : entry.japanese;
-                            let cls = "vocab-answer";
-
-                            if (hasAnswered && answerIndex === selectedAnswer) {
-                                cls += isCorrect ? " is-correct" : " is-wrong";
-                            }
-                            if (hasAnswered && !isCorrect && answerIndex === correctIdx) {
-                                cls += " reveal-correct";
-                            }
-
-                            return (
-                                <button
-                                    key={`${entry.japanese}-${answerIndex}`}
-                                    className={cls}
-                                    onClick={() => handleAnswer(answerIndex)}
-                                    disabled={hasAnswered}
-                                    type="button"
-                                >
-                                    <span className={`vocab-answer-text ${!isVocabToTranslation ? "is-japanese" : ""}`}>
-                                        {answerText}
-                                    </span>
-                                </button>
-                            );
-                        })}
+                    <div className="vocab-text-input-row">
+                        <input
+                            ref={inputRef}
+                            type="text"
+                            className="vocab-text-input"
+                            value={typedAnswer}
+                            onChange={e => !hasSubmitted && setTypedAnswer(e.target.value)}
+                            onKeyDown={e => e.key === "Enter" && handleSubmit()}
+                            disabled={hasSubmitted}
+                            placeholder={isVocabToTranslation ? "Type the translation…" : "Type the Japanese word…"}
+                            autoFocus
+                        />
+                        <button
+                            className="vocab-submit-btn"
+                            onClick={handleSubmit}
+                            disabled={hasSubmitted || !typedAnswer.trim()}
+                            type="button"
+                        >
+                            Submit
+                        </button>
                     </div>
 
                     <div className="vocab-feedback">
-                        {hasAnswered ? (
+                        {hasSubmitted ? (
                             isCorrect ? (
                                 <p className="vocab-feedback-text feedback-correct">Correct!</p>
                             ) : (
                                 <p className="vocab-feedback-text feedback-wrong">
-                                    Wrong. Correct answer:{" "}
-                                    <strong>
-                                        {isVocabToTranslation ? currentEntry.translation : currentEntry.japanese}
-                                    </strong>
+                                    Wrong. Correct answer: <strong>{correctText}</strong>
                                 </p>
                             )
                         ) : (
-                            <p className="vocab-feedback-text">Choose one answer.</p>
+                            <p className="vocab-feedback-text">Type your answer and press Enter.</p>
                         )}
                     </div>
 

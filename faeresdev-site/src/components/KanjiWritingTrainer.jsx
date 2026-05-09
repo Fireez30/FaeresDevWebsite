@@ -28,16 +28,7 @@ function getRandomIndex(dataset, excluded = -1) {
 }
 
 function buildQuestion(dataset, previousIndex = -1) {
-    const correctIndex = getRandomIndex(dataset, previousIndex);
-    const distractors = [];
-    while (distractors.length < 2) {
-        const idx = getRandomIndex(dataset, previousIndex);
-        if (idx !== correctIndex && !distractors.includes(idx)) {
-            distractors.push(idx);
-        }
-    }
-    const kunOptions = [correctIndex, ...distractors].sort(() => Math.random() - 0.5);
-    return { correctIndex, kunOptions };
+    return { correctIndex: getRandomIndex(dataset, previousIndex) };
 }
 
 function DeckSelector({ availableDecks, activeDeckId, onSelect }) {
@@ -65,11 +56,12 @@ function KanjiWritingTrainer() {
     const [dataset, setDataset] = useState(KANJI_SET);
 
     const [question, setQuestion] = useState(() => buildQuestion(KANJI_SET));
-    const [selectedKun, setSelectedKun] = useState(null);
+    const [typedKun, setTypedKun] = useState("");
     const [isValidated, setIsValidated] = useState(false);
     const [score, setScore] = useState({ correct: 0, total: 0 });
     const [strokeCount, setStrokeCount] = useState(0);
     const [svgError, setSvgError] = useState(false);
+    const kunInputRef = useRef(null);
 
     const canvasRef = useRef(null);
     const strokesRef = useRef([]);
@@ -84,7 +76,7 @@ function KanjiWritingTrainer() {
 
     const resetQuiz = useCallback((newDataset) => {
         setQuestion(buildQuestion(newDataset));
-        setSelectedKun(null);
+        setTypedKun("");
         setIsValidated(false);
         setSvgError(false);
         setScore({ correct: 0, total: 0 });
@@ -98,7 +90,7 @@ function KanjiWritingTrainer() {
         } else {
             try {
                 const deck = await getDeck(deckId);
-                const newDataset = deck.entries.length >= 3 ? deck.entries : KANJI_SET;
+                const newDataset = deck.entries.length >= 1 ? deck.entries : KANJI_SET;
                 setDataset(newDataset);
                 resetQuiz(newDataset);
             } catch {
@@ -110,8 +102,8 @@ function KanjiWritingTrainer() {
 
     const currentKanji = dataset[question.correctIndex];
     const hasDrawn = strokeCount > 0;
-    const canValidate = selectedKun !== null && hasDrawn;
-    const isKunCorrect = isValidated && selectedKun === question.correctIndex;
+    const canValidate = typedKun.trim() !== "" && hasDrawn;
+    const isKunCorrect = isValidated && typedKun.trim().toLowerCase() === currentKanji.kun.toLowerCase();
 
     const scoreRatio = score.total > 0 ? score.correct / score.total : null;
     const scoreState =
@@ -216,7 +208,7 @@ function KanjiWritingTrainer() {
 
     const handleValidate = () => {
         if (!canValidate) return;
-        const correct = selectedKun === question.correctIndex;
+        const correct = typedKun.trim().toLowerCase() === currentKanji.kun.toLowerCase();
         setIsValidated(true);
         setSvgError(false);
         setScore((s) => ({
@@ -227,17 +219,18 @@ function KanjiWritingTrainer() {
 
     const goToNext = () => {
         setQuestion(buildQuestion(dataset, question.correctIndex));
-        setSelectedKun(null);
+        setTypedKun("");
         setIsValidated(false);
         setSvgError(false);
+        setTimeout(() => kunInputRef.current?.focus(), 0);
     };
 
-    const feedbackMessage = !hasDrawn && selectedKun === null
-        ? "Draw the kanji in the canvas and select a kun reading."
+    const feedbackMessage = !hasDrawn && typedKun.trim() === ""
+        ? "Draw the kanji in the canvas and type the kun reading."
         : !hasDrawn
         ? "Draw the kanji in the canvas above."
-        : selectedKun === null
-        ? "Now select the correct kun reading."
+        : typedKun.trim() === ""
+        ? "Now type the kun reading."
         : "Ready — click Validate to check your answer.";
 
     return (
@@ -247,7 +240,7 @@ function KanjiWritingTrainer() {
                     <h1>Kanji Writing Trainer</h1>
                     <p className="kwt-subtitle">
                         You are given the English meaning of a kanji. Draw the character in the
-                        canvas, then select its kun reading. Click Validate to reveal the
+                        canvas, then type its kun reading. Click Validate to reveal the
                         correct stroke order.
                     </p>
                     <DeckSelector
@@ -311,28 +304,18 @@ function KanjiWritingTrainer() {
                     </div>
 
                     <div className="kwt-kun-section">
-                        <span className="kwt-section-label">Select the kun reading:</span>
-                        <div className="kwt-kun-options">
-                            {question.kunOptions.map((idx) => {
-                                const entry = dataset[idx];
-                                let cls = "kwt-kun-btn";
-                                if (selectedKun === idx) cls += " is-selected";
-                                if (isValidated) {
-                                    if (idx === question.correctIndex) cls += " is-correct";
-                                    else if (selectedKun === idx) cls += " is-wrong";
-                                }
-                                return (
-                                    <button
-                                        key={idx}
-                                        className={cls}
-                                        onClick={() => !isValidated && setSelectedKun(idx)}
-                                        disabled={isValidated}
-                                        type="button"
-                                    >
-                                        {entry.kun}
-                                    </button>
-                                );
-                            })}
+                        <span className="kwt-section-label">Type the kun reading:</span>
+                        <div className="kwt-text-input-row">
+                            <input
+                                ref={kunInputRef}
+                                type="text"
+                                className="kwt-text-input"
+                                value={typedKun}
+                                onChange={e => !isValidated && setTypedKun(e.target.value)}
+                                onKeyDown={e => e.key === "Enter" && handleValidate()}
+                                disabled={isValidated}
+                                placeholder="Type the kun reading…"
+                            />
                         </div>
                     </div>
 

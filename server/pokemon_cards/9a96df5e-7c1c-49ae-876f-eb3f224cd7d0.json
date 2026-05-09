@@ -1,0 +1,85 @@
+{
+  "id": "9a96df5e-7c1c-49ae-876f-eb3f224cd7d0",
+  "nickname": "Test fiche benjamin",
+  "pokemonName": "liepard delta form",
+  "state": {
+    "chosen_pokemon": "liepard delta form",
+    "pokemon_level": 45,
+    "pokemon_rarity": "Normal",
+    "pokemon_card": "None",
+    "pokemon_gender": "Female",
+    "pokemon_final_buffed_stat": "SPD",
+    "pokemon_final_lowered_stat": "SPATK",
+    "pokemon_base_ability": "Illusion",
+    "pokemon_advanced_ability": "Prankster",
+    "pokemon_high_ability": "Sniper",
+    "pokemon_points_by_stats": {
+      "HP": 7,
+      "ATK": 11,
+      "DEF": 6,
+      "SPATK": 11,
+      "SPDEF": 6,
+      "SPD": 13
+    },
+    "pokemon_chosen_moves": [
+      {
+        "move": "Slash",
+        "type": "Normal",
+        "frequency": "EOT",
+        "AC": "5",
+        "damage_base": "8",
+        "roll": "2d8+10 / 19",
+        "classe": "Physical",
+        "range": "Melee, Pass",
+        "effect": "Slash is a Critical Hit on a roll of 18+. If Slash is used without the Pass Keyword, on a roll of 16+, the Target becomes Wounded.",
+        "blessing": "",
+        "special_effect": "",
+        "contest_type": "Cool",
+        "contest_effect": "Steady Performance",
+        "extra_lines": [],
+        "id": 163
+      },
+      {
+        "move": "Nasty Plot",
+        "type": "Dark",
+        "frequency": "EOT",
+        "AC": "None",
+        "damage_base": "",
+        "roll": "",
+        "classe": "Status",
+        "range": "Self, Versatile",
+        "effect": "The user gains +2 CS in Special Attack. Their next Special Attack gains the Smite Keyword.",
+        "blessing": "",
+        "special_effect": "",
+        "contest_type": "Cute",
+        "contest_effect": "Get Ready!",
+        "extra_lines": [],
+        "id": 417
+      }
+    ],
+    "pokemon_chosen_egg_moves": [
+      {
+        "move": "Bug Bite",
+        "type": "Bug",
+        "frequency": "At-Will",
+        "AC": "2",
+        "damage_base": "6",
+        "roll": "2d6+8 / 15",
+        "classe": "Physical",
+        "range": "Melee, 1 Target, Bite",
+        "effect": "On a roll of 17+, the Target becomes Wounded.",
+        "blessing": "",
+        "special_effect": "",
+        "contest_type": "Tough",
+        "contest_effect": "Attention Grabber",
+        "extra_lines": [],
+        "id": 450
+      }
+    ],
+    "pokemon_chosen_tmhm_moves": [],
+    "pokemon_locked_egg_moves": [],
+    "remaining_rolls": 2
+  },
+  "createdAt": "2026-05-07T09:31:04.768Z",
+  "updatedAt": "2026-05-07T10:31:17.833Z"
+}

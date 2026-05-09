@@ -1,18 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import "./KatakanaWordTrainer.css";
-import { fetchRandomKatakanaWords } from "../api/japaneseApi.js";
-const FALLBACK_WORDS = [
-    { katakana: "コーヒー", translation: "coffee" },
-    { katakana: "タクシー", translation: "taxi" },
-    { katakana: "テレビ", translation: "television" },
-    { katakana: "コンピューター", translation: "computer" },
-    { katakana: "ホテル", translation: "hotel" },
-    { katakana: "カメラ", translation: "camera" },
-    { katakana: "バス", translation: "bus" },
-    { katakana: "アイスクリーム", translation: "ice cream" },
-    { katakana: "サラダ", translation: "salad" },
-    { katakana: "チョコレート", translation: "chocolate" },
-];
+import "./HiraganaWordTrainer.css";
+import { fetchRandomHiraganaWords } from "../api/japaneseApi.js";
+
 
 const init_loading_count = 100;
 
@@ -31,12 +20,12 @@ function checkAnswer(typed, expected) {
     return candidates.some(c => c === normalizedTyped);
 }
 
-function KatakanaWordTrainer() {
-    const [dataset, setDataset] = useState(FALLBACK_WORDS);
+function HiraganaWordTrainer() {
+    const [dataset, setDataset] = useState();
     const [dataStatus, setDataStatus] = useState("loading");
 
-    const [quizMode, setQuizMode] = useState("katakana-to-word");
-    const [currentEntry, setCurrentEntry] = useState(() => getRandomEntry(FALLBACK_WORDS));
+    const [quizMode, setQuizMode] = useState("hiragana-to-word");
+    const [currentEntry, setCurrentEntry] = useState(() => []);
     const [userInput, setUserInput] = useState("");
     const [submitted, setSubmitted] = useState(false);
     const [isCorrect, setIsCorrect] = useState(false);
@@ -45,7 +34,7 @@ function KatakanaWordTrainer() {
 
     const loadWords = useCallback(() => {
         setDataStatus("loading");
-        fetchRandomKatakanaWords(init_loading_count)
+        fetchRandomHiraganaWords(init_loading_count)
             .then(words => {
                 setDataset(words);
                 setCurrentEntry(getRandomEntry(words));
@@ -55,12 +44,6 @@ function KatakanaWordTrainer() {
                 setDataStatus("ready");
             })
             .catch(() => {
-                setDataset(FALLBACK_WORDS);
-                setCurrentEntry(getRandomEntry(FALLBACK_WORDS));
-                setUserInput("");
-                setSubmitted(false);
-                setScore({ correct: 0, total: 0 });
-                setDataStatus("error");
             });
     }, []);
 
@@ -70,7 +53,7 @@ function KatakanaWordTrainer() {
 
     const handleSubmit = () => {
         if (submitted || !userInput.trim()) return;
-        const expected = quizMode === "katakana-to-word" ? currentEntry.translation : currentEntry.katakana;
+        const expected = quizMode === "hiragana-to-word" ? currentEntry.translation : currentEntry.hiragana;
         const correct = checkAnswer(userInput, expected);
         setIsCorrect(correct);
         setSubmitted(true);
@@ -105,34 +88,34 @@ function KatakanaWordTrainer() {
         : scoreRatio >= 0.4 ? "is-neutral"
         : "is-weak";
 
-    const isKatakanaToWord = quizMode === "katakana-to-word";
-    const promptText = isKatakanaToWord ? currentEntry.katakana : currentEntry.translation;
-    const expectedAnswer = isKatakanaToWord ? currentEntry.translation : currentEntry.katakana;
+    const isHiraganaToWord = quizMode === "hiragana-to-word";
+    const promptText = isHiraganaToWord ? currentEntry.hiragana : currentEntry.translation;
+    const expectedAnswer = isHiraganaToWord ? currentEntry.translation : currentEntry.hiragana;
 
     return (
         <div className="kwt-page">
             <section className="kwt-shell">
                 <div className="kwt-copy">
-                    <h1>Katakana Word Trainer</h1>
+                    <h1>Hiragana Word Trainer</h1>
                     <p className="kwt-subtitle">
-                        {isKatakanaToWord
-                            ? "A katakana word is shown — type the English translation."
-                            : "A word is shown — type it in katakana."}
+                        {isHiraganaToWord
+                            ? "A hiragana word is shown — type the romaji version."
+                            : "A word is shown — type it in hiragana."}
                     </p>
                     <div className="kwt-mode-switch">
                         <button
-                            className={`kwt-mode-button ${quizMode === "katakana-to-word" ? "is-active" : ""}`}
-                            onClick={() => switchMode("katakana-to-word")}
+                            className={`kwt-mode-button ${quizMode === "hiragana-to-word" ? "is-active" : ""}`}
+                            onClick={() => switchMode("hiragana-to-word")}
                             type="button"
                         >
-                            Katakana → Word
+                            Hiragana → Romaji
                         </button>
                         <button
-                            className={`kwt-mode-button ${quizMode === "word-to-katakana" ? "is-active" : ""}`}
-                            onClick={() => switchMode("word-to-katakana")}
+                            className={`kwt-mode-button ${quizMode === "word-to-hiragana" ? "is-active" : ""}`}
+                            onClick={() => switchMode("word-to-hiragana")}
                             type="button"
                         >
-                            Word → Katakana
+                            Romaji → Hiragana
                         </button>
                     </div>
                     {dataStatus === "error" && (
@@ -147,9 +130,9 @@ function KatakanaWordTrainer() {
                             <button className="kwt-retry-link" onClick={loadWords} type="button">Load new batch</button>
                         </p>
                     )}
-                    {!isKatakanaToWord && (
+                    {!isHiraganaToWord && (
                         <p className="kwt-ime-hint">
-                            Enable your Japanese IME and switch to katakana input to type the answer.
+                            Enable your Japanese IME and switch to hiragana input to type the answer.
                         </p>
                     )}
                 </div>
@@ -165,9 +148,9 @@ function KatakanaWordTrainer() {
 
                             <div className="kwt-prompt">
                                 <span className="kwt-label">
-                                    {isKatakanaToWord ? "What does this mean?" : "Write this in katakana:"}
+                                    {isHiraganaToWord ? "What does this mean?" : "Write this in hiragana:"}
                                 </span>
-                                <div className={`kwt-prompt-box ${isKatakanaToWord ? "is-katakana" : "is-word"}`}>
+                                <div className={`kwt-prompt-box ${isHiraganaToWord ? "is-hiragana" : "is-word"}`}>
                                     {promptText}
                                 </div>
                             </div>
@@ -180,7 +163,7 @@ function KatakanaWordTrainer() {
                                     value={userInput}
                                     onChange={e => { if (!submitted) setUserInput(e.target.value); }}
                                     onKeyDown={handleKeyDown}
-                                    placeholder={isKatakanaToWord ? "Type the translation…" : "Type in katakana…"}
+                                    placeholder={isHiraganaToWord ? "Type the translation…" : "Type in hiragana…"}
                                     disabled={submitted}
                                     autoFocus
                                     autoComplete="off"
@@ -224,4 +207,4 @@ function KatakanaWordTrainer() {
     );
 }
 
-export default KatakanaWordTrainer;
+export default HiraganaWordTrainer;

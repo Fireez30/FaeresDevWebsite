@@ -1,0 +1,22 @@
+{
+  "id": "e95aaf2e-467a-4ad8-8c93-da9901cd0838",
+  "name": "Benjamin main team",
+  "selectedType": "Flying",
+  "slots": [
+    {
+      "cardId": "9a96df5e-7c1c-49ae-876f-eb3f224cd7d0",
+      "pokemonName": "liepard delta form",
+      "nickname": "Test fiche benjamin",
+      "level": 45,
+      "rarity": "normal",
+      "isMega": false
+    },
+    null,
+    null,
+    null,
+    null,
+    null
+  ],
+  "createdAt": "2026-05-07T09:45:12.931Z",
+  "updatedAt": "2026-05-07T10:30:52.338Z"
+}
