@@ -134,5 +134,41 @@
 
   { "kana": "ピャ", "romaji": "pya" },
   { "kana": "ピュ", "romaji": "pyu" },
-  { "kana": "ピョ", "romaji": "pyo" }
+  { "kana": "ピョ", "romaji": "pyo" },
+
+  { "kana": "ファ", "romaji": "fa" },
+  { "kana": "フィ", "romaji": "fi" },
+  { "kana": "フェ", "romaji": "fe" },
+  { "kana": "フォ", "romaji": "fo" },
+
+  { "kana": "ヴァ", "romaji": "va" },
+  { "kana": "ヴィ", "romaji": "vi" },
+  { "kana": "ヴェ", "romaji": "ve" },
+  { "kana": "ヴォ", "romaji": "vo" },
+
+  { "kana": "ウィ", "romaji": "wi" },
+  { "kana": "ウェ", "romaji": "we" },
+  { "kana": "ウォ", "romaji": "wo" },
+
+  { "kana": "シェ", "romaji": "she" },
+  { "kana": "ジェ", "romaji": "je" },
+  { "kana": "チェ", "romaji": "che" },
+
+  { "kana": "ティ", "romaji": "ti" },
+  { "kana": "ディ", "romaji": "di" },
+  { "kana": "トゥ", "romaji": "tu" },
+  { "kana": "ドゥ", "romaji": "du" },
+
+  { "kana": "ツァ", "romaji": "tsa" },
+  { "kana": "ツィ", "romaji": "tsi" },
+  { "kana": "ツェ", "romaji": "tse" },
+  { "kana": "ツォ", "romaji": "tso" },
+
+  { "kana": "スィ", "romaji": "si" },
+  { "kana": "ズィ", "romaji": "zi" },
+
+  { "kana": "デュ", "romaji": "dyu" },
+  { "kana": "テュ", "romaji": "tyu" },
+
+  { "kana": "クォ", "romaji": "kwo" }
 ]

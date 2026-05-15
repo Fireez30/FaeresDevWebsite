@@ -2,7 +2,6 @@ import { useSelector,useDispatch } from "react-redux";
 import Form from 'react-bootstrap/Form';
 import React, {useEffect, useRef, useState} from "react";
 import './PokemonGenerator.css';
-import { fetchPokemon, fetchMoves, fetchAbilities } from "../api/pokemonApi.js";
 import Button from 'react-bootstrap/Button';
 import Table from 'react-bootstrap/Table';
 import {AutoComplete, Input, InputNumber, Dropdown, Select} from 'antd';

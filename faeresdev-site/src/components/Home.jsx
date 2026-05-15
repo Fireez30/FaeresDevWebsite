@@ -3,6 +3,16 @@ import { Link } from "react-router-dom";
 
 const sections = [
     {
+        title: "Weiss Schwarz",
+        items: [
+            {
+                title: "Sleeve Inserts",
+                href: "/ws-sleeve-inserts",
+                description: "Generate printable translation inserts from an encoredecks or decklog deck URL. Sized to cover the Weiss Schwarz card text frame (63mm × 30mm), one insert per card copy.",
+            },
+        ],
+    },
+    {
         title: "Pokemon Role Playing Game",
         items: [
             {

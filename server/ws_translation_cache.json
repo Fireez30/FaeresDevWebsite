@@ -1,0 +1,57 @@
+{
+  "SMP/W137-020": {
+    "name": "“Curious” seagull",
+    "traits": "Summer Pockets",
+    "effect": "【CONT】 During your turn, if you have another \"Summer Pockets\" character, this card gets +3000 power.\n【AUTO】 【CX Combo】 When this card's battle opponent becomes 【Reverse】, if \"Beyond the Seven Seas\" is in your CX area and you have 2 or more other ``Summer Pockets'' characters, reveal up to 3 cards from the top of your deck, choose up to X ``Summer Pockets'' characters or events, add them to your hand, and put the remaining cards in your waiting room. X is equal to 2 if the total level of the cards revealed by this effect is even, or 1 if it is odd. (CX level is treated as 0)"
+  },
+  "SMP/W137-031": {
+    "name": "“Dream female student” Kamou",
+    "traits": "Summer Pockets",
+    "effect": "【AUTO】 When this card becomes 【Reverse】, if the level of this card's battle opponent is higher than the opponent's level, you may put the top card of your opponent's clock into your waiting room. Then, you put that character into the clock area.\n【AUTO】 When this card is placed from the stage into your waiting room, if you have 4 or more other ``Summer Pockets'' characters, you may choose 1 ``Summer Pockets'' character in your waiting room and place it in your stock."
+  },
+  "SMP/W137-017": {
+    "name": "“The beginning of summer” seagull",
+    "traits": "Summer Pockets",
+    "effect": "【AUTO】 [Put 1 card from your hand into your waiting room] When this card is placed on the stage from your hand, you may pay the cost. Then, reveal the top card of your deck, choose a character of level X or lower in your waiting room, and return it to your hand. X is equal to the level of the revealed card. (CX level is treated as 0. Revealed cards are restored)\n【ACT】 Concentrate [(1) 【Rest】 this card] Turn over the top four cards of your deck and place them in your waiting room. For each CX of those cards, you select up to one \"Summer Pockets\" character in your waiting room and return it to your hand."
+  },
+  "SMP/W137-015": {
+    "name": "“Pirate Ship and Girl” Kazu",
+    "traits": "Summer Pockets",
+    "effect": "【CONT】 During your turn, if you have another \"Summer Pockets\" character, this card gets +2000 power and gains the following ability. \"【AUTO】 When this card's battle opponent becomes 【Reverse】, choose one of your other \"Summer Pockets\" characters, 【Rest】 it, and move it to a frame with no characters in the back row. ”\n【AUTO】 At the beginning of your opponent's draw phase, reveal the top card of your deck. If that card's level is 1 or higher, you may return this card to your hand. (CX level is treated as 0. Revealed cards are restored)"
+  },
+  "SMP/W137-026": {
+    "name": "“That summer flag” seagull",
+    "traits": "Summer Pockets",
+    "effect": "【CONT】 During your turn, this card gets +2000 power.\n【AUTO】 When this card is placed on the stage from your hand, look at up to X cards from the top of your deck, choose up to 1 card, add it to your hand, and put the remaining cards into your waiting room. X is equal to the number of your \"Summer Pockets\" characters.\n【AUTO】 【CX Combo】 [(2) Put 1 card from your hand into your waiting room] When this card attacks, if there is a \"starting point\" in your CX area, you may pay the cost. Then, perform one of the following two effects of your choice. \"Inflict 1 damage to your opponent twice. ” “Inflict 3 damage to your opponent. ” (Damage cancellation will occur)"
+  },
+  "SMP/W137-034": {
+    "name": "across the seven seas",
+    "traits": "",
+    "effect": "【CONT】 Give all your characters +1000 power and +1 soul.\n([TREASURE]: When this card is triggered, you return this card to your hand. You may put one card from the top of your deck into your stock.)"
+  },
+  "SMP/W137-035": {
+    "name": "starting point",
+    "traits": "",
+    "effect": "【CONT】 Give all your characters +1000 power and +1 soul.\n([TREASURE]: When this card is triggered, you return this card to your hand. You may put one card from the top of your deck into your stock.)"
+  },
+  "SMP/W137-036": {
+    "name": "“Summer vacation again” Shiroha & Umi",
+    "traits": "Summer Pockets",
+    "effect": "【AUTO】 When this card is placed on the stage from your hand, if you have another \"Summer Pockets\" character, look at the top card of your deck, put it on top of your deck or in your waiting room, and this card gets +1500 power until end of turn.\n【AUTO】 [(1) Put the top card of your deck into the clock area] When this card is placed on the stage from your hand, you may pay the cost. Then, look at your deck and select up to one character of level 1 or lower, show it to your opponent, add it to your hand, and shuffle your deck."
+  },
+  "SMP/W137-033": {
+    "name": "Photos found in the warehouse",
+    "traits": "Summer Pockets",
+    "effect": "Look at up to 3 cards from the top of your deck, select up to 1 ``Summer Pockets'' character or ``Photo Found in the Warehouse'', show it to your opponent, add it to your hand, place the remaining cards in your waiting room, look at 1 card from the top of your deck, and place it on the top or bottom of your deck.\nMake this card a memory.\n【CONT】 Memory If this card is in your memory, all of your \"Summer Pockets\" characters get +500 power during your turn."
+  },
+  "SMP/W137-076": {
+    "name": "“Start of Summer” Tsumugi",
+    "traits": "Summer Pockets",
+    "effect": "【AUTO】 At the beginning of your CX phase, if you have two or more other \"Summer Pockets\" characters, choose one of your characters, and that character gets +500 power for the duration of the turn.\n【ACT】 Concentrate [(1) 【Rest】 this card] Turn over the top four cards of your deck and place them in your waiting room. Perform the following actions for each CX of those cards. \"Look at up to three cards from the top of your deck, choose up to one card, add it to your hand, and put the remaining cards in your waiting room. ”"
+  },
+  "SMP/W137-092": {
+    "name": "Inspire yourself Tsumugi",
+    "traits": "Summer Pockets",
+    "effect": "【CONT】 During your turn, if you have another \"Summer Pockets\" character, this card gets +6000 power.\n【AUTO】 When this card is placed on the stage from your hand, perform one of the following two effects of your choice. ``[(1)] You may pay the cost. Then, you choose one trait for your opponent's character on the stage, and all of your opponent's characters lose that trait for the duration of the turn. \"[(2)] You may pay the cost. Then, choose one of your opponent's characters and return it to their hand. ”"
+  }
+}

@@ -367,5 +367,209 @@ app.get('/api/abilities', (req, res) => {
     res.sendFile(path.join(POKEMON_DATA_DIR, 'abilities.json'));
 });
 
+// ─── WS Translation cache ─────────────────────────────────────────────────────
+
+const WS_CACHE_FILE = path.join(__dirname, 'ws_translation_cache.json');
+let wsTranslationCache = {};
+try {
+    if (fs.existsSync(WS_CACHE_FILE))
+        wsTranslationCache = JSON.parse(fs.readFileSync(WS_CACHE_FILE, 'utf-8'));
+} catch {}
+
+function saveWsCache() {
+    fs.writeFileSync(WS_CACHE_FILE, JSON.stringify(wsTranslationCache, null, 2), 'utf-8');
+}
+
+// Known WS trait/name fixes after translation (regex → replacement pairs)
+const WS_FIXES = [
+    [/\bSummer Poke\b/g, 'Summer Pockets'],
+    [/\bSummer Pocket\b/g, 'Summer Pockets'],  // without trailing s
+];
+
+// Fix WS keyword notation that Google Translate mangles
+function fixWsKeywords(text) {
+    if (!text) return text;
+    let t = text
+        // Direct bracket conversion (Google Translate often outputs these correctly but with [] instead of 【】)
+        .replace(/\[AUTO\]/g, '【AUTO】')
+        .replace(/\[CONT\]/g, '【CONT】')
+        .replace(/\[ACT\]/g, '【ACT】')
+        .replace(/\[COUNTER\]/g, '【COUNTER】')
+        .replace(/\[Reverse\]/gi, '【Reverse】')
+        .replace(/\[Stand\]/gi, '【Stand】')
+        .replace(/\[Rest\]/gi, '【Rest】')
+        .replace(/\[CX Combo\]/gi, '【CX Combo】')
+        .replace(/\[Clock Encore\]/gi, '【Clock Encore】')
+        .replace(/\[Bond\]/gi, '【Bond】')
+        .replace(/\[Backup\]/gi, '【Backup】')
+        .replace(/\[Brainstorm\]/gi, '【Brainstorm】')
+        .replace(/\[TREASURE\]/gi, '【TREASURE】')
+        .replace(/\[GOLD\]/gi, '【GOLD】')
+        .replace(/\[POOL\]/gi, '【POOL】')
+        .replace(/\[SHOT\]/gi, '【SHOT】')
+        .replace(/\[BOUNCE\]/gi, '【BOUNCE】')
+        .replace(/\[GATE\]/gi, '【GATE】')
+        .replace(/\[SALVAGE\]/gi, '【SALVAGE】')
+        // Fallback for mangled translations
+        .replace(/\[?【?(?:Automatic|Automatique|自動)\]?】?/g, '【AUTO】')
+        .replace(/\[?【?(?:Permanent|Continuous|Continu|Forever|永続)\]?】?/g, '【CONT】')
+        .replace(/\[?【?(?:Activate|Activation|起動)\]?】?/g, '【ACT】');
+    for (const [pattern, replacement] of WS_FIXES)
+        t = t.replace(pattern, replacement);
+    return t;
+}
+
+async function googleTranslate(text) {
+    if (!text) return '';
+    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=ja&tl=en&dt=t&q=${encodeURIComponent(text)}`;
+    const r = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+    if (!r.ok) return text;
+    const data = await r.json();
+    const translated = data[0].map(chunk => chunk[0]).join('');
+    return fixWsKeywords(translated);
+}
+
+async function translateCardIfNeeded(serial, name, traits, effect) {
+    if (wsTranslationCache[serial]) {
+        // Re-apply keyword fixes in case the cache predates a fix update
+        const c = wsTranslationCache[serial];
+        return { name: fixWsKeywords(c.name), traits: fixWsKeywords(c.traits), effect: fixWsKeywords(c.effect) };
+    }
+    // Sequential to avoid hitting Google Translate rate limits
+    const tName   = await googleTranslate(name);
+    const tTraits = await googleTranslate(traits);
+    const tEffect = await googleTranslate(effect);
+    const result = { name: tName, traits: tTraits, effect: tEffect };
+    wsTranslationCache[serial] = result;
+    saveWsCache();
+    return result;
+}
+
+// ─── WS Deck Proxy ────────────────────────────────────────────────────────────
+
+function detectWsSource(url) {
+    if (url.includes('encoredecks.com')) return 'encoredecks';
+    if (url.includes('decklog.bushiroad.com')) return 'decklog';
+    return null;
+}
+
+function extractWsDeckId(url, source) {
+    if (source === 'encoredecks') {
+        const m = url.match(/\/deck\/([A-Za-z0-9_-]+)/);
+        return m?.[1] ?? null;
+    }
+    if (source === 'decklog') {
+        const m = url.match(/\/view\/([A-Za-z0-9]+)/);
+        return m?.[1] ?? null;
+    }
+    return null;
+}
+
+function pickLocale(entry) {
+    const locales = entry.locale ?? {};
+    for (const lang of ['EN', 'NP']) {
+        const loc = locales[lang];
+        if (loc && (loc.name || (loc.ability && loc.ability.length) || (loc.attributes && loc.attributes.length)))
+            return { loc, lang };
+    }
+    return { loc: null, lang: null };
+}
+
+function extractJpTraits(abilityLines) {
+    const text = abilityLines.join(' ');
+    const found = [...text.matchAll(/《([^》]+)》/g)].map(m => m[1]);
+    return [...new Set(found)];
+}
+
+function normalizeEncoreCard(entry) {
+    const { loc, lang } = pickLocale(entry);
+    const name = loc?.name ?? entry.name ?? '';
+    const locAttributes = loc?.attributes ?? [];
+    const jpAbility = entry.locale?.NP?.ability ?? [];
+    const traits = locAttributes.length
+        ? locAttributes.join('・')
+        : extractJpTraits(jpAbility).join('・');
+    const effect = (loc?.ability ?? entry.ability ?? []).join('\n');
+    const needsTranslation = lang !== 'EN';
+    return {
+        serial: entry.cardcode ?? entry.sid ?? '',
+        name,
+        traits,
+        effect,
+        quantity: entry.armycount ?? entry.amount ?? 1,
+        needsTranslation,
+    };
+}
+
+app.get('/api/ws-deck', async (req, res) => {
+    const { url } = req.query;
+    if (!url) return res.status(400).json({ error: 'url parameter required' });
+
+    const source = detectWsSource(url);
+    if (!source) return res.status(400).json({ error: 'URL must be from encoredecks.com or decklog.bushiroad.com' });
+
+    const deckId = extractWsDeckId(url, source);
+    if (!deckId) return res.status(400).json({ error: 'Could not extract deck ID from URL' });
+
+    const headers = { 'Accept': 'application/json', 'User-Agent': 'Mozilla/5.0' };
+
+    try {
+        let cards = [];
+        let deckName = deckId;
+
+        if (source === 'encoredecks') {
+            const r = await fetch(`https://www.encoredecks.com/api/deck/${deckId}`, { headers });
+            if (!r.ok) return res.status(502).json({ error: `encoredecks returned HTTP ${r.status}` });
+            const data = await r.json();
+            deckName = data.name ?? data.title ?? deckId;
+            const rawCards = data.cards ?? data.card_list ?? [];
+
+            // API returns one entry per copy — group by cardcode to get quantity
+            const byCode = new Map();
+            for (const entry of rawCards) {
+                const code = entry.cardcode ?? entry.sid ?? '';
+                if (byCode.has(code)) byCode.get(code).count++;
+                else byCode.set(code, { entry, count: 1 });
+            }
+
+            cards = [...byCode.values()].map(({ entry, count }) => ({
+                ...normalizeEncoreCard(entry),
+                quantity: count,
+            }));
+        }
+
+        if (source === 'decklog') {
+            const r = await fetch(`https://decklog.bushiroad.com/system/app/api/view/${deckId}`, { headers });
+            if (!r.ok) return res.status(502).json({ error: `decklog returned HTTP ${r.status}` });
+            const data = await r.json();
+            deckName = data.title ?? data.name ?? deckId;
+            const rawCards = data.card_list ?? data.cards ?? [];
+            cards = rawCards.map(entry => ({
+                serial: entry.card_number ?? entry.cardNumber ?? '',
+                name: entry.name ?? '',
+                traits: entry.character ?? entry.traits ?? '',
+                effect: entry.text ?? '',
+                quantity: entry.cnt ?? entry.count ?? 1,
+                needsTranslation: true,
+            }));
+        }
+
+        // Translate JP-only cards sequentially (cached after first call)
+        const translated = [];
+        for (const card of cards) {
+            if (!card.needsTranslation) {
+                translated.push(card);
+            } else {
+                const t = await translateCardIfNeeded(card.serial, card.name, card.traits, card.effect);
+                translated.push({ ...card, name: t.name, traits: t.traits, effect: t.effect, needsTranslation: false });
+            }
+        }
+
+        return res.json({ deckName, cards: translated });
+    } catch (err) {
+        return res.status(500).json({ error: `Proxy error: ${err.message}` });
+    }
+});
+
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`Deck server listening on port ${PORT}`));

@@ -13,6 +13,7 @@ import JapaneseSentenceColorTrainer from "./JapaneseSentenceColorTrainer.jsx";
 import VocabularyTrainer from "./VocabularyTrainer.jsx";
 import KatakanaWordTrainer from "./KatakanaWordTrainer.jsx";
 import DeckManager from "./DeckManager.jsx";
+import WSSleeveInserts from "./WSSleeveInserts.jsx";
 import Home from "./Home.jsx";
 import PokemonEncounterGenerator from "./PokemonEncounterGenerator.jsx";
 import PokemonTeamManager from "./PokemonTeamManager.jsx";
@@ -30,6 +31,13 @@ const items = [
             {key: '/pokemon-team-card',label: 'Pokemon Team Card'},
             {key: '/pokemon-team-manager',label: 'Pokemon Team Manager'},
 
+        ],
+    },
+    {
+        key: 'weiss-schwarz',
+        label: 'Weiss Schwarz',
+        children: [
+            {key: '/ws-sleeve-inserts', label: 'Sleeve Inserts'},
         ],
     },
     {
@@ -81,6 +89,7 @@ function App() {
                 <Route path="/katakana-word-training" element={<KatakanaWordTrainer />} />
                 <Route path="/hiragana-word-training" element={<HiraganaWordTrainer />} />
                 <Route path="/deck-manager" element={<DeckManager />} />
+                <Route path="/ws-sleeve-inserts" element={<WSSleeveInserts />} />
                 <Route path="*" element={<Home />} />
             </Routes>
         </Content>
