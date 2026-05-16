@@ -1832,7 +1832,13 @@ function PokemonGenerator() {
                                 }</p>`;
 
                                 if (notes.trim()) {
-                                    container.innerHTML += `<p>${notes.trim().replace(/\n/g, "<br>")}</p>`;
+                                    const escapeHtml = (s) => s
+                                        .replace(/&/g, "&amp;")
+                                        .replace(/</g, "&lt;")
+                                        .replace(/>/g, "&gt;")
+                                        .replace(/"/g, "&quot;")
+                                        .replace(/'/g, "&#39;");
+                                    container.innerHTML += `<p>${escapeHtml(notes.trim()).replace(/\n/g, "<br>")}</p>`;
                                 }
 
                                 /* COPY AS RICH TEXT */

@@ -32,44 +32,57 @@ app.use((req, res, next) => {
     next();
 });
 
+// Allow only canonical UUIDs as :id values — prevents path traversal when
+// req.params.id is interpolated into a filesystem path.
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+function isValidId(id) {
+    return typeof id === 'string' && UUID_RE.test(id);
+}
+
+// Coerce a query-string count to a bounded integer.
+function parseCount(raw, max) {
+    const n = Number.parseInt(raw, 10);
+    if (!Number.isFinite(n) || n <= 0) return null;
+    return Math.min(n, max);
+}
+
+// Fetch with a hard timeout so a slow upstream cannot pin server resources.
+async function fetchWithTimeout(url, options = {}, timeoutMs = 8000) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+        return await fetch(url, { ...options, signal: controller.signal });
+    } finally {
+        clearTimeout(timer);
+    }
+}
+
 // ─── Japanese ────────────────────────────────────────────────────────────────────
 
 function getRandomItemsFromArray(arr, random_count) {
-    let output_array = [];
-    while (output_array.length < random_count) {
-        const picked = arr[Math.floor(Math.random() * arr.length)];
-        if (output_array.indexOf(picked) === -1) {
-            output_array.push(picked);
-        }
+    const wanted = Math.min(random_count, arr.length);
+    const copy = arr.slice();
+    for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
     }
-    return output_array;
+    return copy.slice(0, wanted);
 }
-app.get('/api/hiragana_words', (req, res) => {
-    const {count} = req.query;
-    try {
-        const hiraganawords = JSON.parse(fs.readFileSync(HIRAGANA_WORDS_FILE, 'utf8'));
-        let words = getRandomItemsFromArray(hiraganawords,count);
-        return res.json(words);
-    }
-    catch {
-        return null;
-    }
-});
 
-app.get('/api/katakana_words', (req, res) => {
-    const {count} = req.query;
-    console.log(count);
+function serveRandomWords(file, req, res) {
+    const count = parseCount(req.query.count, 200);
+    if (count === null) return res.status(400).json({ error: 'count must be a positive integer' });
     try {
-        const katakanawords = JSON.parse(fs.readFileSync(KATAKANA_WORDS_FILE, 'utf8'));
-        //console.log(katakanawords);
-        let words = getRandomItemsFromArray(katakanawords,count);
-        console.log(words);
-        return res.json(words);
+        const words = JSON.parse(fs.readFileSync(file, 'utf8'));
+        if (!Array.isArray(words)) return res.status(500).json({ error: 'Word list malformed' });
+        return res.json(getRandomItemsFromArray(words, count));
+    } catch {
+        return res.status(500).json({ error: 'Could not load word list' });
     }
-    catch {
-        return null;
-    }
-});
+}
+
+app.get('/api/hiragana_words', (req, res) => serveRandomWords(HIRAGANA_WORDS_FILE, req, res));
+app.get('/api/katakana_words', (req, res) => serveRandomWords(KATAKANA_WORDS_FILE, req, res));
 
 
 // ─── Decks ────────────────────────────────────────────────────────────────────
@@ -99,6 +112,7 @@ app.get('/api/decks', (req, res) => {
 });
 
 app.get('/api/decks/:id', (req, res) => {
+    if (!isValidId(req.params.id)) return res.status(400).json({ error: 'Invalid id' });
     const deck = readDeck(req.params.id);
     if (!deck) return res.status(404).json({ error: 'Deck not found' });
     res.json(deck);
@@ -116,6 +130,7 @@ app.post('/api/decks', (req, res) => {
 });
 
 app.put('/api/decks/:id', (req, res) => {
+    if (!isValidId(req.params.id)) return res.status(400).json({ error: 'Invalid id' });
     const deck = readDeck(req.params.id);
     if (!deck) return res.status(404).json({ error: 'Deck not found' });
     const { name, entries } = req.body;
@@ -132,6 +147,7 @@ app.put('/api/decks/:id', (req, res) => {
 });
 
 app.delete('/api/decks/:id', (req, res) => {
+    if (!isValidId(req.params.id)) return res.status(400).json({ error: 'Invalid id' });
     const file = path.join(DECKS_DIR, `${req.params.id}.json`);
     if (!fs.existsSync(file)) return res.status(404).json({ error: 'Deck not found' });
     fs.unlinkSync(file);
@@ -165,6 +181,7 @@ app.get('/api/zones', (req, res) => {
 });
 
 app.get('/api/zones/:id', (req, res) => {
+    if (!isValidId(req.params.id)) return res.status(400).json({ error: 'Invalid id' });
     const zone = readZone(req.params.id);
     if (!zone) return res.status(404).json({ error: 'Zone not found' });
     res.json(zone);
@@ -187,6 +204,7 @@ app.post('/api/zones', (req, res) => {
 });
 
 app.put('/api/zones/:id', (req, res) => {
+    if (!isValidId(req.params.id)) return res.status(400).json({ error: 'Invalid id' });
     const zone = readZone(req.params.id);
     if (!zone) return res.status(404).json({ error: 'Zone not found' });
     const { name, sections } = req.body;
@@ -201,6 +219,7 @@ app.put('/api/zones/:id', (req, res) => {
 });
 
 app.delete('/api/zones/:id', (req, res) => {
+    if (!isValidId(req.params.id)) return res.status(400).json({ error: 'Invalid id' });
     const file = path.join(ZONES_DIR, `${req.params.id}.json`);
     if (!fs.existsSync(file)) return res.status(404).json({ error: 'Zone not found' });
     fs.unlinkSync(file);
@@ -243,6 +262,7 @@ app.get('/api/pokemon_cards', (req, res) => {
 });
 
 app.get('/api/pokemon_cards/:id', (req, res) => {
+    if (!isValidId(req.params.id)) return res.status(400).json({ error: 'Invalid id' });
     const card = readCard(req.params.id);
     if (!card) return res.status(404).json({ error: 'Card not found' });
     res.json(card);
@@ -259,6 +279,7 @@ app.post('/api/pokemon_cards', (req, res) => {
 });
 
 app.put('/api/pokemon_cards/:id', (req, res) => {
+    if (!isValidId(req.params.id)) return res.status(400).json({ error: 'Invalid id' });
     const card = readCard(req.params.id);
     if (!card) return res.status(404).json({ error: 'Card not found' });
     const { nickname, pokemonName, state, notes } = req.body;
@@ -275,6 +296,7 @@ app.put('/api/pokemon_cards/:id', (req, res) => {
 });
 
 app.delete('/api/pokemon_cards/:id', (req, res) => {
+    if (!isValidId(req.params.id)) return res.status(400).json({ error: 'Invalid id' });
     const file = path.join(POKEMON_CARDS_DIR, `${req.params.id}.json`);
     if (!fs.existsSync(file)) return res.status(404).json({ error: 'Card not found' });
     fs.unlinkSync(file);
@@ -309,6 +331,7 @@ app.get('/api/teams', (req, res) => {
 });
 
 app.get('/api/teams/:id', (req, res) => {
+    if (!isValidId(req.params.id)) return res.status(400).json({ error: 'Invalid id' });
     const team = readTeam(req.params.id);
     if (!team) return res.status(404).json({ error: 'Team not found' });
     res.json(team);
@@ -332,6 +355,7 @@ app.post('/api/teams', (req, res) => {
 });
 
 app.put('/api/teams/:id', (req, res) => {
+    if (!isValidId(req.params.id)) return res.status(400).json({ error: 'Invalid id' });
     const team = readTeam(req.params.id);
     if (!team) return res.status(404).json({ error: 'Team not found' });
     const { name, selectedType, slots } = req.body;
@@ -347,6 +371,7 @@ app.put('/api/teams/:id', (req, res) => {
 });
 
 app.delete('/api/teams/:id', (req, res) => {
+    if (!isValidId(req.params.id)) return res.status(400).json({ error: 'Invalid id' });
     const file = path.join(TEAMS_DIR, `${req.params.id}.json`);
     if (!fs.existsSync(file)) return res.status(404).json({ error: 'Team not found' });
     fs.unlinkSync(file);
@@ -422,7 +447,7 @@ function fixWsKeywords(text) {
 async function googleTranslate(text) {
     if (!text) return '';
     const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=ja&tl=en&dt=t&q=${encodeURIComponent(text)}`;
-    const r = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+    const r = await fetchWithTimeout(url, { headers: { 'User-Agent': 'Mozilla/5.0' } }, 8000);
     if (!r.ok) return text;
     const data = await r.json();
     const translated = data[0].map(chunk => chunk[0]).join('');
@@ -447,19 +472,20 @@ async function translateCardIfNeeded(serial, name, traits, effect) {
 
 // ─── WS Deck Proxy ────────────────────────────────────────────────────────────
 
-function detectWsSource(url) {
-    if (url.includes('encoredecks.com')) return 'encoredecks';
-    if (url.includes('decklog.bushiroad.com')) return 'decklog';
+function detectWsSource(parsed) {
+    const host = parsed.hostname.toLowerCase();
+    if (host === 'encoredecks.com' || host === 'www.encoredecks.com') return 'encoredecks';
+    if (host === 'decklog.bushiroad.com') return 'decklog';
     return null;
 }
 
-function extractWsDeckId(url, source) {
+function extractWsDeckId(parsed, source) {
     if (source === 'encoredecks') {
-        const m = url.match(/\/deck\/([A-Za-z0-9_-]+)/);
+        const m = parsed.pathname.match(/\/deck\/([A-Za-z0-9_-]{1,64})/);
         return m?.[1] ?? null;
     }
     if (source === 'decklog') {
-        const m = url.match(/\/view\/([A-Za-z0-9]+)/);
+        const m = parsed.pathname.match(/\/view\/([A-Za-z0-9]{1,64})/);
         return m?.[1] ?? null;
     }
     return null;
@@ -503,12 +529,21 @@ function normalizeEncoreCard(entry) {
 
 app.get('/api/ws-deck', async (req, res) => {
     const { url } = req.query;
-    if (!url) return res.status(400).json({ error: 'url parameter required' });
+    if (!url || typeof url !== 'string') return res.status(400).json({ error: 'url parameter required' });
 
-    const source = detectWsSource(url);
+    let parsed;
+    try {
+        parsed = new URL(url);
+    } catch {
+        return res.status(400).json({ error: 'Invalid URL' });
+    }
+    if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:')
+        return res.status(400).json({ error: 'URL must be http(s)' });
+
+    const source = detectWsSource(parsed);
     if (!source) return res.status(400).json({ error: 'URL must be from encoredecks.com or decklog.bushiroad.com' });
 
-    const deckId = extractWsDeckId(url, source);
+    const deckId = extractWsDeckId(parsed, source);
     if (!deckId) return res.status(400).json({ error: 'Could not extract deck ID from URL' });
 
     const headers = { 'Accept': 'application/json', 'User-Agent': 'Mozilla/5.0' };
@@ -518,7 +553,7 @@ app.get('/api/ws-deck', async (req, res) => {
         let deckName = deckId;
 
         if (source === 'encoredecks') {
-            const r = await fetch(`https://www.encoredecks.com/api/deck/${deckId}`, { headers });
+            const r = await fetchWithTimeout(`https://www.encoredecks.com/api/deck/${deckId}`, { headers }, 8000);
             if (!r.ok) return res.status(502).json({ error: `encoredecks returned HTTP ${r.status}` });
             const data = await r.json();
             deckName = data.name ?? data.title ?? deckId;
@@ -539,7 +574,7 @@ app.get('/api/ws-deck', async (req, res) => {
         }
 
         if (source === 'decklog') {
-            const r = await fetch(`https://decklog.bushiroad.com/system/app/api/view/${deckId}`, { headers });
+            const r = await fetchWithTimeout(`https://decklog.bushiroad.com/system/app/api/view/${deckId}`, { headers }, 8000);
             if (!r.ok) return res.status(502).json({ error: `decklog returned HTTP ${r.status}` });
             const data = await r.json();
             deckName = data.title ?? data.name ?? deckId;
