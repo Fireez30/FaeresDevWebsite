@@ -14,10 +14,12 @@ import VocabularyTrainer from "./VocabularyTrainer.jsx";
 import KatakanaWordTrainer from "./KatakanaWordTrainer.jsx";
 import DeckManager from "./DeckManager.jsx";
 import WSSleeveInserts from "./WSSleeveInserts.jsx";
+import WSProxyPrinter from "./WSProxyPrinter.jsx";
 import Home from "./Home.jsx";
 import PokemonEncounterGenerator from "./PokemonEncounterGenerator.jsx";
 import PokemonTeamManager from "./PokemonTeamManager.jsx";
 import HiraganaWordTrainer from "./HiraganaWordTrainer.jsx";
+import Projects from "./Projects.jsx";
 const { Header,Footer,Content } = Layout;
 
 const items = [
@@ -38,6 +40,7 @@ const items = [
         label: 'Weiss Schwarz',
         children: [
             {key: '/ws-sleeve-inserts', label: 'Sleeve Inserts'},
+            {key: '/ws-proxy-printer', label: 'Proxy Printer'},
         ],
     },
     {
@@ -51,6 +54,7 @@ const items = [
             {key: '/deck-manager',label: 'Deck Manager'},
         ],
     },
+    {key :'/projects',label:'My Projects'}
 ];
 
 function App() {
@@ -90,6 +94,8 @@ function App() {
                 <Route path="/hiragana-word-training" element={<HiraganaWordTrainer />} />
                 <Route path="/deck-manager" element={<DeckManager />} />
                 <Route path="/ws-sleeve-inserts" element={<WSSleeveInserts />} />
+                <Route path="/ws-proxy-printer" element={<WSProxyPrinter />} />
+                <Route path="/projects" element={<Projects />} />
                 <Route path="*" element={<Home />} />
             </Routes>
         </Content>

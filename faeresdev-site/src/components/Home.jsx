@@ -8,8 +8,12 @@ const sections = [
             {
                 title: "Sleeve Inserts",
                 href: "/ws-sleeve-inserts",
-                description: "Generate printable translation inserts from an encoredecks or decklog deck URL. Sized to cover the Weiss Schwarz card text frame (63mm × 30mm), one insert per card copy.",
-            },
+                description: "A tool to generate printable card insert translations from encoredeck link.",
+            },            {
+                title: "Proxies",
+                href: "/ws-proxy-printer",
+                description: "Generate PDF files from uploaded cards or an encoredeck link.",
+            }
         ],
     },
     {
@@ -18,7 +22,12 @@ const sections = [
             {
                 title: "Pokemon Generator",
                 href: "/pokemon-generator",
-                description: "A Pokemon sheet generator, adapted to the current role play game. Data is incomplete, being curated now.",
+                description: "A Pokemon sheet generator, adapted to the current role play game. Data is incomplete, being curated now. Pokemon sheets can be saved on the server or downloaded",
+            },
+            {
+                title: "Pokemon Encounter Generator",
+                href: "/pokemon-encounter-generator",
+                description: "Create encounter zones with common, uncommon, rare, and super rare sections, then load or save them as JSON files. Give the game master the possibility to roll for encounter pokemon species, and count.",
             },
             {
                 title: "Pokemon Dice Rolls",
@@ -31,10 +40,11 @@ const sections = [
                 description: "A pokemon team card generator, to manage teams or npcs. Only used for visualization, not holding any data.",
             },
             {
-                title: "Pokemon Encounter Generator",
-                href: "/pokemon-encounter-generator",
-                description: "Create encounter zones with common, uncommon, rare, and super rare sections, then load or save them as JSON files. Give the game master the possibility to roll for encounter pokemon species, and count.",
+                title: "Pokemon Team Manager",
+                href: "/pokemon-team-manager",
+                description: "Create themed team, using pokemons sheets saved on the server ! Able to export the team card too.",
             },
+
         ],
     },
     {
@@ -63,12 +73,12 @@ const sections = [
             {
                 title: "Katakana Word Trainer",
                 href: "/katakana-word-training",
-                description: "Practice loanwords in katakana. See a katakana word and type the translation, or see a word and type it in katakana. Uses custom decks from the server.",
+                description: "Practice words in katakana. See a katakana word and type the translation, or see a word and type it in katakana. Uses custom decks from the server.",
             },
             {
                 title: "Hiragana Word Trainer",
                 href: "/hiragana-word-training",
-                description: "Practice loanwords in hiragana. See a hiragana word and type the romaji, or see a romaji word and type it in katakana. Uses custom decks from the server.",
+                description: "Practice words in hiragana. See a hiragana word and type the romaji, or see a romaji word and type it in katakana. Uses custom decks from the server.",
             },
         ],
     },
@@ -95,6 +105,8 @@ function Home() {
                             - Share tools for the Pokemon RPG I'm in
                             <br/>
                             - Share tools I use to learn Japanese
+                            <br/>
+                            - Share tools for Weiss Schwarz TCG
                             <br/>
                             - (Coming) Host images, descriptions and videos of my studies and personal project
                         </p></th>

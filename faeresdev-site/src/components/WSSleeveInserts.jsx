@@ -107,8 +107,8 @@ export default function WSSleeveInserts() {
             <div className="ws-controls no-print">
                 <h1 className="ws-title">WS Sleeve Inserts</h1>
                 <p className="ws-hint">
-                    Paste a deck URL from <strong>encoredecks.com</strong> or <strong>decklog.bushiroad.com</strong> to generate
-                    printable translation inserts sized for the Weiss Schwarz card text frame.
+                    Paste a deck URL from <strong>encoredecks.com</strong> to generate
+                    printable translation inserts.
                 </p>
                 <div className="ws-input-row">
                     <Input

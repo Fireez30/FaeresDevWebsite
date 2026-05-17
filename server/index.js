@@ -606,5 +606,128 @@ app.get('/api/ws-deck', async (req, res) => {
     }
 });
 
+// ─── WS Proxy Deck (card images for proxy printing) ──────────────────────────
+
+
+app.get('/api/ws-proxy-deck', async (req, res) => {
+    const { url } = req.query;
+    if (!url || typeof url !== 'string') return res.status(400).json({ error: 'url parameter required' });
+
+    let parsed;
+    try { parsed = new URL(url); } catch {
+        return res.status(400).json({ error: 'Invalid URL' });
+    }
+    if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:')
+        return res.status(400).json({ error: 'URL must be http(s)' });
+
+    const source = detectWsSource(parsed);
+    if (!source) return res.status(400).json({ error: 'URL must be from encoredecks.com or decklog.bushiroad.com' });
+
+    const deckId = extractWsDeckId(parsed, source);
+    if (!deckId) return res.status(400).json({ error: 'Could not extract deck ID from URL' });
+
+    const headers = { 'Accept': 'application/json', 'User-Agent': 'Mozilla/5.0' };
+
+    try {
+        let cards = [];
+        let deckName = deckId;
+
+        if (source === 'encoredecks') {
+            const r = await fetchWithTimeout(`https://www.encoredecks.com/api/deck/${deckId}`, { headers }, 8000);
+            if (!r.ok) return res.status(502).json({ error: `encoredecks returned HTTP ${r.status}` });
+            const data = await r.json();
+            deckName = data.name ?? data.title ?? deckId;
+            const rawCards = data.cards ?? data.card_list ?? [];
+
+            const byCode = new Map();
+            for (const entry of rawCards) {
+                const code = entry.cardcode ?? entry.sid ?? '';
+                if (byCode.has(code)) byCode.get(code).count++;
+                else byCode.set(code, { entry, count: 1 });
+            }
+
+            cards = [...byCode.values()].map(({ entry, count }) => {
+                const { loc } = pickLocale(entry);
+                const name = loc?.name ?? entry.name ?? (entry.cardcode ?? '');
+                const serial = entry.cardcode ?? entry.sid ?? '';
+                const imgPath = entry.imagepath ?? null;
+                const imageUrl = imgPath
+                    ? (imgPath.startsWith('http') ? imgPath : `https://www.encoredecks.com/images/${imgPath.replace(/^\//, '')}`)
+                    : null;
+                const isClimax = (entry.type ?? entry.cardtype ?? '').toUpperCase() === 'CX';
+                return { serial, name, quantity: count, imageUrl, isClimax };
+            });
+        }
+
+        if (source === 'decklog') {
+            const r = await fetchWithTimeout(`https://decklog.bushiroad.com/system/app/api/view/${deckId}`, { headers }, 8000);
+            if (!r.ok) return res.status(502).json({ error: `decklog returned HTTP ${r.status}` });
+            const data = await r.json();
+            deckName = data.title ?? data.name ?? deckId;
+            const rawCards = data.card_list ?? data.cards ?? [];
+
+            cards = rawCards.map(entry => {
+                const serial = entry.card_number ?? entry.cardNumber ?? '';
+                const name = entry.name ?? serial;
+                const quantity = entry.cnt ?? entry.count ?? 1;
+
+                const imgField = entry.img_url ?? entry.imgUrl ?? entry.image ?? entry.img ?? null;
+                let imageUrl = null;
+                if (imgField) {
+                    imageUrl = imgField.startsWith('http')
+                        ? imgField
+                        : `https://ws-tcg.com${imgField}`;
+                }
+
+                return { serial, name, quantity, imageUrl };
+            });
+        }
+
+        return res.json({ deckName, cards });
+    } catch (err) {
+        return res.status(500).json({ error: `Proxy error: ${err.message}` });
+    }
+});
+
+// ─── WS Card Image Proxy ──────────────────────────────────────────────────────
+
+const WS_IMAGE_ALLOWED_HOSTS = new Set([
+    'www.encoredecks.com', 'encoredecks.com',
+    'ws-tcg.com', 'www.ws-tcg.com',
+    'decklog.bushiroad.com', 'bushiroad.com', 'www.bushiroad.com',
+    's3.amazonaws.com',
+]);
+
+app.get('/api/ws-image', async (req, res) => {
+    const { url } = req.query;
+    if (!url || typeof url !== 'string') return res.status(400).json({ error: 'url required' });
+
+    let parsed;
+    try { parsed = new URL(url); } catch {
+        return res.status(400).json({ error: 'Invalid URL' });
+    }
+    if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:')
+        return res.status(400).json({ error: 'URL must be http(s)' });
+    if (!WS_IMAGE_ALLOWED_HOSTS.has(parsed.hostname))
+        return res.status(403).json({ error: 'Image host not allowed' });
+
+    try {
+        const r = await fetchWithTimeout(url, { headers: { 'User-Agent': 'Mozilla/5.0' } }, 10000);
+        const contentType = r.headers.get('content-type') ?? '';
+
+        if (!r.ok) return res.status(r.status).json({ error: `Upstream returned ${r.status}` });
+
+        if (!contentType.startsWith('image/'))
+            return res.status(400).json({ error: 'Not an image', url, contentType });
+
+        res.setHeader('Content-Type', contentType);
+        res.setHeader('Cache-Control', 'public, max-age=86400');
+        const buf = await r.arrayBuffer();
+        res.send(Buffer.from(buf));
+    } catch (err) {
+        return res.status(500).json({ error: `Image proxy error: ${err.message}` });
+    }
+});
+
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`Deck server listening on port ${PORT}`));

@@ -16,6 +16,7 @@ import {
     setLevel, setLoweredStat, setPointsByStat, setPokemonChosenMoves,
     setRarity, resetCard, loadCard
 } from "../features/pokemon/pokemonSlice.jsx";
+import { fetchPokemon,fetchMoves, fetchAbilities} from "../api/pokemonApi.js";
 import { listCards, getCard, createCard, updateCard, deleteCard } from "../api/pokemonCardsApi.js";
 import { listTeams, getTeam, updateTeam } from "../api/teamsApi.js";
 import {DropdownButton} from "react-bootstrap";
