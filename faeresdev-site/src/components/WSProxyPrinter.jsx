@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useRef } from 'react';
-import { Button, Input, Spin, Alert, Tabs, InputNumber, Checkbox } from 'antd';
+import { Button, Input, Spin, Alert, Tabs, InputNumber } from 'antd';
 import { fetchWsProxyDeck } from '../api/wsApi.js';
 import './WSProxyPrinter.css';
 
@@ -45,7 +45,6 @@ export default function WSProxyPrinter() {
                     imageUrl: ev.target.result,
                     name: file.name.replace(/\.[^.]+$/, ''),
                     quantity: 1,
-                    isClimax: false,
                 }]);
             };
             reader.readAsDataURL(file);
@@ -55,10 +54,6 @@ export default function WSProxyPrinter() {
 
     function updateQty(id, quantity) {
         setManualCards(prev => prev.map(c => c.id === id ? { ...c, quantity: quantity ?? 1 } : c));
-    }
-
-    function toggleClimax(id) {
-        setManualCards(prev => prev.map(c => c.id === id ? { ...c, isClimax: !c.isClimax } : c));
     }
 
     function removeCard(id) {
@@ -196,12 +191,6 @@ export default function WSProxyPrinter() {
                                     <div className="proxy-manual-row" key={card.id}>
                                         <img className="proxy-thumb" src={card.imageUrl} alt={card.name} />
                                         <span className="proxy-manual-name">{card.name}</span>
-                                        <Checkbox
-                                            checked={card.isClimax}
-                                            onChange={() => toggleClimax(card.id)}
-                                        >
-                                            Climax
-                                        </Checkbox>
                                         <div className="proxy-qty-row">
                                             <span>Count :</span>
                                             <InputNumber
