@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 import { randomUUID } from 'crypto';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const DB_CARDS_DIR = path.join(__dirname, 'DB_cards');
 const DECKS_DIR = path.join(__dirname, 'decks');
 const ZONES_DIR = path.join(__dirname, 'zones');
 const POKEMON_CARDS_DIR = path.join(__dirname, 'pokemon_cards');
@@ -694,9 +695,23 @@ app.get('/api/ws-proxy-deck', async (req, res) => {
 const WS_IMAGE_ALLOWED_HOSTS = new Set([
     'www.encoredecks.com', 'encoredecks.com',
     'ws-tcg.com', 'www.ws-tcg.com',
+    'en.ws-tcg.com',
     'decklog.bushiroad.com', 'bushiroad.com', 'www.bushiroad.com',
     's3.amazonaws.com',
 ]);
+
+async function proxyImage(url, res) {
+
+    const r = await fetchWithTimeout(url, { headers: { 'User-Agent': 'Mozilla/5.0' } }, 10000);
+    const contentType = r.headers.get('content-type') ?? '';
+    if (!r.ok || !contentType.startsWith('image/')) return false;
+    res.setHeader('Content-Type', contentType);
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    const buf = await r.arrayBuffer();
+    res.send(Buffer.from(buf));
+
+    return true;
+}
 
 app.get('/api/ws-image', async (req, res) => {
     const { url } = req.query;
@@ -724,6 +739,67 @@ app.get('/api/ws-image', async (req, res) => {
         res.setHeader('Cache-Control', 'public, max-age=86400');
         const buf = await r.arrayBuffer();
         res.send(Buffer.from(buf));
+    } catch (err) {
+        return res.status(500).json({ error: `Image proxy error: ${err.message}` });
+    }
+});
+
+// ─── WS Card DB (local JSON files, serial → image URL) ───────────────────────
+
+const wsCardDb = new Map();
+try {
+    const files = fs.readdirSync(DB_CARDS_DIR).filter(f => f.endsWith('.json'));
+    for (const file of files) {
+        const cards = JSON.parse(fs.readFileSync(path.join(DB_CARDS_DIR, file), 'utf-8'));
+        for (const card of cards) {
+            if (card.code && card.image) wsCardDb.set(card.code, card.image);
+        }
+    }
+    console.log(`[ws-db] Loaded ${wsCardDb.size} cards from ${files.length} sets`);
+} catch (err) {
+    console.warn(`[ws-db] Failed to load DB_cards: ${err.message}`);
+}
+
+// ─── WS Best-Quality Image Proxy ─────────────────────────────────────────────
+// Looks up the card in the local DB first, falls back to the EncoreDecks/DeckLog
+// URL provided as ?fallback= parameter.
+
+app.get('/api/ws-image-best', async (req, res) => {
+    const { serial, fallback } = req.query;
+    if (!serial && !fallback) return res.status(400).json({ error: 'serial or fallback required' });
+
+    const dbUrl = serial ? (wsCardDb.get(serial) ?? null) : null;
+
+    // 1. Local DB lookup
+    if (dbUrl) {
+        try {
+            const ok = await proxyImage(dbUrl, res);
+            if (ok) {
+                console.log(`[ws-image] ${serial} | DB: ${dbUrl} | USED: ${dbUrl}`);
+                return;
+            }
+        } catch { /* fall through */ }
+    }
+
+    // 2. Fallback to the caller-supplied URL (EncoreDecks / DeckLog)
+    if (!fallback) return res.status(404).json({ error: 'Image not found' });
+
+    let parsedFallback;
+    try { parsedFallback = new URL(fallback); } catch {
+        return res.status(400).json({ error: 'Invalid fallback URL' });
+    }
+    if (parsedFallback.protocol !== 'https:' && parsedFallback.protocol !== 'http:')
+        return res.status(400).json({ error: 'Fallback URL must be http(s)' });
+    if (!WS_IMAGE_ALLOWED_HOSTS.has(parsedFallback.hostname))
+        return res.status(403).json({ error: 'Fallback image host not allowed' });
+
+    try {
+        const ok = await proxyImage(fallback, res);
+        if (ok) {
+            console.log(`[ws-image] ${serial ?? '(no serial)'} | DB: ${dbUrl ?? 'none'} | USED: ${fallback}`);
+        } else {
+            return res.status(502).json({ error: 'Fallback image unavailable' });
+        }
     } catch (err) {
         return res.status(500).json({ error: `Image proxy error: ${err.message}` });
     }

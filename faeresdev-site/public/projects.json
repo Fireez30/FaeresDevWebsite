@@ -1,0 +1,145 @@
+{
+  "categories": [
+    {
+      "name": "School projects",
+      "projects": [
+        {
+          "name": "Warbot / Metabot",
+          "description": "Metabot (prev. Warbot) is a RTS inspired multiplayer game made with Unity, where users create a team of agents (tanks, scout...). The agents behaviour can be written in a behaviour tree, inside the project interface, and than you can battle against another player team. Those agents are automated, following behaviour inspired by agent oriented programming.",
+          "sources": null,
+          "image": "images/metabot.png",
+          "video": "https://www.youtube.com/watch?v=otPIYzxYfC0"
+        },
+        {
+          "name": "Mosaic",
+          "description": "A simple CPP project made during my Master, using color profiles and histograms to generate a mosaic of an image, using the average, than an histogram distance (Chi²) of a database.",
+          "sources": "https://github.com/Fireez30/TP8Images",
+          "image": "images/mosaic.pgm",
+          "video": null
+        },
+        {
+          "name": "Exoplanets Odyssey",
+          "description": "A 2D game inspired by games like Starbound or Terraria, made with Unity. User can switch from star to star, and explore the multiple planets on each. This game had a serious game side, learning about Astronomy.",
+          "sources": "https://github.com/Fireez30/ExoplanetsOdyssey",
+          "image": "images/exoplanets.png",
+          "video": "https://www.youtube.com/watch?v=8qWa-pkhGP0"
+        },
+        {
+          "name": "C++ and QT 2D game",
+          "description": "Roguelike based on lighting and shaders made with OpenGL.",
+          "sources": "https://github.com/Fireez30/MoteurJeu",
+          "image": "images/moteur_jeu.png",
+          "video": null
+        },
+        {
+          "name": "Les Couleurs",
+          "description": "Virtual Reality platformer using Unity Engine. Game was made as a project for VR courses. Despite being an original idea, climbing the tower, especially speedrunning, could lead to arm pains.",
+          "sources": "https://github.com/Fireez30/ARVRGame",
+          "image": "images/couleurs.png",
+          "video": "images/couleurs_trailer.mp4"
+        },
+        {
+          "name": "Agent oriented programming project",
+          "description": "Panic in crowds using NetLogo. Setup walls, fire and agents behaviour, and study their behaviours. Can work with or without A* movement algorithm.",
+          "sources": "https://github.com/Fireez30/SocieteVirtuelleDebug",
+          "image": null,
+          "video": null
+        }
+      ]
+    },
+    {
+      "name": "Personal projects",
+      "projects": [
+        {
+          "name": "This website",
+          "description": "This website was created using ReactJS (vitejs), and nodejs afterwards for the backend. Components are mainly taken from antd, or javascript. AI Coding tools have been used for some parts (Codex and Code claude), in order to test such tools and determine how useful they may be. Colors are inspired by the cedar red, such a color meaning prosperity and happiness in the culture. The website was created to host tools for my studies of Japanese, share tools for my Pokemon role playing game, host tools for the Weiss Schwarz trading card game, and host this project webpage.",
+          "sources": null,
+          "image": null,
+          "video": null
+        },
+        {
+          "name": "Dropped: Port of the 2D roguelike on Unity",
+          "description": null,
+          "sources": null,
+          "image": "images/Unity_2021.svg",
+          "video": null
+        },
+        {
+          "name": "Self taught PyTorch",
+          "description": "Self taught usage of pytorch for small image analysis problems using jupyter notebooks. It covers: the fundamentals of PyTorch, workflows, basis of computer vision, dataset building, going modular, classifications, ...",
+          "sources": null,
+          "image": null,
+          "video": null
+        },
+        {
+          "name": "Pokemon RPG Database Generator",
+          "description": "Set of python tools to create a database of PTU Pokemon RPG moves, abilities and pokemons from various sources. The database is used for generating PDF sheets, or fill the website database.",
+          "sources": "https://github.com/Fireez30/PokemonRPG_Database_generator",
+          "image": null,
+          "video": null
+        },
+        {
+          "name": "Pokemon Sheet Generator",
+          "description": "Generator of pokemon sheets for the PTU RPG, using QT and C++. This tool was made to be a training project for C++ and QT. Development was stopped because the RPG player didn't want to use a desktop application.",
+          "sources": "https://github.com/Fireez30/Pokemon-Sheet-C-",
+          "image": null,
+          "video": null
+        },
+        {
+          "name": "Dropped: Expedition 33 Hytale mod",
+          "description": "Development of an Expedition 33 themed mod for Hytale game in Java.",
+          "sources": null,
+          "image": null,
+          "video": null
+        },
+        {
+          "name": "Genshin Tools",
+          "description": "Development of a C++ command line tool to manage my Genshin Impact character and resources. Dropped because I don't play the game anymore.",
+          "sources": "https://github.com/Fireez30/GenshinTools",
+          "image": null,
+          "video": null
+        },
+        {
+          "name": "Dropped: Weiss Schwarz Unity Deck Importer",
+          "description": "Deck importer and manager for Weiss Schwarz simulation tool using Unity game engine. This tool has been dropped earlier for a more complex C++ version, that allowed me to train C++ and QT. Dropped because the simulator stopped Linux support.",
+          "sources": "https://github.com/Fireez30/EncoreDeckToSimuUnity",
+          "image": null,
+          "video": null
+        },
+        {
+          "name": "Dropped: C++ and QT Weiss Schwarz Tools",
+          "description": "C++ and QT tool to manage decks and import in the simulator. Dropped because the simulator stopped Linux support.",
+          "sources": "https://github.com/Fireez30/WeissTools",
+          "image": null,
+          "video": null
+        },
+        {
+          "name": "Dropped: Rust Weiss Schwarz Tools",
+          "description": "Rewrite in Rust of the deck manager and importer. This is late on the C++ and QT version, because I was catching up to learn Rust, before I was forced to drop. Dropped because the simulator stopped Linux support.",
+          "sources": "https://github.com/Fireez30/RustWeissSimulatorTools",
+          "image": null,
+          "video": null
+        }
+      ]
+    },
+    {
+      "name": "Game Jam",
+      "projects": [
+        {
+          "name": "Global Game Jam 2019",
+          "description": "2D Unity arcade game of potions creation using Midi gloves controller.",
+          "sources": "https://github.com/Fireez30/GGJ2019",
+          "image": "images/ggjam.png",
+          "video": "https://www.youtube.com/watch?v=gTx91SeSfOU"
+        },
+        {
+          "name": "XMas Jam 2018",
+          "description": "\"Le pere Laboule\" Christmas delivery arcade game in Unity, made during a couple of hours jam.",
+          "sources": "https://github.com/Fireez30/xmasjam18",
+          "image": "images/xmasjam.png",
+          "video": "https://www.youtube.com/watch?v=DT9Uzma3Dns"
+        }
+      ]
+    }
+  ]
+}

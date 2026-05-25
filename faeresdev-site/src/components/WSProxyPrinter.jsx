@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useRef } from 'react';
-import { Button, Input, Spin, Alert, Tabs, InputNumber } from 'antd';
+import { Button, Input, Spin, Alert, Tabs, InputNumber, Slider } from 'antd';
 import { fetchWsProxyDeck } from '../api/wsApi.js';
 import './WSProxyPrinter.css';
 
@@ -15,6 +15,9 @@ export default function WSProxyPrinter() {
 
     // Manual mode
     const [manualCards, setManualCards] = useState([]);
+
+    // Layout
+    const [cardGap, setCardGap] = useState(30);
     const fileInputRef = useRef(null);
 
     async function handleFetch() {
@@ -83,9 +86,12 @@ export default function WSProxyPrinter() {
     }, [proxies]);
 
     function cardImgSrc(card) {
-        if (!card.imageUrl) return null;
-        if (card.imageUrl.startsWith('data:')) return card.imageUrl;
-        return `/api/ws-image?url=${encodeURIComponent(card.imageUrl)}`;
+        if (!card.imageUrl && !card.serial) return null;
+        if (card.imageUrl?.startsWith('data:')) return card.imageUrl;
+        const params = new URLSearchParams();
+        if (card.serial) params.set('serial', card.serial);
+        if (card.imageUrl) params.set('fallback', card.imageUrl);
+        return `/api/ws-image-best?${params}`;
     }
 
     const tabItems = [
@@ -235,11 +241,22 @@ export default function WSProxyPrinter() {
                         <span className="proxy-count-label">
                             {pages.length} page{pages.length > 1 ? 's' : ''} · 9 proxies / page
                         </span>
+                        <div className="proxy-gap-control">
+                            <span className="proxy-gap-label">Écart : {cardGap}px</span>
+                            <Slider
+                                min={1}
+                                max={50}
+                                value={cardGap}
+                                onChange={setCardGap}
+                                style={{ width: 140 }}
+                                tooltip={{ formatter: v => `${v}px` }}
+                            />
+                        </div>
                     </div>
                 )}
             </div>
             {pages.map((page, pi) => (
-                <div className="proxy-sheet" key={pi}>
+                <div className="proxy-sheet" key={pi} style={{ gap: `${cardGap}px` }}>
                     {page.map(card => (
                         <div className="proxy-card" key={card._key}>
                             {cardImgSrc(card) ? (

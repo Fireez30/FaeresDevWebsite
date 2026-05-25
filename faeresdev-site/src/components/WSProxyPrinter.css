@@ -201,6 +201,21 @@
     border-top: 1px solid var(--surface-border);
 }
 
+/* ── Gap control ──────────────────────────────────────────────────── */
+
+.proxy-gap-control {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-left: auto;
+}
+
+.proxy-gap-label {
+    font-size: 0.85rem;
+    color: var(--text-soft);
+    white-space: nowrap;
+}
+
 /* ── Proxy sheet (screen preview) ────────────────────────────────── */
 
 .proxy-sheet {
