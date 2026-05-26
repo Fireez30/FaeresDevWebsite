@@ -12,9 +12,9 @@ export const pokemonSlice = createSlice({
         pokemon_nature : "",
         pokemon_final_buffed_stat : "",
         pokemon_final_lowered_stat : "",
-        pokemon_base_ability : "",
-        pokemon_advanced_ability : "",
-        pokemon_high_ability : "",
+        pokemon_base_ability : [],
+        pokemon_advanced_ability : [],
+        pokemon_high_ability : [],
         pokemon_points_by_stats : {"HP":0,"ATK":0,"DEF":0,"SPATK":0,"SPDEF":0,"SPD":0},
         pokemon_bonus_points_by_stats : {"HP":0,"ATK":0,"DEF":0,"SPATK":0,"SPDEF":0,"SPD":0},
         pokemon_bonus_points_to_nature_stat : 0,
@@ -37,9 +37,9 @@ export const pokemonSlice = createSlice({
                 state.pokemon_nature = "";
                 state.pokemon_final_buffed_stat = "";
                 state.pokemon_final_lowered_stat = "";
-                state.pokemon_base_ability = "";
-                state.pokemon_advanced_ability = "";
-                state.pokemon_high_ability = "";
+                state.pokemon_base_ability = [];
+                state.pokemon_advanced_ability = [];
+                state.pokemon_high_ability = [];
                 state.pokemon_points_by_stats = {"HP":0,"ATK":0,"DEF":0,"SPATK":0,"SPDEF":0,"SPD":0};
                 state.pokemon_bonus_points_to_nature_stat = 0;
                 state.pokemon_chosen_moves = [];
@@ -55,10 +55,10 @@ export const pokemonSlice = createSlice({
         setLevel: (state, action) => {
             state.pokemon_level = action.payload.pokemon_level
             if (state.pokemon_level < 40 && state.pokemon_high_ability !== ""){
-                state.pokemon_high_ability = ""
+                state.pokemon_high_ability = []
             }
             if (state.pokemon_level < 20 && state.pokemon_advanced_ability !== ""){
-                state.pokemon_advanced_ability = ""
+                state.pokemon_advanced_ability = []
             }
         },
         setRarity: (state, action) => {
@@ -155,9 +155,9 @@ export const pokemonSlice = createSlice({
             state.pokemon_nature = "";
             state.pokemon_final_buffed_stat = "";
             state.pokemon_final_lowered_stat = "";
-            state.pokemon_base_ability = "";
-            state.pokemon_advanced_ability = "";
-            state.pokemon_high_ability = "";
+            state.pokemon_base_ability = [];
+            state.pokemon_advanced_ability = [];
+            state.pokemon_high_ability = [];
             state.pokemon_points_by_stats = {"HP":0,"ATK":0,"DEF":0,"SPATK":0,"SPDEF":0,"SPD":0};
             state.pokemon_bonus_points_by_stats = {"HP":0,"ATK":0,"DEF":0,"SPATK":0,"SPDEF":0,"SPD":0};
             state.pokemon_bonus_points_to_nature_stat = 0;
@@ -177,9 +177,9 @@ export const pokemonSlice = createSlice({
             state.pokemon_nature = s.pokemon_nature ?? "";
             state.pokemon_final_buffed_stat = s.pokemon_final_buffed_stat ?? "";
             state.pokemon_final_lowered_stat = s.pokemon_final_lowered_stat ?? "";
-            state.pokemon_base_ability = s.pokemon_base_ability ?? "";
-            state.pokemon_advanced_ability = s.pokemon_advanced_ability ?? "";
-            state.pokemon_high_ability = s.pokemon_high_ability ?? "";
+            state.pokemon_base_ability = s.pokemon_base_ability ?? [];
+            state.pokemon_advanced_ability = s.pokemon_advanced_ability ?? [];
+            state.pokemon_high_ability = s.pokemon_high_ability ?? [];
             state.pokemon_points_by_stats = s.pokemon_points_by_stats ?? {"HP":0,"ATK":0,"DEF":0,"SPATK":0,"SPDEF":0,"SPD":0};
             state.pokemon_chosen_moves = s.pokemon_chosen_moves ?? [];
             state.pokemon_chosen_egg_moves = s.pokemon_chosen_egg_moves ?? [];
